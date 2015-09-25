@@ -14,31 +14,41 @@ Emscripten port of ARToolKit to JavaScript
 1. Install Emscripten (w/ node.js + python)
 2. Configure parameters in makem.js
 3. Run `node tools/makem.js`
+	(make sure EMSCRIPTEN env variable is set eg. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem)
 
 
-## ARToolKit JS API
+# ARToolKit JS API
 `<script src="common.js></script>` - include loading script and JS API
 
 ## Public
 *the calls your JS apps needs*
-`artoolkit.init(path)` - load path for artoolkit emscripten files
-`artoolkit.onReady(callback)` - runs callback when artoolkit has completely downloaded, initalized and ready to run
-`artoolkit.setup(width, height);` - initalize a buffer size for a canvas of width & height
-`artoolkit.process(canvas);` - extracts a frame from a canvas and process it
-`artoolkit.debugSetup()` - enables debugging, adds a threshold image to the dom
-`artoolkit.getCameraMatrix()` -
-`artoolkit.getTransformationMatrix()` -
+- `artoolkit.init(path)` - load path for artoolkit emscripten files
+- `artoolkit.onReady(callback)` - runs callback when artoolkit has completely downloaded, initalized and ready to run
+- `artoolkit.setup(width, height);` - initalize a buffer size for a canvas of width & height
+- `artoolkit.process(canvas);` - extracts a frame from a canvas and process it
+- `artoolkit.debugSetup()` - enables debugging, adds a threshold image to the dom
+- `artoolkit.getCameraMatrix()` -
+- `artoolkit.getTransformationMatrix()` -
 
 ## Internals
+
 *calls called from emscripten runtime -> artoolkit.js*
-`artoolkit.onFrameMalloc(object)` - gets called when frame buffer gets allocated for canvas
-`artoolkit.onMarkerNum(number)` - gets called with the numbers of markers detected
-`artoolkit.onGetMarker(object, index)` - gets called with the marker struct for the positioned marker
+- `artoolkit.onFrameMalloc(object)` - gets called when frame buffer gets allocated for canvas
+- `artoolkit.onMarkerNum(number)` - gets called with the numbers of markers detected
+- `artoolkit.onGetMarker(object, index)` - gets called with the marker struct for the positioned marker
 
 *calls available from js -> emscripten*
-`_setup(width, height)`
-`_setThreshold()`
-`_process()`
+- `_setup(width, height)`
+- `_setThreshold(int)` - 0 to 255
+- `_process()`
+- `_setDebugMode(boolean)`
+- `_startSetupMarker()`
+- `setThreshold`
+- `setLabelingMode`
+- `setPatternDetectionMode`
+- `setMatrixCodeType()` : Eg. Module.setMatrixCodeType(Module.AR_MATRIX_CODE_3x3);
+- `setImageProcMode`
+
 
 ## Constants
 *prepend all these constants with `Module.` to access them*
