@@ -27,6 +27,7 @@ Emscripten port of ARToolKit to JavaScript
 - `artoolkit.setup(width, height);` - initalize a buffer size for a canvas of width & height
 - `artoolkit.process(canvas);` - extracts a frame from a canvas and process it
 - `artoolkit.debugSetup()` - enables debugging, adds a threshold image to the dom
+- `artoolkit.getDetectedMarkers()` - returns an array of detected markers from last detection process
 - `artoolkit.getCameraMatrix()` -
 - `artoolkit.getTransformationMatrix()` -
 
@@ -44,14 +45,33 @@ Emscripten port of ARToolKit to JavaScript
 - `_setDebugMode(boolean)`
 - `_startSetupMarker()`
 - `setThreshold`
+- `setThresholdMode()` eg. `Module.setThresholdMode(Module.AR_LABELING_THRESH_MODE_AUTO_MEDIAN / AR_LABELING_THRESH_MODE_AUTO_OTSU );
 - `setLabelingMode`
 - `setPatternDetectionMode`
 - `setMatrixCodeType()` : Eg. Module.setMatrixCodeType(Module.AR_MATRIX_CODE_3x3);
 - `setImageProcMode`
+- `setPattRatio`
 
+## Examples
+```
+artoolkit.init('').onReady(function() {
+  artoolkit.setProjectionNearPlane(1);
+  artoolkit.setProjectionFarPlane(1000);
+  artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
+  artoolkit.setMatrixCodeType(artoolkit.CONSTANTS.AR_MATRIX_CODE_4x4);
+})
+
+artoolkit.init('').onReady(function() {
+  artoolkit.ajaxDependencies([['../bin/Data/patt.hiro', '/patt.hiro']], function() {
+    artoolkit.startSetupMarker('patt.hiro');
+  })
+
+  artoolkit.process(v);
+})
+```
 
 ## Constants
-*prepend all these constants with `Module.` to access them*
+*prepend all these constants with `Module.` or `artoolkit.CONSTANTS` to access them*
 ```
 - AR_DEBUG_DISABLE
 - AR_DEBUG_ENABLE
