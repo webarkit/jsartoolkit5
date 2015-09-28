@@ -43,7 +43,7 @@ Emscripten port of ARToolKit to JavaScript
 - `_setThreshold(int)` - 0 to 255
 - `_process()`
 - `_setDebugMode(boolean)`
-- `_startSetupMarker()`
+- `_addMarker(string)`
 - `setThreshold`
 - `setThresholdMode()` eg. `Module.setThresholdMode(Module.AR_LABELING_THRESH_MODE_AUTO_MEDIAN / AR_LABELING_THRESH_MODE_AUTO_OTSU );
 - `setLabelingMode`
@@ -62,11 +62,9 @@ artoolkit.init('', 'camera_para.dat').onReady(function() {
 })
 
 artoolkit.init('', 'camera_para.dat').onReady(function() {
-  artoolkit.ajaxDependencies([['../bin/Data/patt.hiro', '/patt.hiro']], function() {
-    artoolkit.startSetupMarker('patt.hiro');
+  artoolkit.addMarker('../bin/Data/patt.hiro', function(marker) {
+    artoolkit.process(v);
   })
-
-  artoolkit.process(v);
 })
 ```
 
