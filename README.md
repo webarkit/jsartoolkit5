@@ -14,7 +14,7 @@ Emscripten port of ARToolKit to JavaScript
 1. Install Emscripten (w/ node.js + python)
 2. Configure parameters in makem.js
 3. Run `node tools/makem.js`
-	(make sure EMSCRIPTEN env variable is set eg. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem)
+	(Make sure EMSCRIPTEN env variable is set. E.g. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem)
 
 
 # ARToolKit JS API
@@ -22,7 +22,7 @@ Emscripten port of ARToolKit to JavaScript
 
 ## Public
 *the calls your JS apps needs*
-- `artoolkit.init(path)` - load path for artoolkit emscripten files
+- `artoolkit.init(path, camera_param_path)` - load path for artoolkit emscripten files
 - `artoolkit.onReady(callback)` - runs callback when artoolkit has completely downloaded, initalized and ready to run
 - `artoolkit.setup(width, height);` - initalize a buffer size for a canvas of width & height
 - `artoolkit.process(canvas);` - extracts a frame from a canvas and process it
@@ -54,14 +54,14 @@ Emscripten port of ARToolKit to JavaScript
 
 ## Examples
 ```
-artoolkit.init('').onReady(function() {
+artoolkit.init('', 'camera_para.dat').onReady(function() {
   artoolkit.setProjectionNearPlane(1);
   artoolkit.setProjectionFarPlane(1000);
   artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
   artoolkit.setMatrixCodeType(artoolkit.CONSTANTS.AR_MATRIX_CODE_4x4);
 })
 
-artoolkit.init('').onReady(function() {
+artoolkit.init('', 'camera_para.dat').onReady(function() {
   artoolkit.ajaxDependencies([['../bin/Data/patt.hiro', '/patt.hiro']], function() {
     artoolkit.startSetupMarker('patt.hiro');
   })
