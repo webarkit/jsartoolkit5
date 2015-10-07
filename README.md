@@ -12,7 +12,7 @@ Emscripten port of ARToolKit to JavaScript
 ## Build Instructions
 
 1. Install Emscripten (w/ node.js + python)
-2. Configure parameters in makem.js
+2. Configure parameters in tools/makem.js
 3. Run `node tools/makem.js`
 	(Make sure EMSCRIPTEN env variable is set. E.g. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem)
 
