@@ -1,13 +1,13 @@
 <html>
 <body>
 
-<img id="v1" src="tests/img.jpg"></img>
-<img id="v2" src="tests/chalk.jpg"></img>
-<img id="v3" src="tests/chalk_multi.jpg"></img>
-<img id="v4" src="tests/kuva.jpg"></img>
-<img id="v5" src="tests/armchair.jpg"></img>
+<img id="v1" src="Data/img.jpg"></img>
+<img id="v2" src="Data/chalk.jpg"></img>
+<img id="v3" src="Data/chalk_multi.jpg"></img>
+<img id="v4" src="Data/kuva.jpg"></img>
+<img id="v5" src="Data/armchair.jpg"></img>
 
-<script src="../builds/artoolkit.min.js"></script>
+<script src="../build/artoolkit.min.js"></script>
 <script>
 
 var cameraParam = new ARCameraParam();
@@ -37,7 +37,7 @@ cameraParam.onload = function() {
 	ar4.debugSetup();
 };
 
-cameraParam.src = '/bin/Data/camera_para.dat';
+cameraParam.src = 'Data/camera_para.dat';
 
 </script>
 

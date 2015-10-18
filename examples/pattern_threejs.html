@@ -6,7 +6,7 @@ canvas {
 }
 </style>
 
-<script src="artk_demos/js/third_party/three.js/three.min.js"></script>
+<script src="js/third_party/three.js/three.min.js"></script>
 
 <script src="../build/artoolkit.debug.js"></script>
 <script src="../js/artoolkit.api.js"></script>
@@ -17,15 +17,13 @@ canvas {
 
 ARController.getUserMediaThreeScene({
 	width: 320, height: 240,
-	cameraParam: '/bin/Data/camera_para.dat',
+	cameraParam: 'Data/camera_para.dat',
 
 	onError: function(error) {
 		console.log("Failed to start AR", error);
 	},
 
 	onSuccess: function(arScene, arController, arCamera) {
-	
-		arController.setPatternDetectionMode(artoolkit.CONSTANTS.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
 
 		var renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
@@ -41,24 +39,8 @@ ARController.getUserMediaThreeScene({
 		light.position.set(-40, -20, -30);
 		arScene.scene.add(light);
 
-		var redCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xff3333 }) );
-		redCube.position.z = 0.5;
-
-		// See /doc/patterns/Matrix code 3x3 (72dpi)/20.png
-		var markerRoot20 = arController.createThreeBarcodeMarker(20);
-		arScene.scene.add(markerRoot20);
-		markerRoot20.add(redCube);
-
-		var blueCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x3333ff }) );
-		blueCube.position.z = 0.5;
-
-		// See /doc/patterns/Matrix code 3x3 (72dpi)/5.png
-		var markerRoot5 = arController.createThreeBarcodeMarker(5);
-		arScene.scene.add(markerRoot5);
-		markerRoot5.add(blueCube);
-
 		// Load the marker to use.
-		arController.loadMarker('/bin/Data/patt.hiro', function(marker) {
+		arController.loadMarker('Data/patt.hiro', function(marker) {
 
 			console.log('hiro is', marker);
 
@@ -73,7 +55,7 @@ ARController.getUserMediaThreeScene({
 		});
 
 		// Load the marker to use.
-		arController.loadMarker('/bin/Data/patt.kanji', function(marker) {
+		arController.loadMarker('Data/patt.kanji', function(marker) {
 
 			console.log('kanji is', marker);
 

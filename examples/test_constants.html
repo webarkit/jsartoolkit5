@@ -1,10 +1,9 @@
 <html>
 <body>
-<script src="common.js"></script>
+<script src="../build/artoolkit.debug.js"></script>
+<script src="../js/artoolkit.api.js"></script>
 <script>
-artoolkit
-.init('../builds', '/bin/Data/camera_para.dat')
-.onReady(function() {
+(function() {
 	/*
 	 * This file tests for exported constants from Embind and WebIDL
 	 */
@@ -62,7 +61,7 @@ artoolkit
 	console.log("AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI", Module.AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI);
 	console.log("AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES", Module.AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES);
 
-});
+})();
 
 </script>
 

@@ -10,10 +10,10 @@ canvas {
 }
 </style>
 
-<script src="common.js"></script>
+<script src="../build/artoolkit.debug.js"></script>
+<script src="../js/artoolkit.api.js"></script>
 
 <script>
-artoolkit.init('../builds/', '/bin/Data/camera_para.dat');
 var video = document.createElement('video');
 
 document.body.appendChild(video);
@@ -40,27 +40,30 @@ if (navigator.getUserMedia) {
 }
 
 function errorCallback(e) {
-	console.log('cant acceess user media', e);
+	console.log("Can't access user media", e);
 }
 
 
 function success(stream) {
-	video.src = window.URL.createObjectURL(stream);
-	video.play();
-
 	console.log('success', stream);
 
-	artoolkit.onReady(function() {
-		artoolkit.setup(tw, th);
-		artoolkit.debugSetup();
+	var cameraParam = new ARCameraParam();
+	cameraParam.onload = function() {
 
-		interval = setInterval(getFrame, 250);
-	});
+		var video = document.getElementById('v');
+		video.src = window.URL.createObjectURL(stream);
+		video.onclick = function() { video.play(); };
+		video.play();
 
-}
+		var arController = new arController(video, cameraParam);
+		arController.debugSetup();
 
-function getFrame() {
-	artoolkit.process(video);
+		var interval = setInterval(function() {
+			arController.process();
+		}, 16);
+
+	};
+	cameraParam.src = 'Data/camera_para.dat';
 }
 </script>
 

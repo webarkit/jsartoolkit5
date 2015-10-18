@@ -6,14 +6,13 @@ canvas {
 }
 </style>
 
-<script src="../builds/artoolkit.js"></script>
-<script src="common.js"></script>
-<script src="artk_demos/js/third_party/three.js/three.min.js"></script>
-<script src="artk_demos/js/artoolkit.three.js"></script>
+<script src="../build/artoolkit.min.js"></script>
+<script src="js/third_party/three.js/three.min.js"></script>
+<script src="../js/artoolkit.three.js"></script>
 
 <script>
 
-ARController.getUserMediaThreeScene({width: 720, height: 480, cameraParam: '/bin/Data/camera_para.dat', onSuccess: function(arScene, arController, arCamera) {
+ARController.getUserMediaThreeScene({width: 720, height: 480, cameraParam: 'Data/camera_para.dat', onSuccess: function(arScene, arController, arCamera) {
 
 	arController.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
 

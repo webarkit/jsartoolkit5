@@ -13,20 +13,18 @@ html, body {
 </head>
 <body>
 
-<p>Tap here to start video.</p>
+<script src="js/third_party/three.js/three.min.js"></script>
 
-<script src="../builds/artoolkit.js"></script>
-<script src="common.js"></script>
-<script src="artk_demos/js/third_party/three.js/three.min.js"></script>
-<script src="artk_demos/js/artoolkit.three.js"></script>
+<script src="../build/artoolkit.debug.js"></script>
+<script src="../js/artoolkit.api.js"></script>
+<script src="../js/artoolkit.three.js"></script>
 
 <script>
 
 ARController.getUserMediaThreeScene({
 	width: 640,
 	height: 640,
-	cameraParam: '/bin/Data/camera_para.dat',
-	facing: 'environment',
+	cameraParam: 'Data/camera_para.dat',
 	onSuccess: function(arScene, arController, arCamera) {
 		var renderer = new THREE.WebGLRenderer({antialias: true});
 		var f = window.innerWidth / arScene.video.videoWidth; 
@@ -51,7 +49,7 @@ ARController.getUserMediaThreeScene({
 		};
 
 		// Load the marker to use.
-		arController.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(marker, markerNum) {
+		arController.loadMultiMarker('Data/multi/marker.dat', function(marker, markerNum) {
 
 			window.onclick = function() {
 				arScene.video.play();

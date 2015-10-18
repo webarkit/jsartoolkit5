@@ -1,0 +1,88 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<title>Multimarker tracking demo</title>
+<style>
+html, body {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+</style>
+</head>
+<body>
+
+<script src="js/third_party/three.js/three.min.js"></script>
+
+<script src="../build/artoolkit.debug.js"></script>
+<script src="../js/artoolkit.api.js"></script>
+<script src="../js/artoolkit.three.js"></script>
+
+<script>
+
+ARController.getUserMediaThreeScene({
+	width: 640,
+	height: 640,
+	cameraParam: 'Data/camera_para.dat',
+	onSuccess: function(arScene, arController, arCamera) {
+		var renderer = new THREE.WebGLRenderer({antialias: true});
+		var f = window.innerWidth / arScene.video.videoWidth; 
+		renderer.setSize(f * arScene.video.videoWidth, f * arScene.video.videoHeight);
+
+		document.body.appendChild(renderer.domElement);
+
+		// Create a couple of lights for our AR scene.
+		var light = new THREE.PointLight(0xffffff);
+		light.position.set(40, 40, 40);
+		arScene.scene.add(light);
+
+		var light = new THREE.PointLight(0xff8800);
+		light.position.set(-40, -20, -30);
+		arScene.scene.add(light);
+
+		var makeRedCube = function() {
+			var cube = new THREE.Mesh( new THREE.BoxGeometry(40,40,40), new THREE.MeshLambertMaterial({ color: 0xff3333 }) );
+			cube.matrixAutoUpdate = false;
+			cube.position.z = 20;
+			return cube;
+		};
+
+		// Load the marker to use.
+		arController.loadMultiMarker('Data/multi-barcode-4x3.dat', function(marker, markerNum) {
+
+			window.onclick = function() {
+				arScene.video.play();
+			};
+
+			console.log('multi is', marker);
+
+			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(100,100,100), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
+			greenCube.position.z = 50;
+
+			// Create an object that tracks the marker transform.
+			var markerRoot = arController.createThreeMultiMarker(marker);
+			arScene.scene.add(markerRoot);
+			markerRoot.add(greenCube);
+
+			for (var i=0; i<markerNum; i++) {
+				markerRoot.markers[i] = makeRedCube();
+				arScene.scene.add(markerRoot.markers[i]);
+			}
+
+			var tick = function() {
+				requestAnimationFrame(tick);
+				arScene.process();
+				arScene.renderOn(renderer);
+			};
+			tick();
+
+		});
+
+	}
+});
+
+</script>
+
+</body>
+</html>

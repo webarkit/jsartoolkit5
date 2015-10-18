@@ -21,9 +21,9 @@ p {
 
 <p>Tap to start video. <span id="videores"></span></p>
 
-<script async src="../builds/artoolkit.min.js"></script>
-<script async src="artk_demos/js/third_party/three.js/three.min.js"></script>
-<script async src="artk_demos/js/artoolkit.three.js"></script>
+<script async src="../build/artoolkit.min.js"></script>
+<script async src="js/third_party/three.js/three.min.js"></script>
+<script async src="../js/artoolkit.three.js"></script>
 
 <script>
 
@@ -35,7 +35,7 @@ function ARThreeOnLoad() {
 	ARController.getUserMediaThreeScene({
 		width: 320,
 		height: 320,
-		cameraParam: '/Xcode/iOS device camera parameters (for use with utilities)/camera_para-iPhone 5 rear 640x480 0.3m.dat',
+		cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
 		facing: 'environment',
 		onSuccess: function(arScene, arController, arCamera) {
 			var renderer = new THREE.WebGLRenderer({antialias: true});
@@ -78,7 +78,7 @@ function ARThreeOnLoad() {
 			};
 
 			// Load the marker to use.
-			arController.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(marker, markerNum) {
+			arController.loadMultiMarker('Data/multi-barcode-4x3.dat', function(marker, markerNum) {
 
 				window.onclick = function() {
 					arScene.video.play();

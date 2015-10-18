@@ -1,24 +1,27 @@
 <html>
 <body>
 
-<script src="common.js"></script>
+<script src="../build/artoolkit.debug.js"></script>
+<script src="../js/artoolkit.api.js"></script>
 
-<video id="v" src="tests/output_4.ogg" width="320" height="240" loop="" controls="" autoplay></video>
+<video id="v" src="Data/output_4.ogg" width="320" height="240" loop="" controls="" autoplay></video>
 
 <script>
 
-artoolkit.init('../builds/', '/bin/Data/camera_para.dat');
-artoolkit.onReady(function() {
+var cameraParam = new ARCameraParam();
+cameraParam.onload = function() {
+
 	var video = document.getElementById('v');
-	artoolkit.setup(video.width, video.height);
-	artoolkit.debugSetup();
 
-	interval = setInterval(getFrame, 13);
-});
+	var arController = new arController(video.videoWidth, video.videoHeight, cameraParam);
+	arController.debugSetup();
 
-function getFrame() {
-	artoolkit.process(v);
-}
+	var interval = setInterval(function() {
+		arController.process(video);
+	}, 13);
+
+};
+cameraParam.src = 'Data/camera_para.dat';
 
 </script>
 
