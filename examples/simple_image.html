@@ -1,0 +1,45 @@
+<html>
+<body>
+
+<img id="v1" src="tests/img.jpg"></img>
+<img id="v2" src="tests/chalk.jpg"></img>
+<img id="v3" src="tests/chalk_multi.jpg"></img>
+<img id="v4" src="tests/kuva.jpg"></img>
+<img id="v5" src="tests/armchair.jpg"></img>
+
+<script src="../builds/artoolkit.min.js"></script>
+<script>
+
+var cameraParam = new ARCameraParam();
+
+var ar1, ar2, ar3, ar4, ar5;
+
+cameraParam.onload = function() {
+	ar1 = new ARController(v1, cameraParam);
+	ar1.debugSetup();
+
+	ar2 = new ARController(v2, cameraParam);
+	ar2.debugSetup();
+
+	ar3 = new ARController(v3, cameraParam);
+	ar3.debugSetup();
+	ar3.process();
+
+	ar4 = new ARController(v4, cameraParam);
+	ar4.debugSetup();
+	ar4.process();
+
+	ar5 = new ARController(v5, cameraParam);
+
+	ar1.process();
+	ar2.process();
+
+	ar4.debugSetup();
+};
+
+cameraParam.src = '/bin/Data/camera_para.dat';
+
+</script>
+
+</body>
+</html>

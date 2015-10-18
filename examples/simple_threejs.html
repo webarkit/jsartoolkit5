@@ -1,0 +1,145 @@
+<html>
+<body>
+
+<script src="artk_demos/js/third_party/three.js/three.min.js"></script>
+<script src="common.js"></script>
+
+<video id="v" src="tests/output_4.ogg" width="320" height="240" loop="" controls="" autoplay webkit-playsinline></video>
+
+<script id="vert" type="glsl-vertex">
+precision highp float;
+precision lowp int;
+
+uniform mat4 cameraMatrix;
+uniform mat4 transformationMatrix;
+
+varying vec2 vUv;
+
+void main(void)
+{
+	vUv = uv;
+	gl_Position = cameraMatrix * transformationMatrix * vec4(position, 1.0);
+}
+</script>
+
+<script id="frag" type="glsl-fragment">
+precision highp float;
+precision lowp int;
+
+varying vec2 vUv;
+
+void main(void)
+{
+	gl_FragColor = vec4(vUv, 1.0, 1.0);
+}
+</script>
+
+<script>
+
+artoolkit.init('/builds', '/bin/Data/camera_para.dat');
+
+THREE.Matrix4.prototype.setFromArray = function(m) {
+	return this.elements.set(m);
+};
+
+var cMat = new THREE.Matrix4();
+var tMat = new THREE.Matrix4();
+
+var USE_SHADER = true;
+
+var shaderMaterial = new THREE.ShaderMaterial({
+	uniforms: {
+		cameraMatrix: {type: 'm4', value: cMat },
+		transformationMatrix: {type: 'm4', value: tMat }
+	},
+	vertexShader: vert.text,
+	fragmentShader: frag.text
+});
+
+
+var renderer = new THREE.WebGLRenderer();
+var scene = new THREE.Scene();
+
+renderer.setSize(v.width, v.height);
+
+document.body.appendChild(renderer.domElement);
+
+// Create a camera and a marker root object for your Three.js scene.
+var camera = new THREE.Camera();
+scene.add(camera);
+
+var light = new THREE.PointLight(0xffffff);
+light.position.set(400, 500, 100);
+scene.add(light);
+var light = new THREE.PointLight(0xffffff);
+light.position.set(-400, -500, -100);
+scene.add(light);
+
+var markerRoot = new THREE.Object3D();
+
+markerRoot.matrixAutoUpdate = false;
+camera.matrixAutoUpdate = false;
+
+// Add the marker models and suchlike into your marker root object.
+
+var cube = new THREE.Mesh(
+	new THREE.CubeGeometry(1,1,1),
+	USE_SHADER ?
+		shaderMaterial :
+		new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
+);
+markerRoot.add(cube);
+
+// Add the marker root to your scene.
+scene.add(markerRoot);
+
+// On every frame do the following:
+function tick() {
+	requestAnimationFrame(tick);
+
+	var camera_mat = artoolkit.getCameraMatrix();
+	if (!camera_mat) return;
+
+
+
+	getFrame();
+
+	if (USE_SHADER) {
+		shaderMaterial.uniforms.transformationMatrix.value.setFromArray(artoolkit.getTransformationMatrix());
+		shaderMaterial.uniforms.cameraMatrix.value.setFromArray(camera_mat);
+	} else {
+		markerRoot.matrix.setFromArray(artoolkit.getTransformationMatrix());
+		camera.projectionMatrix.setFromArray(camera_mat);
+	}
+
+	// Render the scene.
+	renderer.autoClear = false;
+	renderer.clear();
+	renderer.render(scene, camera);
+}
+
+tick();
+
+
+artoolkit.onReady(function() {
+	console.log('onready');
+	var w = 320, h = 240;
+
+	artoolkit.setup(w, h);
+	artoolkit.debugSetup();
+
+	interval = setInterval(getFrame, 13);
+})
+
+function getFrame() {
+	artoolkit.process(v);
+}
+
+function stop() {
+	clearInterval(interval)
+}
+
+</script>
+
+</body>
+</html>

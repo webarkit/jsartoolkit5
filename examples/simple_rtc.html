@@ -1,0 +1,68 @@
+<html>
+<body>
+<style>
+video {
+	transform: scale(-1, 1);
+}
+
+canvas {
+	transform: scale(-1, 1);
+}
+</style>
+
+<script src="common.js"></script>
+
+<script>
+artoolkit.init('../builds/', '/bin/Data/camera_para.dat');
+var video = document.createElement('video');
+
+document.body.appendChild(video);
+
+navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+var tw = 1280 / 2;
+var th = 720 / 2;
+
+var hdConstraints = {
+	audio: false,
+	video: {
+		mandatory: {
+			maxWidth: tw,
+			maxHeight: th
+    	}
+  	}
+};
+
+if (navigator.getUserMedia) {
+	navigator.getUserMedia(hdConstraints, success, errorCallback);
+} else {
+	errorCallback('');
+}
+
+function errorCallback(e) {
+	console.log('cant acceess user media', e);
+}
+
+
+function success(stream) {
+	video.src = window.URL.createObjectURL(stream);
+	video.play();
+
+	console.log('success', stream);
+
+	artoolkit.onReady(function() {
+		artoolkit.setup(tw, th);
+		artoolkit.debugSetup();
+
+		interval = setInterval(getFrame, 250);
+	});
+
+}
+
+function getFrame() {
+	artoolkit.process(video);
+}
+</script>
+
+</body>
+</html>
