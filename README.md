@@ -13,12 +13,16 @@ Emscripten port of ARToolKit to JavaScript
 
 1. Install Emscripten (w/ node.js + python)
 2. Configure parameters in tools/makem.js
-3. Run `node tools/makem.js`
+3. Run `node jsartoolkit/tools/makem.js`
 	(Make sure EMSCRIPTEN env variable is set. E.g. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem)
 
 
 # ARToolKit JS API
-`<script src="common.js></script>` - include loading script and JS API
+`<script src="artoolkit.min.js></script>` - include loading script and JS API
+
+# ARToolKit JS debug build
+`<script src="jsartoolkit/build/artoolkit.debug.js></script>` - include debug build
+`<script src="jsartoolkit/js/artoolkit.api.js></script>` - include JS API
 
 ## Public
 *the calls your JS apps needs*
