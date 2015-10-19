@@ -262,6 +262,7 @@
 			this.addEventListener('getMultiMarkerSub', function(ev) {
 				var marker = ev.data.multiMarkerId;
 				var subMarkerID = ev.data.markerId;
+				var subMarker = ev.data.marker;
 				var obj = this.multiMarkers[marker];
 				if (obj && obj.markers && obj.markers[subMarkerID]) {
 					obj.markers[subMarkerID].matrix.setFromArray(this.getTransformationMatrix());

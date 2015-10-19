@@ -9,6 +9,10 @@ html, body {
 	text-align: center;
 }
 
+canvas {
+	transform: scale(-1, 1);
+}
+
 </style>
 </head>
 <body>
@@ -56,6 +60,7 @@ ARController.getUserMediaThreeScene({
 			};
 
 			console.log('multi is', marker);
+			console.log('submarker count', markerNum);
 
 			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(100,100,100), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
 			greenCube.position.z = 50;

@@ -53,13 +53,7 @@ struct arController {
 
 };
 
-
-std::vector<simple_marker> pattern_markers;
-std::vector<multi_marker> multi_markers;
-std::unordered_map<int, simple_marker> barcode_markers;
-
 std::unordered_map<int, arController> arControllers;
-
 std::unordered_map<int, ARParam> cameraParams;
 
 
@@ -279,8 +273,8 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
 
-		int mId = -multiMarker_id + 1000000000;
-		if (multi_markers.size() <= mId) {
+		int mId = 1000000000 - multiMarker_id;
+		if (mId < 0 || arc->multi_markers.size() <= mId) {
 			return -1;
 		}
 		return (arc->multi_markers[mId].multiMarkerHandle)->marker_num;
