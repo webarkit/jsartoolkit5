@@ -73,9 +73,6 @@ static ARdouble cameraLens[16];
 static ARdouble modelView[16];
 static ARdouble matrix[16];
 
-static char patt_name[]  = "/patt.hiro";
-char cparam_name[] = "/camera_para.dat";
-
 static int gARControllerID = 0;
 static int gCameraID = 0;
 

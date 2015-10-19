@@ -25,7 +25,7 @@ ARController.getUserMediaThreeScene({
 
 	onSuccess: function(arScene, arController, arCamera) {
 	
-		arController.setPatternDetectionMode(artoolkit.CONSTANTS.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
+		arController.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
 
 		var renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);

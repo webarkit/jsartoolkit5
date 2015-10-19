@@ -417,11 +417,9 @@
 			artoolkit[n] = Module[n];
 		})
 
-		artoolkit.CONSTANTS = {};
-
 		for (var m in Module) {
 			if (m.match(/^AR/))
-			artoolkit.CONSTANTS[m] = Module[m];
+			artoolkit[m] = Module[m];
 		}
 	}
 

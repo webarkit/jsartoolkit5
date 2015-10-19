@@ -14,7 +14,7 @@ canvas {
 
 ARController.getUserMediaThreeScene({width: 720, height: 480, cameraParam: 'Data/camera_para.dat', onSuccess: function(arScene, arController, arCamera) {
 
-	arController.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
+	arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
 
 	var renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
