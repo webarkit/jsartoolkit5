@@ -13,7 +13,8 @@
 struct simple_marker {
 	int id;
 	ARdouble transform[3][4];
-	bool found;
+	bool found = false;
+	bool previouslyFound = false;
 };
 
 struct multi_marker {
@@ -717,14 +718,28 @@ extern "C" {
 		simple_marker* match;
 		multi_marker* multiMatch;
 
+		// toggle transform found flag
+		for (j = 0; j < arc->pattern_markers.size(); j++) {
+			match = &(arc->pattern_markers[j]);
+			match->previouslyFound = match->found;
+			match->found = false;
+		}
+
+		for (auto &any : arc->barcode_markers) {
+			match = &any.second;
+			match->previouslyFound = match->found;
+			match->found = false;
+		}
+
 		for (j = 0; j < (arc->arhandle)->marker_num; j++) {
 			marker = &((arc->arhandle)->markerInfo[j]);
 
 			// Pattern found
 			if (marker->idPatt > -1 && marker->idMatrix == -1) {
 				match = &(arc->pattern_markers[marker->idPatt]);
+				match->found = true;
 
-				if (!match->found) {
+				if (!match->previouslyFound) {
 					arGetTransMatSquare(arc->ar3DHandle, marker, arc->markerWidth, match->transform);
 				} else {
 					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->markerWidth, match->transform);
@@ -736,14 +751,14 @@ extern "C" {
 			else if (marker->idMatrix > -1) {
 				if (arc->barcode_markers.find(marker->idMatrix) == arc->barcode_markers.end()) {
 					arc->barcode_markers[marker->idMatrix] = simple_marker();
-
-					match = &(arc->barcode_markers[marker->idMatrix]);
-					match->found = true;
-					match->id = marker->idMatrix;
-					arGetTransMatSquare(arc->ar3DHandle, marker, arc->markerWidth, match->transform);
 				}
-				else {
-					match = &(arc->barcode_markers[marker->idMatrix]);
+				match = &(arc->barcode_markers[marker->idMatrix]);
+				match->found = true;
+				match->id = marker->idMatrix;
+
+				if (!match->previouslyFound) {
+					arGetTransMatSquare(arc->ar3DHandle, marker, arc->markerWidth, match->transform);
+				} else {
 					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->markerWidth, match->transform);
 				}
 
@@ -761,33 +776,6 @@ extern "C" {
 		}
 
 		arglCameraFrustumRH(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, cameraLens);
-
-		// toggle transform found flag
-		for (j = 0; j < arc->pattern_markers.size(); j++) {
-			match = &(arc->pattern_markers[j]);
-			match->found = false;
-			for (k=0; k < arc->arhandle->marker_num; k++) {
-				marker = &((arc->arhandle)->markerInfo[k]);
-				if (marker->idPatt == match->id && marker->idMatrix == -1) {
-					match->found = true;
-					break;
-				}
-			}
-		}
-
-		for (auto &any : arc->barcode_markers) {
-			match = &any.second;
-			match->found = false;
-			for (k=0; k < arc->arhandle->marker_num; k++) {
-				marker = &((arc->arhandle)->markerInfo[k]);
-				if (marker->idMatrix == -1) {
-					match->found = true;
-					break;
-				}
-			}
-
-			//if (!match->found) barcode_markers.erase(marker->id);
-		}
 
 		for (j = 0; j < arc->multi_markers.size(); j++) {
 			multiMatch = &(arc->multi_markers[j]);
