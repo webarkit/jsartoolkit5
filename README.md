@@ -12,17 +12,71 @@ Emscripten port of ARToolKit to JavaScript
 ## Build Instructions
 
 1. Install Emscripten (w/ node.js + python)
-2. Configure parameters in tools/makem.js
+2. Configure parameters in jsartoolkit/tools/makem.js
 3. Run `node jsartoolkit/tools/makem.js`
-	(Make sure EMSCRIPTEN env variable is set. E.g. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem)
-
+	(Make sure EMSCRIPTEN env variable is set. E.g. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node jsartoolkit/tools/makem)
+4. The built ASM.js files are in jsartoolkit/build. There's a build with debug symbols in artoolkit.debug.js and the optimized build with bundled JS API in artoolkit.min.js.
 
 # ARToolKit JS API
-`<script src="artoolkit.min.js></script>` - include loading script and JS API
+`<script async src="jsartoolkit/build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
 
 # ARToolKit JS debug build
 `<script src="jsartoolkit/build/artoolkit.debug.js></script>` - include debug build
+
 `<script src="jsartoolkit/js/artoolkit.api.js></script>` - include JS API
+
+# ARToolKit Three.js helper API
+`<script async src="jsartoolkit/build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
+
+`<script async src="three.min.js"></script>` - include Three.js
+
+`<script async src="jsartoolkit/js/artoolkit.three.js></script>` - include Three.js helper API
+
+    <script>
+    window.ARThreeOnLoad = function() {
+        console.log("Three.js helper API loaded");
+    };
+
+    if (window.ARController.getUserMediaThreeScene) {
+        ARThreeOnLoad();
+    }
+    </script>
+
+# Examples
+
+See jsartoolkit/examples for examples on using the raw API and the Three.js helper API.
+
+The basic operation goes like this: load a camera param, create an AR controller, set pattern detection mode, load pattern markers or multimarkers if needed, add a getMarker event listener, and call the AR controller's process method with the image.
+
+    <script src="jsartoolkit/build/artoolkit.min.js"></script>
+    <script>
+        var param = new ARCameraParam();
+        param.onload = function() {
+            var img = document.getElementById('my-image');
+            var ar = new ARController(img.width, img.height, param);
+
+            // Set pattern detection mode to detect both pattern markers and barcode markers.
+            // This is more error-prone than detecting only pattern markers (default) or only barcode markers.
+            //
+            // For barcode markers, use artoolkit.AR_MATRIX_CODE_DETECTION
+            // For pattern markers, use artoolkit.AR_TEMPLATE_MATCHING_COLOR
+            // 
+            ar.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
+
+            ar.addEventListener('markerNum', function(ev) {
+                console.log('got markers', markerNum);
+            })
+            ar.addEventListener('getMarker', function(ev) {
+                console.log('found marker?', ev);
+            })
+
+            ar.loadMarker('Data/patt.hiro', function(marker) {
+                console.log('loaded marker', marker);
+                ar.process(img);
+            });
+        };
+        param.src = 'Data/camera_para.dat';
+
 
 ## Public
 *the calls your JS apps needs*
