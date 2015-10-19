@@ -809,7 +809,12 @@ extern "C" {
 				err = arGetTransMatMultiSquare( arc->ar3DHandle, markerInfo, markerNum, arMulti );
 			}
 			arglCameraViewRH(arMulti->trans, modelView, arc->cameraViewScale);
-			transferMultiMarker(id, multiMatch->id);
+			for (k = 0; k < arMulti->marker_num; k++) {
+				if (arMulti->marker[k].visible >= 0) {
+					transferMultiMarker(id, multiMatch->id);
+					break;
+				}
+			}
 
 			for (k = 0; k < arMulti->marker_num; k++) {
 				matrixMul(transform, arMulti->trans, arMulti->marker[k].trans);

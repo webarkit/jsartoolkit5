@@ -195,7 +195,7 @@
 						self.multiMarkers[i].visible = false;
 						for (var j=0; j<self.multiMarkers[i].markers.length; j++) {
 							if (self.multiMarkers[i].markers[j]) {
-								// self.multiMarkers[i].markers[j].visible = false;
+								self.multiMarkers[i].markers[j].visible = false;
 							}
 						}
 					}
@@ -264,13 +264,8 @@
 				var subMarkerID = ev.data.markerId;
 				var obj = this.multiMarkers[marker];
 				if (obj && obj.markers && obj.markers[subMarkerID]) {
-					if (subMarker.visible >= 0) {
-						// console.log(artoolkit.getTransformationMatrix());
-						obj.markers[subMarkerID].matrix.setFromArray(this.getTransformationMatrix());
-						obj.markers[subMarkerID].material.color.setHex(0x00ff00);
-					} else {
-						obj.markers[subMarkerID].material.color.setHex(0xff0000);			
-					}
+					obj.markers[subMarkerID].matrix.setFromArray(this.getTransformationMatrix());
+					obj.markers[subMarkerID].visible = (subMarker.visible >= 0);
 				}
 			});
 
