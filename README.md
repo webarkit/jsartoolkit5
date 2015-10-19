@@ -37,7 +37,7 @@ Emscripten port of ARToolKit to JavaScript
         console.log("Three.js helper API loaded");
     };
 
-    if (window.ARController.getUserMediaThreeScene) {
+    if (window.ARController && window.ARController.getUserMediaThreeScene) {
         ARThreeOnLoad();
     }
     </script>
