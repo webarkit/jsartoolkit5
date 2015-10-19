@@ -44,13 +44,13 @@ ARController.getUserMediaThreeScene({
 
 			console.log('hiro is', marker);
 
-			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
-			greenCube.position.z = 0.5;
+			var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
+			cube.position.z = 0.5;
 
 			// Create an object that tracks the marker transform.
 			var markerRoot = arController.createThreeMarker(marker);
 			arScene.scene.add(markerRoot);
-			markerRoot.add(greenCube);
+			markerRoot.add(cube);
 
 		});
 
@@ -59,22 +59,22 @@ ARController.getUserMediaThreeScene({
 
 			console.log('kanji is', marker);
 
-			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xffcc33 }) );
-			greenCube.position.z = 0.5;
+			var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xffcc33 }) );
+			cube.position.z = 0.5;
 
 			// Create an object that tracks the marker transform.
 			var markerRoot = arController.createThreeMarker(marker);
 			arScene.scene.add(markerRoot);
-			markerRoot.add(greenCube);
-
-			var tick = function() {
-				requestAnimationFrame(tick);
-				arScene.process();
-				arScene.renderOn(renderer);
-			};
-			tick();
+			markerRoot.add(cube);
 
 		});
+
+		var tick = function() {
+			requestAnimationFrame(tick);
+			arScene.process();
+			arScene.renderOn(renderer);
+		};
+		tick();
 
 	}
 });

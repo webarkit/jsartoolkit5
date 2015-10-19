@@ -224,7 +224,7 @@
 			this.THREE_JS_ENABLED = true;
 
 			/**
-				Overrides the artoolkit.onGetMarker method to keep track of Three.js markers.
+				Listen to getMarker events to keep track of Three.js markers.
 
 				@param {Object} marker - The marker object received from ARToolKitJS.cpp
 			*/
@@ -242,7 +242,7 @@
 			});
 
 			/**
-				Overrides the artoolkit.onGetMultiMarker method to keep track of Three.js multimarkers.
+				Listen to getMultiMarker events to keep track of Three.js multimarkers.
 
 				@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
 			*/
@@ -255,7 +255,7 @@
 			});
 
 			/**
-				Overrides the artoolkit.onGetMultiMarkerSub method to keep track of Three.js multimarker submarkers.
+				Listen to getMultiMarkerSub events to keep track of Three.js multimarker submarkers.
 
 				@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
 			*/
@@ -322,8 +322,8 @@
 
 			Use this after a successful artoolkit.loadMarker call:
 
-			artoolkit.loadMarker('/bin/Data/patt.hiro', function(markerUID) {
-				var markerRoot = artoolkit.createThreeMarker(markerUID);
+			arController.loadMarker('/bin/Data/patt.hiro', function(markerUID) {
+				var markerRoot = arController.createThreeMarker(markerUID);
 				markerRoot.add(myFancyHiroModel);
 				arScene.scene.add(markerRoot);
 			});
@@ -342,10 +342,10 @@
 			Creates a Three.js marker Object3D for the given multimarker UID.
 			The marker Object3D tracks the multimarker when it's detected in the video.
 
-			Use this after a successful artoolkit.loadMarker call:
+			Use this after a successful arController.loadMarker call:
 
-			artoolkit.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(markerUID) {
-				var markerRoot = artoolkit.createThreeMultiMarker(markerUID);
+			arController.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(markerUID) {
+				var markerRoot = arController.createThreeMultiMarker(markerUID);
 				markerRoot.add(myFancyMultiMarkerModel);
 				arScene.scene.add(markerRoot);
 			});
@@ -365,11 +365,11 @@
 			Creates a Three.js marker Object3D for the given barcode marker UID.
 			The marker Object3D tracks the marker pattern when it's detected in the video.
 
-			var markerRoot20 = artoolkit.createThreeBarcodeMarker(20);
+			var markerRoot20 = arController.createThreeBarcodeMarker(20);
 			markerRoot20.add(myFancyNumber20Model);
 			arScene.scene.add(markerRoot20);
 
-			var markerRoot5 = artoolkit.createThreeBarcodeMarker(5);
+			var markerRoot5 = arController.createThreeBarcodeMarker(5);
 			markerRoot5.add(myFancyNumber5Model);
 			arScene.scene.add(markerRoot5);
 

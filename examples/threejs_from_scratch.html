@@ -93,6 +93,8 @@ markerRoot.add(cube);
 scene.add(markerRoot);
 var arController = null;
 
+var video = document.getElementById('v');
+
 // On every frame do the following:
 function tick() {
 	requestAnimationFrame(tick);
@@ -101,7 +103,7 @@ function tick() {
 		return;
 	}
 
-	arController.process();
+	arController.process(video);
 
 	var camera_mat = arController.getCameraMatrix();
 
@@ -122,9 +124,8 @@ tick();
 var cameraParam = new ARCameraParam();
 cameraParam.onload = function() {
 
-	var video = document.getElementById('v');
 
-	arController = new arController(video.videoWidth, video.videoHeight, cameraParam);
+	arController = new ARController(320, 240, cameraParam);
 	arController.debugSetup();
 
 	arController.addEventListener('getMarker', function(ev) {

@@ -46,19 +46,23 @@ function errorCallback(e) {
 
 function success(stream) {
 	console.log('success', stream);
+	video.src = window.URL.createObjectURL(stream);
+	video.onclick = function() { video.play(); };
+	video.play();
 
 	var cameraParam = new ARCameraParam();
 	cameraParam.onload = function() {
-
-		var video = document.getElementById('v');
-		video.src = window.URL.createObjectURL(stream);
-		video.onclick = function() { video.play(); };
-		video.play();
-
-		var arController = new arController(video, cameraParam);
-		arController.debugSetup();
+		
+		var arController;
 
 		var interval = setInterval(function() {
+			if (!video.videoWidth) {
+				return;
+			} else if (!arController) {
+				arController = new ARController(video, cameraParam);
+				arController.debugSetup();
+			}
+
 			arController.process();
 		}, 16);
 

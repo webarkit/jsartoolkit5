@@ -13,7 +13,7 @@ cameraParam.onload = function() {
 
 	var video = document.getElementById('v');
 
-	var arController = new arController(video.videoWidth, video.videoHeight, cameraParam);
+	var arController = new ARController(320, 240, cameraParam);
 	arController.debugSetup();
 
 	var interval = setInterval(function() {
