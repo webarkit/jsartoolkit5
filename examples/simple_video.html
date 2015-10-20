@@ -8,12 +8,11 @@
 
 <script>
 
-var cameraParam = new ARCameraParam();
-cameraParam.onload = function() {
+var arController = new ARController(320, 240, 'Data/camera_para.dat');
+arController.onload = function() {
 
 	var video = document.getElementById('v');
 
-	var arController = new ARController(320, 240, cameraParam);
 	arController.debugSetup();
 
 	var interval = setInterval(function() {
@@ -21,7 +20,6 @@ cameraParam.onload = function() {
 	}, 13);
 
 };
-cameraParam.src = 'Data/camera_para.dat';
 
 </script>
 

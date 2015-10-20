@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Using different kinds of markers with JSARToolKit5</title>
+		<link rel="stylesheet" href="css/article.css">
+		<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=js&amp;skin=desert"></script>
+	</head>
+	<body>
+		<article>
+
+<h1>Using different kinds of markers with JSARToolKit5</h1>
+
+<p>JSARToolKit comes with support for multiple kinds of markers. This article is an overview of the different marker types, what they’re best suited for and how you can use them in your augmented reality apps.
+
+<p>Here’s a basic recap on JSARToolKit markers. Markers are features in an image or a video that JSARToolKit can track and tell you where they are and what way they’re pointing. The markers that JSARToolKit can track are flat images. 
+
+<p>In the <a href="introduction.html">Introduction to JSARToolKit5</a> article, we placed an openable box on top of a barcode marker, which is a special type of built-in square marker that encodes a number in its pattern. There are two other types of markers in JSARToolKit: square image markers and NFT (natural feature tracking) markers. Square image markers are square images surrounded by a black and a white outline. NFT markers are free-form image markers that are tracked using a more advanced computer vision mechanism.
+
+<p>Let’s have a look at each of the marker types in detail, complete with some samples that you can play with.
+
+
+<h2>Pattern markers</h2>
+
+<p>Pattern markers are square images with a black and white borders and can be used to track custom images with minimal CPU use. A pattern marker should have a thick black border surrounded by a thick white border. The image inside the square should be high-contrast and rotationally asymmetric (meaning: if you put it flat on your table and rotate it 90 degrees, 180 degrees or 270 degrees, it should look different in each angle.)
+
+<p>The reason for the high-contrast requirement is the way ARToolKit works. ARToolKit converts the video image into a black-and-white thresholded image, then finds rectangle shapes in that image. Having found the shapes, it samples pixels across the rectangle and compares the read pixels to registered markers. If enough of the pixels match a marker, ARToolKit tells your app that it found a marker and calculates the transformation matrix that would turn a square into the shape of the rectangle on the screen.
+
+<p>Here's a code snippet that initializes JSARToolKit and loads a pattern marker. When the pattern marker is seen in the video, the code below logs the marker details to the console.
+
+<pre class="prettyprint"><code>var video = document.querySelector('video');
+var ar = new ARController(video.videoWidth, video.videoHeight, 'Data/camera_para.dat');
+ar.onload = function() {
+	var markerId;
+
+	// Load pattern marker.
+	//
+	ar.loadMarker('Data/patt.hiro', function(marker) {
+		markerId = marker;
+	});
+
+	ar.addEventListener('getMarker', function(ev) {
+		if (ev.data.marker.idPatt === markerId) {
+			console.log('saw marker', ev.data.marker);
+			console.log('transformation matrix', ar.getTransformationMatrix());
+		}
+	});
+
+	console.log('camera matrix', ar.getCameraMatrix());
+
+	setInterval(function() {
+		ar.process(video);
+	}, 33);
+};
+</code></pre>
+
+<p>You can see pattern marker tracking in action in <a href="../examples/pattern_threejs.html">this demo</a>.
+
+
+<h2>Barcode markers</h2>
+
+<p>Barcode markers encode a number on a black-and-white marker using binary code. They don't require pre-registering and use very little CPU. Think of them as very low-resolution QR codes and you've got the idea.
+
+<p>The way they work under the covers is a lot like pattern markers. The library reads back thresholded image data, converts that into binary, and converts the bits into a number. There’s orientation detection and some error correction going on in the binary encoding behind the scenes though, so it’s not as straightforward as directly plugging the bits into an int and calling it a day.
+
+<p>Using barcode markers is even easier than using pattern markers. All you need to do is set the ARController's pattern detection mode to one of the barcode detection modes and check the idMatrix attribute of the marker object.
+
+<pre class="prettyprint"><code>arController.setPatternDetectionMode( artoolkit.AR_MATRIX_CODE_DETECTION );
+
+arController.addEventListener('getMarker', function(ev) {
+	console.log('saw barcode marker', ev.data.marker.idMatrix);
+});
+</code></pre>
+
+<p>You can see pattern marker tracking in action in <a href="../examples/barcode_threejs.html">this demo</a>.
+
+
+<h2>Mixed-mode tracking</h2>
+
+<p>With mixed-mode marker tracking you can track both pattern markers and barcode markers. This is a bit more error-prone than tracking just one type of markers, as some pattern markers can be mistaken for barcode markers. But if you need to do it, it's simple as pie: just set the ARController's pattern detection mode to mixed-mode tracking.
+
+<p>In mixed-mode tracking, the markers returned by the getMarker event have either the idMatrix or idPatt attribute set to the barcode id or the pattern marker id, respectively. The non-matched id is set to -1.
+
+<p>Here's how to do that:</p>
+
+<pre class="prettyprint"><code>arController.setPatternDetectionMode( artoolkit.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX );
+
+arController.addEventListener('getMarker', function(ev) {
+	if (ev.data.marker.idMatrix !== -1) {
+		console.log('saw barcode marker', ev.data.marker.idMatrix);
+	}
+	if (ev.data.marker.idPatt !== -1) {
+		console.log('saw pattern marker', ev.data.marker.idPatt);
+	}
+});
+</code></pre>
+
+<p>You can see mixed-mode marker tracking in action in <a href="../examples/pattern_and_barcode_threejs.html">this demo</a>.
+
+
+<h2>NFT markers</h2>
+
+<p>NFT (Natural Feature Tracking) markers are used to track custom rectangular images and do not require the marker to be square or to have a thick border around the image. For example, if you wanted to pop up interactive 3D models for the building photos in an architecture book, you could create an NFT marker out of each building photo.
+
+<p>To use NFT, you need to create the markers beforehand (see <a href="http://artoolkit.org/documentation/doku.php?id=3_Marker_Training:marker_nft_training">the ARToolKit documentation about NFT marker training</a>). An NFT marker contains multiple versions of the marker image at different scales. This way the tracker can do fast top-down image matching, starting with trying a low-resolution match and working its way down to a camera resolution match.
+
+<p>NFT markers aren't implemented in JSARToolKit5 yet.</p>
+
+<!--
+[code example]
+[NFT marker tracking demo]
+ -->
+
+<h2>Multimarker tracking</h2>
+
+<p>You can combine square image markers and barcode markers to do multimarker tracking. In multimarker tracking, you’ve got several markers printed on a single flat surface, which lets you track the surface even if some of the markers are not visible. In this way multimarker tracking can track the surface in a more robust manner at the expense of some extra CPU use.
+
+<p>Another advantage of multimarker tracking is that you can put small markers around non-marker content and have the non-marker content behave like a marker. For example, if you have a map image printed on a piece of paper and have small markers printed around it, you can place your AR content on top of the map and it’ll work as long as any of the multimarker images are visible.
+
+<p>In this sense, multimarker tracking behaves a bit like NFT tracking. The downside of multimarkers vs. NFT is that you need to have square marker images to track. The upsides are that multimarkers are more robust to having the tracked surface partially occluded and they’re cheaper in terms of CPU use.
+
+<pre class="prettyprint"><code>var markerId;
+var markerCount = 0;
+
+// Load multimarker.
+//
+arController.loadMultiMarker('Data/multi-barcode-4x3.dat', function(marker, subMarkerCount) {
+	markerId = marker;
+	markerCount = subMarkerCount;
+});
+
+arController.addEventListener('getMultiMarker', function(ev) {
+	if (ev.data.multiMarkerId === markerId) {
+		console.log('saw multimarker', ev.data.multiMarkerId);
+		console.log('transformation matrix', arController.getTransformationMatrix());
+	}
+});
+
+arController.addEventListener('getMultiMarkerSub', function(ev) {
+	if (ev.data.multiMarkerId === markerId) {
+		console.log('saw submarker', ev.data.markerId, ev.data.marker);
+	}
+});
+
+</code></pre>
+
+<p>You can see multimarker tracking in action in <a href="../examples/multimarker_barcode_threejs.html">this demo</a>.
+
+
+<h2>Conclusion</h2>
+
+<p>We’ve gone through the different types of markers available in JSARToolKit and how to use them. The different types of markers that you can track are square image markers, barcode markers, NFT markers and multimarkers.
+
+<p>Choosing which type of marker to use depends on your requirements. If you need fast tracking, go with the square markers. If you need a custom marker graphic, you can use either a square custom marker or an NFT marker. If you need a non-square marker, you need to use NFT markers or multimarker tracking. For robust tracking, use multimarker tracking.
+
+		</article>
+	</body>
+</html>

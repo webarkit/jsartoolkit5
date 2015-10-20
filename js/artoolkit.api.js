@@ -24,13 +24,37 @@
 
 		this.addEventListeners();
 
-		this.id = artoolkit.setup(w, h, camera.id);
+		if (typeof camera === 'string') {
+
+			var self = this;
+			this.cameraParam = new ARCameraParam();
+			this.cameraParam.onload = function() {
+				self.initialize();
+			};
+			this.cameraParam.src = camera;
+
+		} else {
+			
+			this.cameraParam = camera;
+			this.initialize();
+
+		}
+	};
+
+	ARController.prototype.initialize = function() {
+		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
 
 		this.setScale(1);
 		this.setMarkerWidth(1);
 		this.setProjectionNearPlane(0.1)
 		this.setProjectionFarPlane(1000);
 
+		var self = this;
+		setTimeout(function() {
+			if (self.onload) {
+				self.onload();
+			}
+		}, 1);
 	};
 
 	ARController.prototype.addEventListener = function(name, callback) {
@@ -57,6 +81,38 @@
 			}
 		}
 	};
+
+
+	/**
+		Loads a marker from the given URL and calls the onSuccess callback with the UID of the marker.
+
+		arController.loadMarker(markerURL, onSuccess, onError);
+
+		Synonym for artoolkit.addMarker.
+
+		@param {string} markerURL - The URL of the marker pattern file to load.
+		@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
+		@param {function} onError - The error callback. Called with the encountered error if the load fails.
+	*/
+	ARController.prototype.loadMarker = function(markerURL, onSuccess, onError) {
+		return artoolkit.addMarker(this.id, markerURL, onSuccess, onError);
+	};
+
+	/**
+		Loads a multimarker from the given URL and calls the onSuccess callback with the UID of the marker.
+
+		arController.loadMultiMarker(markerURL, onSuccess, onError);
+
+		Synonym for artoolkit.addMultiMarker.
+
+		@param {string} markerURL - The URL of the multimarker pattern file to load.
+		@param {function} onSuccess - The success callback. Called with the id and the number of sub-markers of the loaded marker on a successful load.
+		@param {function} onError - The error callback. Called with the encountered error if the load fails.
+	*/
+	ARController.prototype.loadMultiMarker = function(markerURL, onSuccess, onError) {
+		return artoolkit.addMultiMarker(this.id, markerURL, onSuccess, onError);
+	};
+
 
 	/* Setter / Getter Proxies */
 
@@ -187,6 +243,7 @@
 
 		artoolkit.addEventListener('getMarker', function(ev) {
 			if (ev.target === self.id) {
+				ev.data.matrix = this.getTransformationMatrix();
 				self._detected_markers[ev.data.index] = ev.data.marker;
 				self.dispatchEvent(ev);
 			}
@@ -194,12 +251,14 @@
 
 		artoolkit.addEventListener('getMultiMarker', function(ev) {
 			if (ev.target === self.id) {
+				ev.data.matrix = this.getTransformationMatrix();
 				self.dispatchEvent(ev);
 			}
 		});
 
 		artoolkit.addEventListener('getMultiMarkerSub', function(ev) {
 			if (ev.target === self.id) {
+				ev.data.matrix = this.getTransformationMatrix();
 				self.dispatchEvent(ev);
 			}
 		});
@@ -292,10 +351,18 @@
 		}
 	};
 
-	var ARCameraParam = function() {
+	var ARCameraParam = function(opt_src) {
 		this.id = -1;
 		this._src = '';
+		this._srcSet = false;
 		this.complete = false;
+		if (opt_src) {
+			timeout(function() {
+				if (!self._srcSet) {
+					self.src = opt_src;
+				}
+			}, 1);
+		}
 	};
 
 	Object.defineProperty(ARCameraParam.prototype, 'src', {
@@ -305,6 +372,7 @@
 			}
 			this.dispose();
 			this._src = src;
+			this._srcSet = true;
 			if (src) {
 				var self = this;
 				artoolkit.loadCamera(src, function(id) {

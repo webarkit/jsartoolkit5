@@ -1,0 +1,232 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Introduction to JSARToolKit5</title>
+		<link rel="stylesheet" href="css/article.css">
+		<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=js&amp;skin=desert"></script>
+	</head>
+	<body>
+		<article>
+
+<h1>Making Augmented Reality applications with JSARToolKit5</h1>
+
+<h2>Introduction</h2>
+
+<!-- [image: AR app with 3D object on top of a marker, caption: Augmented Reality brings virtual objects to the real world.] -->
+
+<p>This article is a short introduction to building augmented reality (AR) web apps with JSARToolKit5. We’re going to learn what is JSARToolKit5, what kind of AR apps you can use it for and how you can use it with the Three.js 3D engine to build 3D AR objects. I’ll also briefly touch on what AR is and why I think it’s going to be awesome.
+
+<aside>
+	<h2>Augmented Reality</h2>
+
+	<p>Augmented Reality is a term used for talking about adding virtual objects to the real world. You may also have heard about Virtual Reality, which is about transporting you to places that are entirely virtual. The two use a lot of the same technologies, but the use cases are different. With AR, you could place virtual IKEA furniture on the floor of your place to see how they'd look like next to your other furniture. With VR, you could teleport yourself into the architectural blueprint of a flat and see how it'd look like when built. AR adds stuff to the real world, VR replaces the real world.
+
+	<p>What makes me excited about AR is how you can bring virtual objects to the real world. Imagine adding your notes and streams around you on your desk, all updating live. Then walk over to a coffee shop, sit down, and have them all pop up alive there as well. No need to carry around a bunch of tiny screens, make them all virtual.
+
+	<p>Another use for AR is adding smarts to real-world objects. Light switches that have a line going to the light they control, tree leaves that tell you what kind of tree it is, name tags hovering over people’s heads, navigation arrows appearing on the street, lines in the sky guiding you to meet your friends, translation appearing on top of text that you’re looking at. Adding knowledge and remote controls into the world. By knowing what you’re looking at, you can pull down what is known about it and what you can do with it.
+</aside>
+
+<p>Briefly, JSARToolKit5 is a JavaScript port of the latest and shiniest version of the ARToolKit augmented reality library. You can use JSARToolKit5 to add objects into images and videos and have them look like they’re a part of the real-world scene. And not only that, you can also make the virtual objects interactive and animated.
+
+<p>To demonstrate the kinds of applications you can make with JSARToolKit5, we’re going to write a small AR app that augments the video from your device’s camera. The app is going to place a small box into the video feed and you can tap on the box to open it and have a look at what’s inside.
+
+<p>Let’s get started!
+
+
+<h2>Basics of JSARToolKit</h2>
+
+
+<p>JSARToolKit works by tracking special images in your video. These special images are called AR markers and JSARToolKit can figure out where they are in the video and what direction they’re pointing at. By getting the positions and orientations of the AR markers from JSARToolKit, you can draw 3D objects on top of the video at the right places to make it look like the objects are a part of the video.
+
+<!-- [image: AR Marker, caption: This is the BarcodeMarker we are going to use in our app] -->
+
+<p>Yes, as you have figured out, we’re going to need three things to build our AR app. We’re going to need an AR marker, a video, and a way to draw 3D graphics on top of the video. For the marker, we’ll use a special built-in marker called a BarcodeMarker. The video we’ll get from your device camera using the getUserMedia API. And we’re going to use Three.js to do the 3D graphics.
+The first thing we’ll do is create the video source. For that, we’ll use the getUserMedia API to get a URL for the device camera and then use that URL as the source for a video element. With this, we have a video element that shows the device camera video feed on it.
+
+<p>The simple way to do all this is to use a helper function in JSARToolKit5: <code class="prettyprint">ARController.getUserVideo(options)</code>. The onSuccess callback in the options object gets called with a ready-to-use video element.
+
+<pre class="prettyprint"><code>ARController.getUserVideo({
+	maxWidth: 640,
+	maxHeight: 480,
+	facing: "environment",
+	onSuccess: function(video) {
+		console.log('got video', video);
+
+	}
+});
+</code></pre>
+
+<p>The first thing we need to do is create an ARController. The ARController keeps track of the markers we have registered and reads out pixels from the video source. Let's make one using our new-fangled video element.
+
+<pre class="prettyprint"><code>		...
+
+		var arController = new arController(video, 'Data/camera_para.dat');
+		arController.onload = function() {
+			console.log('ARController ready for use', arController);
+		};
+
+		...
+</code></pre>
+
+<p>You could also write this by explicitly loading the ARCameraParam (maybe you want to reuse it):
+
+<pre class="prettyprint"><code>		...
+
+		var camera = new ARCameraParam('Data/camera_para.dat');
+		camera.onload = function() {
+			var arController = new arController(video.videoWidth, video.videoHeight, camera);
+			console.log('ARController ready for use', arController);
+		};
+
+		...
+</code></pre>
+
+
+<h2>Getting marker positions from JSARToolKit</h2>
+
+<aside>
+	<h3>AR markers</h3>
+
+	<p>Markers are special images used by JSARToolKit to track the 3D positions of objects in video and images. You could think of them as hacks to make it easy for the software to know what’s going in the image. Instead of having to understand the entire image, the software can focus just on finding rectangle shapes in the image and comparing the contents of the rectangle with registered markers. 
+</aside>
+
+<p>Now that we have the video hooked up to the manager, we're ready to start tracking AR markers in the video. Once we see an AR marker, we want to get its details and find out where it is and which way it is pointing. 
+
+<p>Luckily, this ARToolKit takes care of all the math and gives us a nice readily-usable transformation matrix. To get the markers in the video.
+
+<pre class="prettyprint"><code>// Set the ARController pattern detection mode to detect barcode markers.
+arController.setPatternDetectionMode( artoolkit.AR_MATRIX_CODE_DETECTION );
+
+// Add an event listener to listen to getMarker events on the ARController.
+// Whenever ARController#process detects a marker, it fires a getMarker event
+// with the marker details.
+//
+var detectedBarcodeMarkers = {};
+arController.addEventListener('getMarker', function(ev) {
+	var barcodeId = ev.data.marker.idMatrix;
+	if (barcodeId !== -1) {
+		console.log("saw a barcode marker with id", barcodeId);
+
+		// Note that you need to copy the values of the transformation matrix,
+		// as the event transformation matrix is reused for each marker event 
+		// sent by an ARController.
+		//
+		var transform = ev.data.matrix;
+		if (!detectedBarcodeMarkers[barcodeId]) {
+			detectedBarcodeMarkers[barcodeId] = {
+				visible: true,
+				matrix: new Float32Array(16)
+			}
+		}
+		detectedBarcodeMarkers[barcodeId].visible = true;
+		detectedBarcodeMarkers[barcodeId].matrix.set(transform);
+
+	}
+});
+
+var cameraMatrix = arController.getCameraMatrix();
+
+for (var i in detectedBarcodeMarkers) {
+	detectedBarcodeMarkers.visible = false;
+}
+
+// Process a video frame to find markers in it.
+// Each detected marker fires a getMarker event.
+//
+arController.process(video);
+</code></pre>
+
+
+<h2>Using JSARToolKit with Three.js</h2>
+
+<p>Now that we have the marker positions from JSARToolKit, we can copy them to the Three.js objects that should appear on top of the markers. Note that if you move the marker outside of the camera, the tracking is lost and the Three.js object won't get updated. You can make the object either stay where it is, have it abruptly disappear, or fade it out. I prefer fading out objects that have lost tracking, but it can be a bit fiddly controlling all the opacities of the materials in the object.
+
+<p>The cool thing is that the Three.js object tracking the marker is a normal Three.js object. So we can use all the usual tricks at our disposal. For this demo, we'll add a touch event handler to detect when you're tapping on the object and animating the object when you do. The code below is the usual Three.js mouse raycasting code, it casts a ray from the mouse coordinates into the 3D scene and checks the ray against objects in the scene to see if any of them intersect the ray. If we find an intersection it means that the intersected object is under the mouse cursor. Add the raycasting code in your tap event listener and presto! You've got a tappable Three.js scene.
+
+<p>I added a small animation to the tap listener as well, so that when you click on the box object, it opens and stuff flies out. To check it out, go visit the demo page and allow access to your camera. Now point your camera at a flat piece of paper with the marker. Hohoo, you can now see the box. Tap on it to open it!
+
+<p>Code-wise, I'm going to cheat a bit and use the Three.js integration in JSARToolKit5. It does all the stuff that we set up above, and packages it up into a couple of easy-to-use methods.
+
+<pre class="prettyprint"><code>ARController.getUserVideoThreeScene(
+	width: 320,
+	height: 320,
+	facing: 'environment',
+	onSuccess: function(arScene, arController, arCameraParam) {
+
+		// Track the barcode marker with id 20.
+		// markerRoot is a THREE.Object3D that tracks the marker position.
+		//
+		var markerRoot = arController.createThreeBarcodeMarker(20);
+
+		// Add the openable box to the marker root.
+		//
+		var box = createOpenableBox();
+		markerRoot.add(box);
+
+		// Add the marker root to the AR scene.
+		//
+		arScene.scene.add(markerRoot);
+
+
+		// Add event handlers to make the box open/close on tap.
+		//
+		window.addEventListener('touchend', function(ev) {
+			if (box.hit( ev.touches[0], arScene.camera )) {
+				box.toggleOpen();
+			}
+		}, false);
+
+		window.addEventListener('mouseup', function(ev) {
+			if (box.hit( ev, arScene.camera )) {
+				box.toggleOpen();
+			}
+		}, false);
+
+
+		// Create renderer and deal with mobile orientation.
+		//
+		var renderer = new THREE.WebGLRenderer({antialias: true});
+		var f = Math.min(
+			window.innerWidth / arScene.video.videoWidth,
+			window.innerHeight / arScene.video.videoHeight
+		);
+		var w = f * arScene.video.videoWidth;
+		var h = f * arScene.video.videoHeight;
+
+		if (arController.orientation === 'portrait') {
+			renderer.setSize(h,w);
+			renderer.domElement.style.transformOrigin = '0 0';
+			renderer.domElement.style.transform = 'rotate(-90deg) translateX(-100%)';
+		} else {
+			renderer.setSize(w,h);
+		}
+		document.body.appendChild(renderer.domElement);
+
+
+		// Call arScene.renderOn on each frame,
+		// it does marker detection, updates the Three.js scene and draws a new frame.
+		//
+		var tick = function() {
+			requestAnimationFrame(tick);
+			arScene.renderOn(renderer);
+		};
+		tick();
+
+	}
+);
+</code></pre>
+
+<a href="artk_demos/index.html">See the demo in action.</a> Best viewed on Firefox Android or Chrome Android. Also works on the desktop browsers, though it's a bit more hassle to interact with webcam video. Sadly, iOS doesn't support live camera feeds on websites, so you can't view this demo on iOS.
+
+
+<h2>Conclusion</h2>
+
+<p>Now you know that JSARToolKit is a library that tracks AR markers in video and images. You also know that AR markers are special images and they come in three different types in JSARToolKit. You may also know that you can use Three.js to draw 3D graphics on top of the AR markers in the video (and you certainly know how to make that happen! Because you're awesome and read the code examples!)
+
+<p>I hope you take these few tidbits and use them to build a dazzlingly radiant future of AR applications that make everyone's life so much better that you can't even imagine how much better it will be (A LOT BETTER). Or at least have fun making some AR mobile web apps. Can't underestimate the importance of having fun when developing.
+
+<p>Sally forth! Augment reality!
+
+		</article>
+	</body>
+</html>

@@ -135,9 +135,7 @@
 		};
 
 		ARController.prototype.createThreeScene = function(video) {
-			if (!this.THREE_JS_ENABLED) {
-				this.setupThree();
-			}
+			this.setupThree();
 
 			// To display the video, first create a texture from it.
 			var videoTex = new THREE.Texture(video);
@@ -216,9 +214,79 @@
 			};
 		};
 
+
+		/**
+			Creates a Three.js marker Object3D for the given marker UID.
+			The marker Object3D tracks the marker pattern when it's detected in the video.
+
+			Use this after a successful artoolkit.loadMarker call:
+
+			arController.loadMarker('/bin/Data/patt.hiro', function(markerUID) {
+				var markerRoot = arController.createThreeMarker(markerUID);
+				markerRoot.add(myFancyHiroModel);
+				arScene.scene.add(markerRoot);
+			});
+
+			@param {number} markerUID - The UID of the marker to track.
+			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
+		*/
+		ARController.prototype.createThreeMarker = function(markerUID) {
+			this.setupThree();
+			var obj = new THREE.Object3D();
+			obj.matrixAutoUpdate = false;
+			this.patternMarkers[markerUID] = obj;
+			return obj;
+		};
+
+		/**
+			Creates a Three.js marker Object3D for the given multimarker UID.
+			The marker Object3D tracks the multimarker when it's detected in the video.
+
+			Use this after a successful arController.loadMarker call:
+
+			arController.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(markerUID) {
+				var markerRoot = arController.createThreeMultiMarker(markerUID);
+				markerRoot.add(myFancyMultiMarkerModel);
+				arScene.scene.add(markerRoot);
+			});
+
+			@param {number} markerUID - The UID of the marker to track.
+			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
+		*/
+		ARController.prototype.createThreeMultiMarker = function(markerUID) {
+			this.setupThree();
+			var obj = new THREE.Object3D();
+			obj.matrixAutoUpdate = false;
+			obj.markers = [];
+			this.multiMarkers[markerUID] = obj;
+			return obj;
+		};
+
+		/**
+			Creates a Three.js marker Object3D for the given barcode marker UID.
+			The marker Object3D tracks the marker pattern when it's detected in the video.
+
+			var markerRoot20 = arController.createThreeBarcodeMarker(20);
+			markerRoot20.add(myFancyNumber20Model);
+			arScene.scene.add(markerRoot20);
+
+			var markerRoot5 = arController.createThreeBarcodeMarker(5);
+			markerRoot5.add(myFancyNumber5Model);
+			arScene.scene.add(markerRoot5);
+
+			@param {number} markerUID - The UID of the barcode marker to track.
+			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
+		*/
+		ARController.prototype.createThreeBarcodeMarker = function(markerUID) {
+			this.setupThree();
+			var obj = new THREE.Object3D();
+			obj.matrixAutoUpdate = false;
+			this.barcodeMarkers[markerUID] = obj;
+			return obj;
+		};
+
 		ARController.prototype.setupThree = function() {
 			if (this.THREE_JS_ENABLED) {
-				throw("ARController.prototype.setupThree: Trying to setup Three.js support multiple times.");
 				return;
 			}
 			this.THREE_JS_ENABLED = true;
@@ -286,103 +354,8 @@
 			this.multiMarkers = {};
 		};
 
-		/**
-			Loads a marker from the given URL and calls the onSuccess callback with the UID of the marker.
-
-			arController.loadMarker(markerURL, onSuccess, onError);
-
-			Synonym for artoolkit.addMarker.
-
-			@param {string} markerURL - The URL of the marker pattern file to load.
-			@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
-			@param {function} onError - The error callback. Called with the encountered error if the load fails.
-		*/
-		ARController.prototype.loadMarker = function(markerURL, onSuccess, onError) {
-			return artoolkit.addMarker(this.id, markerURL, onSuccess, onError);
-		};
-
-		/**
-			Loads a multimarker from the given URL and calls the onSuccess callback with the UID of the marker.
-
-			arController.loadMultiMarker(markerURL, onSuccess, onError);
-
-			Synonym for artoolkit.addMultiMarker.
-
-			@param {string} markerURL - The URL of the multimarker pattern file to load.
-			@param {function} onSuccess - The success callback. Called with the id and the number of sub-markers of the loaded marker on a successful load.
-			@param {function} onError - The error callback. Called with the encountered error if the load fails.
-		*/
-		ARController.prototype.loadMultiMarker = function(markerURL, onSuccess, onError) {
-			return artoolkit.addMultiMarker(this.id, markerURL, onSuccess, onError);
-		};
-
-		/**
-			Creates a Three.js marker Object3D for the given marker UID.
-			The marker Object3D tracks the marker pattern when it's detected in the video.
-
-			Use this after a successful artoolkit.loadMarker call:
-
-			arController.loadMarker('/bin/Data/patt.hiro', function(markerUID) {
-				var markerRoot = arController.createThreeMarker(markerUID);
-				markerRoot.add(myFancyHiroModel);
-				arScene.scene.add(markerRoot);
-			});
-
-			@param {number} markerUID - The UID of the marker to track.
-			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
-		*/
-		ARController.prototype.createThreeMarker = function(markerUID) {
-			var obj = new THREE.Object3D();
-			obj.matrixAutoUpdate = false;
-			this.patternMarkers[markerUID] = obj;
-			return obj;
-		};
-
-		/**
-			Creates a Three.js marker Object3D for the given multimarker UID.
-			The marker Object3D tracks the multimarker when it's detected in the video.
-
-			Use this after a successful arController.loadMarker call:
-
-			arController.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(markerUID) {
-				var markerRoot = arController.createThreeMultiMarker(markerUID);
-				markerRoot.add(myFancyMultiMarkerModel);
-				arScene.scene.add(markerRoot);
-			});
-
-			@param {number} markerUID - The UID of the marker to track.
-			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
-		*/
-		ARController.prototype.createThreeMultiMarker = function(markerUID) {
-			var obj = new THREE.Object3D();
-			obj.matrixAutoUpdate = false;
-			obj.markers = [];
-			this.multiMarkers[markerUID] = obj;
-			return obj;
-		};
-
-		/**
-			Creates a Three.js marker Object3D for the given barcode marker UID.
-			The marker Object3D tracks the marker pattern when it's detected in the video.
-
-			var markerRoot20 = arController.createThreeBarcodeMarker(20);
-			markerRoot20.add(myFancyNumber20Model);
-			arScene.scene.add(markerRoot20);
-
-			var markerRoot5 = arController.createThreeBarcodeMarker(5);
-			markerRoot5.add(myFancyNumber5Model);
-			arScene.scene.add(markerRoot5);
-
-			@param {number} markerUID - The UID of the barcode marker to track.
-			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
-		*/
-		ARController.prototype.createThreeBarcodeMarker = function(markerUID) {
-			var obj = new THREE.Object3D();
-			obj.matrixAutoUpdate = false;
-			this.barcodeMarkers[markerUID] = obj;
-			return obj;
-		};
 	};
+
 
 	var tick = function() {
 		if (window.ARController && window.THREE) {

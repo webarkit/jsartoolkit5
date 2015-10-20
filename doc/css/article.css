@@ -1,0 +1,46 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+}
+
+article {
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 100px;
+}
+
+h1 {
+
+}
+
+h2 {
+
+}
+
+p {
+	font-family: serif;
+}
+
+pre.prettyprint {
+	clear: both;
+	padding: 16px;
+	border-radius: 8px;
+}
+
+aside {
+	width: 360px;
+	float: right;
+	margin-left: 16px;
+	margin-bottom: 16px;
+	padding: 16px;
+	border-radius: 8px;
+	background: #DEF;
+}
+
+aside h2,
+aside h3
+{
+	margin-top: 0;
+}
