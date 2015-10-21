@@ -1,9 +1,10 @@
 <!doctype html>
 <html>
 	<head>
+		<meta charset="utf-8" />
 		<title>Introduction to JSARToolKit5</title>
 		<link rel="stylesheet" href="css/article.css">
-		<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=js&amp;skin=desert"></script>
+		<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=desert"></script>
 	</head>
 	<body>
 		<article>
@@ -58,27 +59,27 @@ The first thing we’ll do is create the video source. For that, we’ll use the
 
 <p>The first thing we need to do is create an ARController. The ARController keeps track of the markers we have registered and reads out pixels from the video source. Let's make one using our new-fangled video element.
 
-<pre class="prettyprint"><code>		...
+<pre class="prettyprint"><code>...
 
-		var arController = new arController(video, 'Data/camera_para.dat');
-		arController.onload = function() {
-			console.log('ARController ready for use', arController);
-		};
+var arController = new arController(video, 'Data/camera_para.dat');
+arController.onload = function() {
+	console.log('ARController ready for use', arController);
+};
 
-		...
+...
 </code></pre>
 
 <p>You could also write this by explicitly loading the ARCameraParam (maybe you want to reuse it):
 
-<pre class="prettyprint"><code>		...
+<pre class="prettyprint"><code>...
 
-		var camera = new ARCameraParam('Data/camera_para.dat');
-		camera.onload = function() {
-			var arController = new arController(video.videoWidth, video.videoHeight, camera);
-			console.log('ARController ready for use', arController);
-		};
+var camera = new ARCameraParam('Data/camera_para.dat');
+camera.onload = function() {
+	var arController = new arController(video.videoWidth, video.videoHeight, camera);
+	console.log('ARController ready for use', arController);
+};
 
-		...
+...
 </code></pre>
 
 
@@ -87,10 +88,10 @@ The first thing we’ll do is create the video source. For that, we’ll use the
 <aside>
 	<h3>AR markers</h3>
 
-	<p>Markers are special images used by JSARToolKit to track the 3D positions of objects in video and images. You could think of them as hacks to make it easy for the software to know what’s going in the image. Instead of having to understand the entire image, the software can focus just on finding rectangle shapes in the image and comparing the contents of the rectangle with registered markers. 
+	<p>Markers are special images used by JSARToolKit to track the 3D positions of objects in video and images. You could think of them as hacks to make it easy for the software to know what’s going in the image. Instead of having to understand the entire image, the software can focus just on finding rectangle shapes in the image and comparing the contents of the rectangle with registered markers.
 </aside>
 
-<p>Now that we have the video hooked up to the manager, we're ready to start tracking AR markers in the video. Once we see an AR marker, we want to get its details and find out where it is and which way it is pointing. 
+<p>Now that we have the video hooked up to the manager, we're ready to start tracking AR markers in the video. Once we see an AR marker, we want to get its details and find out where it is and which way it is pointing.
 
 <p>Luckily, this ARToolKit takes care of all the math and gives us a nice readily-usable transformation matrix. To get the markers in the video.
 
@@ -108,7 +109,7 @@ arController.addEventListener('getMarker', function(ev) {
 		console.log("saw a barcode marker with id", barcodeId);
 
 		// Note that you need to copy the values of the transformation matrix,
-		// as the event transformation matrix is reused for each marker event 
+		// as the event transformation matrix is reused for each marker event
 		// sent by an ARController.
 		//
 		var transform = ev.data.matrix;
