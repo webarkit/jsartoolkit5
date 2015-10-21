@@ -34,7 +34,7 @@
 			this.cameraParam.src = camera;
 
 		} else {
-			
+
 			this.cameraParam = camera;
 			this.initialize();
 
@@ -243,7 +243,7 @@
 
 		artoolkit.addEventListener('getMarker', function(ev) {
 			if (ev.target === self.id) {
-				ev.data.matrix = this.getTransformationMatrix();
+				ev.data.matrix = self.getTransformationMatrix();
 				self._detected_markers[ev.data.index] = ev.data.marker;
 				self.dispatchEvent(ev);
 			}
@@ -251,14 +251,14 @@
 
 		artoolkit.addEventListener('getMultiMarker', function(ev) {
 			if (ev.target === self.id) {
-				ev.data.matrix = this.getTransformationMatrix();
+				ev.data.matrix = self.getTransformationMatrix();
 				self.dispatchEvent(ev);
 			}
 		});
 
 		artoolkit.addEventListener('getMultiMarkerSub', function(ev) {
 			if (ev.target === self.id) {
-				ev.data.matrix = this.getTransformationMatrix();
+				ev.data.matrix = self.getTransformationMatrix();
 				self.dispatchEvent(ev);
 			}
 		});
