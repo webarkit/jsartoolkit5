@@ -217,8 +217,143 @@ arController.process(video);
 );
 </code></pre>
 
-<a href="artk_demos/index.html">See the demo in action.</a> Best viewed on Firefox Android or Chrome Android. Also works on the desktop browsers, though it's a bit more hassle to interact with webcam video. Sadly, iOS doesn't support live camera feeds on websites, so you can't view this demo on iOS.
+<p><a href="artk_demos/index.html">See the demo in action.</a> Best viewed on Firefox Android or Chrome Android. Also works on the desktop browsers, though it's a bit more hassle to interact with webcam video. Sadly, iOS doesn't support live camera feeds on websites, so you can't view this demo on iOS.
 
+
+<h2>JSARToolKit and Three.js without the helpers</h2>
+
+<p>Okay, so that's how you'd do a Three.js scene with the helpers. Maybe you don't want to use the helpers for some reason. Or you want to use JSARToolKit with some other drawing library. Fair enough, let me walk you through how you'd use raw JSARToolKit with Three.js.
+
+<p>Doing the Three.js integration manually is not all that much more work, you just need a bunch of boilerplate. First off, we need to track the markers using the getMarker event listener. In the following, I'm going to keep track of the position and visibility of the barcode marker with id 20.
+
+<pre class="prettyprint"><code>// Create a marker root object to keep track of the marker.
+//
+var markerRoot = new THREE.Object3D();
+
+// Make the marker root matrix manually managed.
+//
+markerRoot.matrixAutoUpdate = false;
+
+// Add a getMarker event listener that keeps track of barcode marker with id 20.
+// 
+arController.addEventListener('getMarker', function(ev) {
+	if (ev.data.marker.idMatrix === 20) {
+
+		// The marker was found in this video frame, make it visible.
+		markerRoot.visible = true;
+
+		// Copy the marker transformation matrix to the markerRoot matrix.
+		markerRoot.matrix.elements.set(ev.matrix);
+
+	}
+});
+
+// Add a cube to the marker root.
+//
+markerRoot.add( new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.NormalGeometry()) );
+
+// Create renderer with a size that matches the video.
+//
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(video.videoWidth, video.videoHeight);
+document.body.appendChild(renderer.domElement);
+
+// Set up the scene and camera.
+//
+var scene = new THREE.Scene();
+var camera = new THREE.Camera();
+scene.add(camera);
+scene.add(markerRoot);
+
+// Make the camera matrix manually managed.
+//
+camera.matrixAutoUpdate = false;
+
+// Set the camera matrix to the AR camera matrix.
+//
+camera.matrix.elements.set(arController.getCameraMatrix());
+
+// On each frame, detect markers, update their positions and
+// render the frame on the renderer.
+//
+var tick = function() {
+	requestAnimationFrame(tick);
+
+	// Hide the marker, we don't know if it's visible in this frame.
+	markerRoot.visible = false;
+
+	// Process detects markers in the video frame and sends
+	// getMarker events to the event listeners.
+	arController.process(video);
+
+	// Render the updated scene.
+	renderer.render(scene, camera);
+};
+tick();
+</code></pre>
+
+<p>Don't let the above scare you, it's just got a lot of comments for a few lines of code. That takes care of rendering the AR scene on renderer and tracking a barcode marker. You probably also want to overlay the AR scene on top of the video feed. Let's add that. Nothing too complicated, just drawing a plane with the video on it before anything else.
+
+<pre class="prettyprint"><code>// To display the video, first create a texture from it.
+var videoTex = new THREE.Texture(video);
+
+// Use linear downscaling for videoTex
+// (otherwise it needs to be power-of-two sized and you
+// need to generate mipmaps, which are kinda useless here)
+videoTex.minFilter = THREE.LinearFilter;
+
+// And unflip the video Y-axis.
+videoTex.flipY = false;
+
+// Then create a plane textured with the video.
+var plane = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(2, 2),
+  new THREE.MeshBasicMaterial({map: videoTex, side: THREE.DoubleSide})
+);
+
+// The video plane shouldn't care about the z-buffer.
+plane.material.depthTest = false;
+plane.material.depthWrite = false;
+
+// Create a scene and a camera to draw the video.
+var videoScene = new THREE.Scene();
+var videoCamera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
+videoScene.add(videoCamera);
+videoScene.add(plane);
+
+// Set the renderer autoClear to false, otherwise it
+// clears the canvas before each render call.
+renderer.autoClear = false;
+
+// Draw the videoScene before the AR scene.
+var tick = function() {
+	requestAnimationFrame(tick);
+
+	markerRoot.visible = false;
+	arController.process(video);
+
+	// Clear the renderer before drawing the videoScene,
+	// followed by the AR scene.
+	renderer.clear();
+	renderer.render(videoScene, videoCamera);
+	renderer.render(scene, camera);
+};
+tick();
+</code></pre>
+
+<p>Not too bad! Just a lot of boilerplate. And beware, the JSARController ARController has built-in portrait-mode correction. So if you pass it a portrait-mode video, it rotates it 90 degrees to make the landscape camera params work properly. The result of that is that your renderer canvas ends up being on its side, which is not what you want. Here's how to correct for it:
+
+<pre class="prettyprint"><code>// Rotate the video plane and the renderer if the arController is in portrait mode.
+if (arController.orientation === 'portrait') {
+	plane.rotation.z = Math.PI/2;
+
+	renderer.setSize(video.videoHeight, video.videoWidth);
+	renderer.domElement.style.transformOrigin = '0 0';
+	renderer.domElement.style.transform = 'rotate(-90deg) translateX(-100%)';
+} else {
+	renderer.setSize(video.videoWidth, video.videoHeight);	
+}
+</code></pre>
 
 <h2>Conclusion</h2>
 
