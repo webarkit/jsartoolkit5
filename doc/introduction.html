@@ -341,7 +341,7 @@ var tick = function() {
 tick();
 </code></pre>
 
-<p>Not too bad! Just a lot of boilerplate. And beware, the JSARController ARController has built-in portrait-mode correction. So if you pass it a portrait-mode video, it rotates it 90 degrees to make the landscape camera params work properly. The result of that is that your renderer canvas ends up being on its side, which is not what you want. Here's how to correct for it:
+<p>Not too bad! Just a lot of boilerplate. Oh, one more thing. The JSARController ARController has built-in portrait-mode correction. So if you pass it a portrait-mode video, it rotates it 90 degrees to make the landscape camera params work properly. The result of that is that your renderer canvas ends up being on its side, which is not what you want. Here's how to correct for it:
 
 <pre class="prettyprint"><code>// Rotate the video plane and the renderer if the arController is in portrait mode.
 if (arController.orientation === 'portrait') {
