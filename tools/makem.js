@@ -14,8 +14,13 @@ var HAVE_NFT = 0;
 
 var EMSCRIPTEN_PATH = process.env.EMSCRIPTEN;
 
-var EMCC = path.resolve(EMSCRIPTEN_PATH, 'emcc');
-var EMPP = path.resolve(EMSCRIPTEN_PATH, 'em++');
+if (!EMSCRIPTEN_PATH) {
+	console.log("\nWarning: EMSCRIPTEN environment variable not found.")
+	console.log("If you get a \"command not found\" error,\ndo `source <path to emsdk>/emsdk_env.sh` and try again.");
+}
+
+var EMCC = EMSCRIPTEN_PATH ? path.resolve(EMSCRIPTEN_PATH, 'emcc') : 'emcc';
+var EMPP = EMSCRIPTEN_PATH ? path.resolve(EMSCRIPTEN_PATH, 'em++') : 'em++';
 var OPTIMIZE_FLAGS = ' -Oz '; // -Oz for smallest size
 var MEM = 256 * 1024 * 1024; // 64MB
 
