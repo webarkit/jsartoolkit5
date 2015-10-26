@@ -139,10 +139,17 @@
 				visible = this.trackPatternMarkerId(markerInfo.idPatt);
 				markerType = artoolkit.PATTERN_MARKER;
 
+				if (markerInfo.dir !== markerInfo.dirPatt) {
+					this.setMarkerInfoDir(i, markerInfo.dirPatt);
+				}
+
 			} else if (markerInfo.idMatrix > -1) {
 				visible = this.trackBarcodeMarkerId(markerInfo.idMatrix);
 				markerType = artoolkit.BARCODE_MARKER;
 
+				if (markerInfo.dir !== markerInfo.dirMatrix) {
+					this.setMarkerInfoDir(i, markerInfo.dirMatrix);
+				}
 			}
 
 			if (markerType !== artoolkit.UNKNOWN_MARKER && visible.inPrevious) {
@@ -240,6 +247,10 @@
 			obj.markerWidth = markerWidth;
 		}
 		return obj;
+	};
+
+	ARController.prototype.setMarkerInfoDir = function(markerIndex, dir) {
+		return artoolkit.setMarkerInfoDir(this.id, markerIndex, dir);
 	};
 
 	ARController.prototype.getMultiMarkerCount = function() {
@@ -929,6 +940,8 @@
 
 		'setLogLevel',
 		'setDebugMode',
+
+		'setMarkerInfoDir',
 
 		'getTransMatSquare',
 		'getTransMatSquareCont',

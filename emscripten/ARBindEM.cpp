@@ -18,6 +18,8 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	function("setDebugMode", &setDebugMode);
 	function("setLogLevel", &setLogLevel);
 
+	function("setMarkerInfoDir", &setMarkerInfoDir);
+
 	function("getTransMatSquare", &getTransMatSquare);
 	function("getTransMatSquareCont", &getTransMatSquareCont);
 

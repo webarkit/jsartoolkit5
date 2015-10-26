@@ -525,6 +525,20 @@ extern "C" {
 		return 0;
 	}
 
+	int setMarkerInfoDir(int id, int markerIndex, int dir) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->arhandle->marker_num <= markerIndex) {
+			return MARKER_INDEX_OUT_OF_BOUNDS;
+		}
+		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
+
+		marker->dir = dir;
+		
+		return 0;
+	}
+
 	int getTransMatMultiSquareRobust(int id, int multiMarkerId) {
 		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
 		arController *arc = &(arControllers[id]);
