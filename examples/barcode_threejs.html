@@ -1,48 +1,106 @@
 <html>
-<body>
+<head>
+<title>Barcode marker example with Three.js</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
 <style>
-canvas {
-	transform: scale(-1, 1);
+html,body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	text-align: center;
+	overflow-x: hidden;
+}
+.portrait canvas {
+	transform-origin: 0 0;
+	transform: rotate(-90deg) translateX(-100%);
+}
+.desktop canvas {
+ 	transform: scale(-1, 1);
 }
 </style>
+</head>
+<body>
 
-<script src="../build/artoolkit.min.js"></script>
-<script src="js/third_party/three.js/three.min.js"></script>
-<script src="../js/artoolkit.three.js"></script>
+<h1>Barcode marker example with Three.js</h1>
+<p>On Chrome on Android, tap the screen to start playing video stream.</p>
+<p>Show <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/20.png">3x3 marker id 20</a> to camera to display a colorful sphere on top of it. Tap the sphere to rotate it.
+
+<p>&larr; <a href="index.html">Back to examples</a></p>
+
+<script src="../build/artoolkit.debug.js"></script>
+<script src="../js/artoolkit.api.js"></script>
+<script async src="js/third_party/three.js/three.min.js"></script>
+<script async src="../js/artoolkit.three.js"></script>
 
 <script>
 
-ARController.getUserMediaThreeScene({width: 720, height: 480, cameraParam: 'Data/camera_para.dat', onSuccess: function(arScene, arController, arCamera) {
+window.ARThreeOnLoad = function() {
 
-	arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
+	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', 
+	onSuccess: function(arScene, arController, arCamera) {
 
-	var renderer = new THREE.WebGLRenderer({antialias: true});
-	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
+		document.body.className = arController.orientation;
 
-	document.body.appendChild(renderer.domElement);
+		arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
 
-	// See /doc/patterns/Matrix code 3x3 (72dpi)/20.png
-	var markerRoot = arController.createThreeBarcodeMarker(20);
+		var renderer = new THREE.WebGLRenderer({antialias: true});
+		if (arController.orientation === 'portrait') {
+			var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
+			var h = window.innerWidth;
+			renderer.setSize(w, h);
+			renderer.domElement.style.paddingBottom = (w-h) + 'px';
+		} else {
+			if (/Android|mobile|iPad|iPhone/i.test(navigator.userAgent)) {
+				renderer.setSize(window.innerWidth, (window.innerWidth / arController.videoWidth) * arController.videoHeight);
+			} else {
+				renderer.setSize(arController.videoWidth, arController.videoHeight);
+				document.body.className += ' desktop';
+			}
+		}
 
-	var sphere = new THREE.Mesh(
-		new THREE.SphereGeometry(0.5, 8, 8),
-		new THREE.MeshNormalMaterial()
-	);
-	sphere.material.shading = THREE.FlatShading;
-	sphere.position.z = 0.5;
-	markerRoot.add(sphere);
-	arScene.scene.add(markerRoot);
+		document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
-	var tick = function() {
-		arScene.process();
-		arScene.renderOn(renderer);
+		// See /doc/patterns/Matrix code 3x3 (72dpi)/20.png
+		var markerRoot = arController.createThreeBarcodeMarker(20);
 
-		requestAnimationFrame(tick);
-	};
+		var sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(0.5, 8, 8),
+			new THREE.MeshNormalMaterial()
+		);
+		sphere.material.shading = THREE.FlatShading;
+		sphere.position.z = 0.5;
+		markerRoot.add(sphere);
+		arScene.scene.add(markerRoot);
 
-	tick();
+		var rotationV = 0;
+		var rotationTarget = 0;
 
-}});
+		renderer.domElement.addEventListener('click', function(ev) {
+			ev.preventDefault();
+			rotationTarget += 1;
+		}, false);
+
+		var tick = function() {
+			arScene.process();
+			arScene.renderOn(renderer);
+			rotationV += (rotationTarget - sphere.rotation.z) * 0.05;
+			sphere.rotation.z += rotationV;
+			rotationV *= 0.8;
+
+			requestAnimationFrame(tick);
+		};
+
+		tick();
+
+	}});
+
+	delete window.ARThreeOnLoad;
+
+};
+
+if (window.ARController && ARController.getUserMediaThreeScene) {
+	ARThreeOnLoad();
+}
 
 </script>
 

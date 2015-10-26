@@ -5,24 +5,31 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(constant_bindings) {
 
 	function("setup", &setup);
-	function("process", &process);
 	function("teardown", &teardown);
-
-	// TODO: handle pointer return
-	// function("setDebugMode", &setDebugMode, allow_raw_pointers());
 
 	function("_addMarker", &addMarker);
 	function("_addMultiMarker", &addMultiMarker);
-	function("_getMultiMarkerNum", &getMultiMarkerNum);
+
+	function("getMultiMarkerNum", &getMultiMarkerNum);
+	function("getMultiMarkerCount", &getMultiMarkerCount);
 
 	function("_loadCamera", &loadCamera);
 
+	function("setDebugMode", &setDebugMode);
+	function("setLogLevel", &setLogLevel);
 
-	function("setScale", &setScale);
-	function("getScale", &getScale);
+	function("getTransMatSquare", &getTransMatSquare);
+	function("getTransMatSquareCont", &getTransMatSquareCont);
 
-	function("setMarkerWidth", &setMarkerWidth);
-	function("getMarkerWidth", &getMarkerWidth);
+	function("getTransMatMultiSquare", &getTransMatMultiSquare);
+	function("getTransMatMultiSquareRobust", &getTransMatMultiSquareRobust);
+
+	function("detectMarker", &detectMarker);
+	function("getMarkerNum", &getMarkerNum);
+
+	function("getMultiEachMarker", &getMultiEachMarkerInfo);
+	function("getMarker", &getMarkerInfo);
+
 
 	/* AR Toolkit C APIS */
 	function("setProjectionNearPlane", &setProjectionNearPlane);
@@ -52,6 +59,11 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	function("setImageProcMode", &setImageProcMode);
 	function("getImageProcMode", &getImageProcMode);
 
+
+	/* errors */
+	constant("ERROR_ARCONTROLLER_NOT_FOUND", ARCONTROLLER_NOT_FOUND);
+	constant("ERROR_MULTIMARKER_NOT_FOUND", MULTIMARKER_NOT_FOUND);
+	constant("ERROR_MARKER_INDEX_OUT_OF_BOUNDS", MARKER_INDEX_OUT_OF_BOUNDS);
 
 	/* arDebug */
 	constant("AR_DEBUG_DISABLE", AR_DEBUG_DISABLE);

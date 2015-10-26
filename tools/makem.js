@@ -145,17 +145,6 @@ var INCLUDES = [
 	// '../jpeg-6b',
 ].map(function(s) { return '-I' + s }).join(' ');
 
-var EXPORTED_FUNCTIONS = JSON.stringify(
-	[
-		'setup',
-		'process',
-		'teardown',
-
-		'setLogLevel',
-		'setDebugMode',
-	].map(function(x) { return '_' + x; })
-);
-
 function format(str) {
 	for (var f = 1; f < arguments.length; f++) {
 		str = str.replace(/{\w*}/, arguments[f]);
@@ -203,38 +192,32 @@ function clean_builds() {
 
 var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
-	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libar.bc '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libar.bc ',
 		OUTPUT_PATH);
 
 var compile_kpm = format(EMCC + ' ' + INCLUDES + ' '
 	+ kpm_sources.join(' ')
-	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc ',
 		OUTPUT_PATH);
 
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
 	+ '../jpeg-6b/' +  libjpeg_sources
-	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
 		OUTPUT_PATH);
 
 var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
 	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
-	+ FLAGS + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	+ FLAGS + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
 	OUTPUT_PATH, OUTPUT_PATH, BUILD_FILE);
 
 var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
 	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
-	+ FLAGS + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	+ FLAGS + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
 	OUTPUT_PATH, OUTPUT_PATH, BUILD_MIN_FILE);
 
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
-	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
 		OUTPUT_PATH, BUILD_FILE);
 
 /*

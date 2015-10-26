@@ -43,98 +43,29 @@
 			@param {function} onError - Called if the initialization fails with the error encountered.
 		*/
 		ARController.getUserMediaThreeScene = function(configuration) {
-			var width = configuration.width;
-			var height = configuration.height;
-			var cameraParamURL = configuration.cameraParam;
+			var obj = {};
+			for (var i in configuration) {
+				obj[i] = configuration[i];
+			}
 			var onSuccess = configuration.onSuccess;
-			var onError = configuration.onError;
-			var facing = configuration.facing;
 
-			if (!onError) {
-				onError = function(err) {
-					console.log("ERROR: artoolkit.getUserMediaThreeScene");
-					console.log(err);
-				};
-			}
-			var video = document.createElement('video');
-			navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-			var hdConstraints = {
-				audio: false,
-				video: {
-					mandatory: {}
-			  	}
+			obj.onSuccess = function(arController, arCameraParam) {
+				var scenes = arController.createThreeScene();
+				onSuccess(scenes, arController, arCameraParam);
 			};
 
-			var initProgress = function() {
-				if (this.videoWidth !== 0) {
-					completeInit();
-				}
-			};
-
-			var success = function(stream) {
-				video.addEventListener('loadedmetadata', initProgress, false);
-
-				video.src = window.URL.createObjectURL(stream);
-				video.play();
-			};
-
-			var completeInit = function() {
-
-				var arCameraParam = new ARCameraParam();
-				arCameraParam.onload = function() {
-					var f = Math.min(width / video.videoWidth, height / video.videoHeight);
-					var w = f * video.videoWidth;
-					var h = f * video.videoHeight;
-					if (video.videoWidth < video.videoHeight) {
-						var tmp = w;
-						w = h;
-						h = tmp;
-					}
-					var arController = new ARController(w, h, arCameraParam);
-					if (video.videoWidth < video.videoHeight) {
-						arController.orientation = 'portrait';
-					}
-					var scenes = arController.createThreeScene(video);
-					onSuccess(scenes, arController, arCameraParam);
-				};
-				arCameraParam.src = cameraParamURL;
-			};
-
-			if (facing && (navigator.mediaDevices || window.MediaStreamTrack)) {
-				if (navigator.mediaDevices) {
-					navigator.mediaDevices.getUserMedia({
-						audio: false,
-						video: {
-							facingMode: facing
-						}
-					}).then(success, onError); 
-				} else if (window.MediaStreamTrack) {
-					MediaStreamTrack.getSources(function(sources) {
-						for (var i=0; i<sources.length; i++) {
-							if (sources[i].kind === 'video' && sources[i].facing === facing) {
-								hdConstraints.video.mandatory.sourceId = sources[i].id;
-								break;
-							}
-						}
-						if (navigator.getUserMedia) {
-							navigator.getUserMedia(hdConstraints, success, onError);
-						} else {
-							onError('navigator.getUserMedia is not supported on your browser');
-						}
-					});
-				}
-			} else {
-				if (navigator.getUserMedia) {
-					navigator.getUserMedia(hdConstraints, success, onError);
-				} else {
-					onError('navigator.getUserMedia is not supported on your browser');
-				}
-			}
-
-
+			var video = this.getUserMediaARController(obj);
+			return video;
 		};
 
+		/**
+			Creates a Three.js scene for use with this ARController.
+
+			@param video Video image to use as scene background. Defaults to this.image
+		*/
 		ARController.prototype.createThreeScene = function(video) {
+			video = video || this.image;
+
 			this.setupThree();
 
 			// To display the video, first create a texture from it.
@@ -178,22 +109,24 @@
 				camera: camera,
 				videoCamera: videoCamera,
 
-				arController: self,
+				arController: this,
 
 				video: video,
 
 				process: function() {
-					for (var i in self.patternMarkers) {
-						self.patternMarkers[i].visible = false;
+					for (var i in self.threePatternMarkers) {
+						self.threePatternMarkers[i].visible = false;
 					}
-					for (var i in self.barcodeMarkers) {
-						self.barcodeMarkers[i].visible = false;
+					for (var i in self.threeBarcodeMarkers) {
+						self.threeBarcodeMarkers[i].wasInLastFrame = self.threeBarcodeMarkers[i].visible;
+						self.threeBarcodeMarkers[i].visible = false;
 					}
-					for (var i in self.multiMarkers) {
-						self.multiMarkers[i].visible = false;
-						for (var j=0; j<self.multiMarkers[i].markers.length; j++) {
-							if (self.multiMarkers[i].markers[j]) {
-								self.multiMarkers[i].markers[j].visible = false;
+					for (var i in self.threeMultiMarkers) {
+						self.threeMultiMarkers[i].wasInLastFrame = self.threeMultiMarkers[i].visible;
+						self.threeMultiMarkers[i].visible = false;
+						for (var j=0; j<self.threeMultiMarkers[i].markers.length; j++) {
+							if (self.threeMultiMarkers[i].markers[j]) {
+								self.threeMultiMarkers[i].markers[j].visible = false;
 							}
 						}
 					}
@@ -227,14 +160,18 @@
 				arScene.scene.add(markerRoot);
 			});
 
-			@param {number} markerUID - The UID of the marker to track.
+			@param {number} markerUID The UID of the marker to track.
+			@param {number} markerWidth The width of the marker, defaults to 1.
 			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
 		*/
-		ARController.prototype.createThreeMarker = function(markerUID) {
+		ARController.prototype.createThreeMarker = function(markerUID, markerWidth) {
 			this.setupThree();
 			var obj = new THREE.Object3D();
+			obj.wasInLastFrame = false;
+			obj.markerTransform = new Float64Array(12);
+			obj.markerTracker = this.trackPatternMarkerId(markerUID, markerWidth);
 			obj.matrixAutoUpdate = false;
-			this.patternMarkers[markerUID] = obj;
+			this.threePatternMarkers[markerUID] = obj;
 			return obj;
 		};
 
@@ -250,15 +187,16 @@
 				arScene.scene.add(markerRoot);
 			});
 
-			@param {number} markerUID - The UID of the marker to track.
+			@param {number} markerUID The UID of the marker to track.
 			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
 		*/
 		ARController.prototype.createThreeMultiMarker = function(markerUID) {
 			this.setupThree();
 			var obj = new THREE.Object3D();
+			obj.markerTransform = new Float64Array(12);
 			obj.matrixAutoUpdate = false;
 			obj.markers = [];
-			this.multiMarkers[markerUID] = obj;
+			this.threeMultiMarkers[markerUID] = obj;
 			return obj;
 		};
 
@@ -274,14 +212,18 @@
 			markerRoot5.add(myFancyNumber5Model);
 			arScene.scene.add(markerRoot5);
 
-			@param {number} markerUID - The UID of the barcode marker to track.
+			@param {number} markerUID The UID of the barcode marker to track.
+			@param {number} markerWidth The width of the marker, defaults to 1.
 			@return {THREE.Object3D} Three.Object3D that tracks the given marker.
 		*/
-		ARController.prototype.createThreeBarcodeMarker = function(markerUID) {
+		ARController.prototype.createThreeBarcodeMarker = function(markerUID, markerWidth) {
 			this.setupThree();
 			var obj = new THREE.Object3D();
+			obj.wasInLastFrame = false;
+			obj.markerTransform = new Float64Array(12);
+			obj.markerTracker = this.trackBarcodeMarkerId(markerUID, markerWidth);
 			obj.matrixAutoUpdate = false;
-			this.barcodeMarkers[markerUID] = obj;
+			this.threeBarcodeMarkers[markerUID] = obj;
 			return obj;
 		};
 
@@ -297,14 +239,15 @@
 				@param {Object} marker - The marker object received from ARToolKitJS.cpp
 			*/
 			this.addEventListener('getMarker', function(ev) {
-				var obj = this.patternMarkers[ev.data.marker.idPatt];
-				if (obj) {
-					obj.matrix.setFromArray(this.getTransformationMatrix());
-					obj.visible = true;
+				var marker = ev.data.marker;
+				if (ev.data.type === artoolkit.PATTERN_MARKER) {
+					obj = this.threePatternMarkers[ev.data.marker.idPatt];
 				}
-				var obj = this.barcodeMarkers[ev.data.marker.idMatrix];
+				if (ev.data.type === artoolkit.BARCODE_MARKER) {
+					obj = this.threeBarcodeMarkers[ev.data.marker.idMatrix];
+				}
 				if (obj) {
-					obj.matrix.setFromArray(this.getTransformationMatrix());
+					obj.matrix.elements.set(this.getTransformationMatrix());
 					obj.visible = true;
 				}
 			});
@@ -315,9 +258,9 @@
 				@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
 			*/
 			this.addEventListener('getMultiMarker', function(ev) {
-				var obj = this.multiMarkers[ev.data.multiMarkerId];
+				var obj = this.threeMultiMarkers[ev.data.multiMarkerId];
 				if (obj) {
-					obj.matrix.setFromArray(this.getTransformationMatrix());
+					obj.matrix.elements.set(this.getTransformationMatrix());
 					obj.visible = true;
 				}
 			});
@@ -329,29 +272,30 @@
 			*/
 			this.addEventListener('getMultiMarkerSub', function(ev) {
 				var marker = ev.data.multiMarkerId;
-				var subMarkerID = ev.data.markerId;
+				var subMarkerID = ev.data.markerIndex;
 				var subMarker = ev.data.marker;
-				var obj = this.multiMarkers[marker];
+				var obj = this.threeMultiMarkers[marker];
 				if (obj && obj.markers && obj.markers[subMarkerID]) {
-					obj.markers[subMarkerID].matrix.setFromArray(this.getTransformationMatrix());
-					obj.markers[subMarkerID].visible = (subMarker.visible >= 0);
+					var sub = obj.markers[subMarkerID];
+					this.transMatToGLMat(this.getMarkerTransformationMatrix(), sub.matrix.elements);
+					sub.visible = (subMarker.visible >= 0);
 				}
 			});
 
 			/**
 				Index of Three.js pattern markers, maps markerID -> THREE.Object3D.
 			*/
-			this.patternMarkers = {};
+			this.threePatternMarkers = {};
 
 			/**
 				Index of Three.js barcode markers, maps markerID -> THREE.Object3D.
 			*/
-			this.barcodeMarkers = {};
+			this.threeBarcodeMarkers = {};
 
 			/**
 				Index of Three.js multimarkers, maps markerID -> THREE.Object3D.
 			*/
-			this.multiMarkers = {};
+			this.threeMultiMarkers = {};
 		};
 
 	};

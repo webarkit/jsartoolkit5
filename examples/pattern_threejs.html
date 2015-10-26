@@ -1,84 +1,122 @@
 <html>
-<body>
+<head>
+<title>Pattern marker example with Three.js</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
 <style>
-canvas {
-	transform: scale(-1, 1);
+html,body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	text-align: center;
+	overflow-x: hidden;
+}
+.portrait canvas {
+	transform-origin: 0 0;
+	transform: rotate(-90deg) translateX(-100%);
+}
+.desktop canvas {
+ 	transform: scale(-1, 1);
 }
 </style>
+</head>
+<body>
 
-<script src="js/third_party/three.js/three.min.js"></script>
+<h1>Pattern marker example with Three.js</h1>
+<p>On Chrome on Android, tap the screen to start playing video stream.</p>
+<p>Show  <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Hiro%20pattern.pdf">Hiro pattern</a> and <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Kanji%20pattern.pdf">Kanji pattern</a> to camera to display a colorful objects on top of them. Tap the screen to rotate the objects.
 
-<script src="../build/artoolkit.debug.js"></script>
-<script src="../js/artoolkit.api.js"></script>
+<p>&larr; <a href="index.html">Back to examples</a></p>
 
-<script src="../js/artoolkit.three.js"></script>
+<script async src="../build/artoolkit.min.js"></script>
+<script async src="js/third_party/three.js/three.min.js"></script>
+<script async src="../js/artoolkit.three.js"></script>
 
 <script>
 
-ARController.getUserMediaThreeScene({
-	width: 320, height: 240,
-	cameraParam: 'Data/camera_para.dat',
+window.ARThreeOnLoad = function() {
 
-	onError: function(error) {
-		console.log("Failed to start AR", error);
-	},
-
+	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', 
 	onSuccess: function(arScene, arController, arCamera) {
 
+		document.body.className = arController.orientation;
+
+		arController.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_MONO);
+
 		var renderer = new THREE.WebGLRenderer({antialias: true});
-		renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
+		if (arController.orientation === 'portrait') {
+			var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
+			var h = window.innerWidth;
+			renderer.setSize(w, h);
+			renderer.domElement.style.paddingBottom = (w-h) + 'px';
+		} else {
+			if (/Android|mobile|iPad|iPhone/i.test(navigator.userAgent)) {
+				renderer.setSize(window.innerWidth, (window.innerWidth / arController.videoWidth) * arController.videoHeight);
+			} else {
+				renderer.setSize(arController.videoWidth, arController.videoHeight);
+				document.body.className += ' desktop';
+			}
+		}
 
-		document.body.appendChild(renderer.domElement);
+		document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
-		// Create a couple of lights for our AR scene.
-		var light = new THREE.PointLight(0xffffff);
-		light.position.set(40, 40, 40);
-		arScene.scene.add(light);
+		var rotationV = 0;
+		var rotationTarget = 0;
 
-		var light = new THREE.PointLight(0xff8800);
-		light.position.set(-40, -20, -30);
-		arScene.scene.add(light);
+		renderer.domElement.addEventListener('click', function(ev) {
+			ev.preventDefault();
+			rotationTarget += 1;
+		}, false);
 
-		// Load the marker to use.
-		arController.loadMarker('Data/patt.hiro', function(marker) {
+		var sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(0.5, 8, 8),
+			new THREE.MeshNormalMaterial()
+		);
+		sphere.material.shading = THREE.FlatShading;
+		sphere.position.z = 0.5;
 
-			console.log('hiro is', marker);
+		var torus = new THREE.Mesh(
+			new THREE.TorusGeometry(0.3, 0.2, 8, 8),
+			new THREE.MeshNormalMaterial()
+		);
+		torus.material.shading = THREE.FlatShading;
+		torus.position.z = 0.5;
+		torus.rotation.x = Math.PI/2;
 
-			var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
-			cube.position.z = 0.5;
-
-			// Create an object that tracks the marker transform.
-			var markerRoot = arController.createThreeMarker(marker);
+		arController.loadMarker('Data/patt.hiro', function(markerId) {
+			var markerRoot = arController.createThreeMarker(markerId);
+			markerRoot.add(sphere);
 			arScene.scene.add(markerRoot);
-			markerRoot.add(cube);
-
 		});
 
-		// Load the marker to use.
-		arController.loadMarker('Data/patt.kanji', function(marker) {
-
-			console.log('kanji is', marker);
-
-			var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xffcc33 }) );
-			cube.position.z = 0.5;
-
-			// Create an object that tracks the marker transform.
-			var markerRoot = arController.createThreeMarker(marker);
+		arController.loadMarker('Data/patt.kanji', function(markerId) {
+			var markerRoot = arController.createThreeMarker(markerId);
+			markerRoot.add(torus);
 			arScene.scene.add(markerRoot);
-			markerRoot.add(cube);
-
 		});
 
 		var tick = function() {
-			requestAnimationFrame(tick);
 			arScene.process();
+
+			rotationV += (rotationTarget - sphere.rotation.z) * 0.05;
+			sphere.rotation.z += rotationV;
+			torus.rotation.y += rotationV;
+			rotationV *= 0.8;
+
 			arScene.renderOn(renderer);
+			requestAnimationFrame(tick);
 		};
+
 		tick();
 
-	}
-});
+	}});
 
+	delete window.ARThreeOnLoad;
+
+};
+
+if (window.ARController && ARController.getUserMediaThreeScene) {
+	ARThreeOnLoad();
+}
 </script>
 
 </body>

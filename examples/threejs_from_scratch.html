@@ -76,13 +76,15 @@ scene.add(light);
 
 var markerRoot = new THREE.Object3D();
 
+markerRoot.wasVisible = false;
+markerRoot.markerMatrix = new Float64Array(12);
 markerRoot.matrixAutoUpdate = false;
 camera.matrixAutoUpdate = false;
 
 // Add the marker models and suchlike into your marker root object.
 
 var cube = new THREE.Mesh(
-	new THREE.CubeGeometry(1,1,1),
+	new THREE.BoxGeometry(1,1,1),
 	USE_SHADER ?
 		shaderMaterial :
 		new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
@@ -103,15 +105,25 @@ function tick() {
 		return;
 	}
 
-	arController.process(video);
-
-	var camera_mat = arController.getCameraMatrix();
-
-	if (USE_SHADER) {
-		shaderMaterial.uniforms.cameraMatrix.value.setFromArray(camera_mat);
+	arController.detectMarker(video);
+	var markerNum = arController.getMarkerNum();
+	if (markerNum > 0) {
+		if (markerRoot.visible) {
+			arController.getTransMatSquareCont(0, 1, markerRoot.markerMatrix, markerRoot.markerMatrix);
+		} else {
+			arController.getTransMatSquare(0 /* Marker index */, 1 /* Marker width */, markerRoot.markerMatrix);
+		}
+		markerRoot.visible = true;
+		if (USE_SHADER) {
+			arController.transMatToGLMat(markerRoot.markerMatrix, shaderMaterial.uniforms.transformationMatrix.value.elements);
+		} else {
+			arController.transMatToGLMat(markerRoot.markerMatrix, markerRoot.matrix.elements);
+		}
 	} else {
-		camera.projectionMatrix.setFromArray(camera_mat);
+		markerRoot.visible = false;
 	}
+
+	arController._debugDraw();
 
 	// Render the scene.
 	renderer.autoClear = false;
@@ -124,20 +136,19 @@ tick();
 var cameraParam = new ARCameraParam();
 cameraParam.onload = function() {
 
-
 	arController = new ARController(320, 240, cameraParam);
 	arController.debugSetup();
 
-	arController.addEventListener('getMarker', function(ev) {
-		if (USE_SHADER) {
-			shaderMaterial.uniforms.transformationMatrix.value.setFromArray(arController.getTransformationMatrix());
-		} else {
-			markerRoot.matrix.setFromArray(arController.getTransformationMatrix());
-		}
-	});
+	var camera_mat = arController.getCameraMatrix();
+
+	if (USE_SHADER) {
+		shaderMaterial.uniforms.cameraMatrix.value.setFromArray(camera_mat);
+	} else {
+		camera.projectionMatrix.setFromArray(camera_mat);
+	}
 
 };
-cameraParam.src = 'Data/camera_para.dat';
+cameraParam.load('Data/camera_para.dat');
 
 
 </script>

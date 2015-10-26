@@ -9,19 +9,9 @@
 #include <unordered_map>
 #include <AR/config.h>
 
-
-struct simple_marker {
-	int id;
-	ARdouble transform[3][4];
-	bool found = false;
-	bool previouslyFound = false;
-};
-
 struct multi_marker {
 	int id;
 	ARMultiMarkerInfoT *multiMarkerHandle;
-	ARdouble transform[3][4];
-	bool found;
 };
 
 struct arController {
@@ -41,16 +31,14 @@ struct arController {
 	ARMultiMarkerInfoT *arMultiMarkerHandle = NULL;
 	AR3DHandle* ar3DHandle;
 
-	ARdouble markerWidth = 40.0;
-	ARdouble cameraViewScale = 1.0;
 	ARdouble nearPlane = 0.0001;
 	ARdouble farPlane = 1000.0;
 
-	std::vector<simple_marker> pattern_markers;
 	std::vector<multi_marker> multi_markers;
-	std::unordered_map<int, simple_marker> barcode_markers;
 
 	int patt_id = 0; // Running pattern marker id
+
+	ARdouble cameraLens[16];
 
 };
 
@@ -62,11 +50,7 @@ std::unordered_map<int, ARParam> cameraParams;
 //	Global variables
 // ============================================================================
 
-static ARdouble	transform[3][4];
-
-static ARdouble cameraLens[16];
-static ARdouble modelView[16];
-static ARdouble matrix[16];
+static ARdouble	gTransform[3][4];
 
 static int gARControllerID = 0;
 static int gCameraID = 0;
@@ -117,9 +101,11 @@ extern "C" {
 
 		arControllers.erase(id);
 
-		delete &arc->pattern_markers;
+		for (int i=0; i<arc->multi_markers.size(); i++) {
+			arMultiFreeConfig(arc->multi_markers[i].multiMarkerHandle);
+		}
+
 		delete &arc->multi_markers;
-		delete &arc->barcode_markers;
 		delete arc;
 
 		return 0;
@@ -156,8 +142,8 @@ extern "C" {
 			arParamChangeSize(&(arc->param), arc->width, arc->height, &(arc->param));
 		}
 
-		ARLOG("*** Camera Parameter ***\n");
-		arParamDisp(&(arc->param));
+		// ARLOGi("*** Camera Parameter ***\n");
+		// arParamDisp(&(arc->param));
 
 		deleteHandle(arc);
 
@@ -166,7 +152,7 @@ extern "C" {
 			return -1;
 		}
 
-		ARLOGi("setCamera(): arParamLTCreated\n..%d, %d\n", (arc->paramLT->param).xsize, (arc->paramLT->param).ysize);
+		// ARLOGi("setCamera(): arParamLTCreated\n..%d, %d\n", (arc->paramLT->param).xsize, (arc->paramLT->param).ysize);
 
 		// setup camera
 		if ((arc->arhandle = arCreateHandle(arc->paramLT)) == NULL) {
@@ -176,7 +162,7 @@ extern "C" {
 		// AR_DEFAULT_PIXEL_FORMAT
 		int set = arSetPixelFormat(arc->arhandle, AR_PIXEL_FORMAT_RGBA);
 
-		ARLOGi("setCamera(): arCreateHandle done\n");
+		// ARLOGi("setCamera(): arCreateHandle done\n");
 
 		arc->ar3DHandle = ar3DCreateHandle(&(arc->param));
 		if (arc->ar3DHandle == NULL) {
@@ -184,11 +170,12 @@ extern "C" {
 			return -1;
 		}
 
-		ARLOGi("setCamera(): ar3DCreateHandle done\n");
+		// ARLOGi("setCamera(): ar3DCreateHandle done\n");
 
 		arPattAttach(arc->arhandle, arc->arPattHandle);
-		ARLOGi("setCamera(): Pattern handler attached.\n");
+		// ARLOGi("setCamera(): Pattern handler attached.\n");
 
+		arglCameraFrustumRH(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, arc->cameraLens);
 
 		return 0;
 	}
@@ -241,10 +228,6 @@ extern "C" {
 			return -1;
 		}
 
-		arc->pattern_markers.push_back(simple_marker());
-		arc->pattern_markers[arc->patt_id].id = arc->patt_id;
-		arc->pattern_markers[arc->patt_id].found = false;
-
 		return arc->patt_id;
 	}
 
@@ -259,10 +242,9 @@ extern "C" {
 			return -1;
 		}
 
-		int multiMarker_id = 1000000000 - arc->multi_markers.size();
+		int multiMarker_id = arc->multi_markers.size();
 		multi_marker marker = multi_marker();
 		marker.id = multiMarker_id;
-		marker.found = false;
 		marker.multiMarkerHandle = arc->arMultiMarkerHandle;
 
 		arc->multi_markers.push_back(marker);
@@ -274,44 +256,25 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
 
-		int mId = 1000000000 - multiMarker_id;
+		int mId = multiMarker_id;
 		if (mId < 0 || arc->multi_markers.size() <= mId) {
 			return -1;
 		}
 		return (arc->multi_markers[mId].multiMarkerHandle)->marker_num;
 	}
 
+	int getMultiMarkerCount(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		return arc->multi_markers.size();
+	}
 
 
 
 	/**********************
 	* Setters and getters *
 	**********************/
-
-
-	void setScale(int id, ARdouble tmp) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-		arc->cameraViewScale = tmp;
-	}
-
-	ARdouble getScale(int id) {
-		if (arControllers.find(id) == arControllers.end()) { return -1; }
-		arController *arc = &(arControllers[id]);
-		return arc->cameraViewScale;
-	}
-
-	void setMarkerWidth(int id, ARdouble tmp) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-		arc->markerWidth = tmp;
-	}
-
-	ARdouble getMarkerWidth(int id) {
-		if (arControllers.find(id) == arControllers.end()) { return -1; }
-		arController *arc = &(arControllers[id]);
-		return arc->markerWidth;
-	}
 
 	void setProjectionNearPlane(int id, const ARdouble projectionNearPlane) {
 		if (arControllers.find(id) == arControllers.end()) { return; }
@@ -473,14 +436,14 @@ extern "C" {
 		return -1;
 	}
 
-	ARUint8* setDebugMode(int id, int enable) {
+	int setDebugMode(int id, int enable) {
 		if (arControllers.find(id) == arControllers.end()) { return NULL; }
 		arController *arc = &(arControllers[id]);
 
 		arSetDebugMode(arc->arhandle, enable ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
-		ARLOGi("Debug mode set to %s", enable ? "on." : "off.");
+		ARLOGi("Debug mode set to %s\n", enable ? "on." : "off.");
 
-		return arc->arhandle->labelInfo.bwImage;
+		return (int)arc->arhandle->labelInfo.bwImage;
 	}
 
 	int getDebugMode(int id) {
@@ -522,73 +485,180 @@ extern "C" {
 	 * Marker processing
 	 */
 
-
-	void transferMultiMarker(int id, int multiMarkerId) {
-		EM_ASM_({
-			artoolkit.onGetMultiMarker($0, $1);
-		},
-			id,
-			multiMarkerId
-		);
+	void matrixCopy(ARdouble src[3][4], ARdouble dst[3][4]) {
+		for (int i=0; i<3; i++) {
+			for (int j=0; j<4; j++) {
+				src[i][j] = dst[i][j];
+			}
+		}
 	}
 
-	void transferMultiMarkerSub(int id, int multiMarkerId, int index, ARMultiEachMarkerInfoT *marker) {
+	static int ARCONTROLLER_NOT_FOUND = -1;
+	static int MULTIMARKER_NOT_FOUND = -2;
+	static int MARKER_INDEX_OUT_OF_BOUNDS = -3;
+
+	int getTransMatSquare(int id, int markerIndex, int markerWidth) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->arhandle->marker_num <= markerIndex) {
+			return MARKER_INDEX_OUT_OF_BOUNDS;
+		}
+		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
+
+		arGetTransMatSquare(arc->ar3DHandle, marker, markerWidth, gTransform);
+		return 0;
+	}
+
+	int getTransMatSquareCont(int id, int markerIndex, int markerWidth) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->arhandle->marker_num <= markerIndex) {
+			return MARKER_INDEX_OUT_OF_BOUNDS;
+		}
+		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
+
+		arGetTransMatSquareCont(arc->ar3DHandle, marker, gTransform, markerWidth, gTransform);
+		return 0;
+	}
+
+	int getTransMatMultiSquareRobust(int id, int multiMarkerId) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->multi_markers.size() <= multiMarkerId) {
+			return MULTIMARKER_NOT_FOUND;
+		}
+		multi_marker *multiMatch = &(arc->multi_markers[multiMarkerId]);
+		ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
+
+		arGetTransMatMultiSquareRobust( arc->ar3DHandle, arc->arhandle->markerInfo, arc->arhandle->marker_num, arMulti );
+		matrixCopy(arMulti->trans, gTransform);
+		return 0;
+	}
+
+	int getTransMatMultiSquare(int id, int multiMarkerId) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->multi_markers.size() <= multiMarkerId) {
+			return MULTIMARKER_NOT_FOUND;
+		}
+		multi_marker *multiMatch = &(arc->multi_markers[multiMarkerId]);
+		ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
+
+		arGetTransMatMultiSquare( arc->ar3DHandle, arc->arhandle->markerInfo, arc->arhandle->marker_num, arMulti );
+		matrixCopy(arMulti->trans, gTransform);
+
+		return 0;
+	}
+
+	int detectMarker(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		return arDetectMarker( arc->arhandle, arc->videoFrame );
+	}
+
+	int getMarkerNum(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		return arc->arhandle->marker_num;
+	}
+
+	int getMultiEachMarkerInfo(int id, int multiMarkerId, int markerIndex) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->multi_markers.size() <= multiMarkerId) {
+			return MULTIMARKER_NOT_FOUND;
+		}
+		multi_marker *multiMatch = &(arc->multi_markers[multiMarkerId]);
+		ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
+
+		if (arMulti->marker_num <= markerIndex) {
+			return MARKER_INDEX_OUT_OF_BOUNDS;
+		}
+
+		ARMultiEachMarkerInfoT *marker = &(arMulti->marker[markerIndex]);
+		matrixCopy(marker->trans, gTransform);
+
 		EM_ASM_({
-			artoolkit.onGetMultiMarkerSub($0, $1,
-				{
-					visible: $2,
-					pattId: $3,
-					pattType: $4,
-					width: $5
-				},
-				$6
-			);
+			if (!artoolkit["multiEachMarkerInfo"]) {
+				artoolkit["multiEachMarkerInfo"] = ({});
+			}
+			var multiEachMarker = artoolkit["multiEachMarkerInfo"];
+			multiEachMarker['visible'] = $0;
+			multiEachMarker['pattId'] = $1;
+			multiEachMarker['pattType'] = $2;
+			multiEachMarker['width'] = $3;
 		},
-			id,
-			multiMarkerId,
 			marker->visible,
 			marker->patt_id,
 			marker->patt_type,
-			marker->width,
-			index
+			marker->width
 		);
+
+		return 0;
 	}
 
-	void transferMarker(int id, ARMarkerInfo* markerInfo, int index) {
-		// see /artoolkit5/doc/apiref/ar_h/index.html#//apple_ref/c/tdef/ARMarkerInfo
+	int getMarkerInfo(int id, int markerIndex) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->arhandle->marker_num <= markerIndex) {
+			return MARKER_INDEX_OUT_OF_BOUNDS;
+		}
+
+		ARMarkerInfo *markerInfo = &((arc->arhandle)->markerInfo[markerIndex]);
 
 		EM_ASM_({
 			var $a = arguments;
-			var i = 24;
-			artoolkit._onGetMarker({
-				area: $0,
-				id: $1,
-				idPatt: $2,
-				idMatrix: $3,
-				dir: $4,
-				dirPatt: $5,
-				dirMatrix: $6,
-				cf: $7,
-				cfPatt: $8,
-				cfMatrix: $9,
-				pos: [$10, $11],
-				line: [
-					[$12, $13, $14],
-					[$15, $16, $17],
-					[$18, $19, $20],
-					[$21, $22, $23]
-				],
-				vertex: [
-					[$a[i++], $a[i++]],
-					[$a[i++], $a[i++]],
-					[$a[i++], $a[i++]],
-					[$a[i++], $a[i++]]
-				],
-				// ARMarkerInfo2 *markerInfo2Ptr;
-				// AR_MARKER_INFO_CUTOFF_PHASE cutoffPhase;
-				errorCorrected: $a[i++]
-				// globalID: $a[i++]
-			}, $a[i++], $a[i++]);
+			var i = 12;
+			if (!artoolkit["markerInfo"]) {
+				artoolkit["markerInfo"] = ({
+					pos: [0,0],
+					line: [[0,0,0], [0,0,0], [0,0,0], [0,0,0]],
+					vertex: [[0,0], [0,0], [0,0], [0,0]]
+				});
+			}
+			var markerInfo = artoolkit["markerInfo"];
+			markerInfo["area"] = $0;
+			markerInfo["id"] = $1;
+			markerInfo["idPatt"] = $2;
+			markerInfo["idMatrix"] = $3;
+			markerInfo["dir"] = $4;
+			markerInfo["dirPatt"] = $5;
+			markerInfo["dirMatrix"] = $6;
+			markerInfo["cf"] = $7;
+			markerInfo["cfPatt"] = $8;
+			markerInfo["cfMatrix"] = $9;
+			markerInfo["pos"][0] = $10;
+			markerInfo["pos"][1] = $11;
+			markerInfo["line"][0][0] = $a[i++];
+			markerInfo["line"][0][1] = $a[i++];
+			markerInfo["line"][0][2] = $a[i++];
+			markerInfo["line"][1][0] = $a[i++];
+			markerInfo["line"][1][1] = $a[i++];
+			markerInfo["line"][1][2] = $a[i++];
+			markerInfo["line"][2][0] = $a[i++];
+			markerInfo["line"][2][1] = $a[i++];
+			markerInfo["line"][2][2] = $a[i++];
+			markerInfo["line"][3][0] = $a[i++];
+			markerInfo["line"][3][1] = $a[i++];
+			markerInfo["line"][3][2] = $a[i++];
+			markerInfo["vertex"][0][0] = $a[i++];
+			markerInfo["vertex"][0][1] = $a[i++];
+			markerInfo["vertex"][1][0] = $a[i++];
+			markerInfo["vertex"][1][1] = $a[i++];
+			markerInfo["vertex"][2][0] = $a[i++];
+			markerInfo["vertex"][2][1] = $a[i++];
+			markerInfo["vertex"][3][0] = $a[i++];
+			markerInfo["vertex"][3][1] = $a[i++];
+			markerInfo["errorCorrected"] = $a[i++];
+			// markerInfo["globalID"] = $a[i++];
 		},
 			markerInfo->area,
 			markerInfo->id,
@@ -636,178 +706,13 @@ extern "C" {
 
 			//
 
-			markerInfo->errorCorrected,
-			index,
-			id
+			markerInfo->errorCorrected
+
 			// markerInfo->globalID
 		);
+
+		return 0;
 	}
-
-	void matrixMul(ARdouble dst[3][4], ARdouble m[3][4], ARdouble n[3][4]) {
-		int i, j;
-		for (i = 0; i < 3; i++) {
-			for (j = 0; j < 3; j++) {
-				dst[i][j] =
-					m[i][0] * n[0][j] +
-					m[i][1] * n[1][j] +
-					m[i][2] * n[2][j];
-			}
-			dst[i][j] =
-				m[i][0] * n[0][j] +
-				m[i][1] * n[1][j] +
-				m[i][2] * n[2][j] +
-				m[i][3];
-		}
-	}
-
-	void convertMatrixFormat( ARdouble para[3][4], ARdouble gl_para[16] ) {
-		int     i, j;
-
-		for( j = 0; j < 3; j++ ) {
-			for( i = 0; i < 4; i++ ) {
-				gl_para[i*4+j] = para[j][i];
-			}
-		}
-		gl_para[0*4+3] = gl_para[1*4+3] = gl_para[2*4+3] = 0.0;
-		gl_para[3*4+3] = 1.0;
-	}
-
-	void convert2(ARdouble origin[3][4], ARdouble convert[16]) {
-		convert[ 0] = origin[0][0];
-		convert[ 1] = origin[1][0];
-		convert[ 2] = origin[2][0];
-		convert[ 3] = 0.0;
-		convert[ 4] = origin[0][1];
-		convert[ 5] = origin[1][1];
-		convert[ 6] = origin[2][1];
-		convert[ 7] = 0.0;
-		convert[ 8] = origin[0][2];
-		convert[ 9] = origin[1][2];
-		convert[10] = origin[2][2];
-		convert[11] = 0.0;
-		convert[12] = origin[0][3];
-		convert[13] = origin[1][3];
-		convert[14] = origin[2][3];
-		convert[15] = 1.0;
-	}
-
-	void process(int id) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-
-		int success = arDetectMarker(
-			arc->arhandle, arc->videoFrame
-		);
-
-		if (success) return;
-
-		// ARLOGi("arDetectMarker: %d\n", success);
-
-		int markerNum = arGetMarkerNum(arc->arhandle);
-		ARMarkerInfo* markerInfo = arGetMarker(arc->arhandle);
-
-		EM_ASM_({
-			artoolkit.onMarkerNum($0, $1);
-		}, id, markerNum);
-
-		int i, j, k;
-
-		k = -1;
-
-		ARMarkerInfo* marker;
-		simple_marker* match;
-		multi_marker* multiMatch;
-
-		// toggle transform found flag
-		for (j = 0; j < arc->pattern_markers.size(); j++) {
-			match = &(arc->pattern_markers[j]);
-			match->previouslyFound = match->found;
-			match->found = false;
-		}
-
-		for (auto &any : arc->barcode_markers) {
-			match = &any.second;
-			match->previouslyFound = match->found;
-			match->found = false;
-		}
-
-		for (j = 0; j < (arc->arhandle)->marker_num; j++) {
-			marker = &((arc->arhandle)->markerInfo[j]);
-
-			// Pattern found
-			if (marker->idPatt > -1 && marker->idMatrix == -1) {
-				match = &(arc->pattern_markers[marker->idPatt]);
-				match->found = true;
-
-				if (!match->previouslyFound) {
-					arGetTransMatSquare(arc->ar3DHandle, marker, arc->markerWidth, match->transform);
-				} else {
-					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->markerWidth, match->transform);
-				}
-
-				arglCameraViewRH(match->transform, modelView, arc->cameraViewScale);
-			}
-			// Barcode found
-			else if (marker->idMatrix > -1) {
-				if (arc->barcode_markers.find(marker->idMatrix) == arc->barcode_markers.end()) {
-					arc->barcode_markers[marker->idMatrix] = simple_marker();
-				}
-				match = &(arc->barcode_markers[marker->idMatrix]);
-				match->found = true;
-				match->id = marker->idMatrix;
-
-				if (!match->previouslyFound) {
-					arGetTransMatSquare(arc->ar3DHandle, marker, arc->markerWidth, match->transform);
-				} else {
-					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->markerWidth, match->transform);
-				}
-
-				arglCameraViewRH(match->transform, modelView, arc->cameraViewScale);
-			}
-			// everything else
-			else {
-				arGetTransMatSquare(arc->ar3DHandle, &((arc->arhandle)->markerInfo[j]), arc->markerWidth, transform);
-				// places transform matrix to modelView
-				arglCameraViewRH(transform, modelView, arc->cameraViewScale);
-			}
-
-			// send what we have down to JS land
-			transferMarker(id, &((arc->arhandle)->markerInfo[j]), j);
-		}
-
-		arglCameraFrustumRH(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, cameraLens);
-
-		for (j = 0; j < arc->multi_markers.size(); j++) {
-			multiMatch = &(arc->multi_markers[j]);
-			multiMatch->found = false;
-			ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
-
-			int err = 0;
-			int robustFlag = 1;
-
-			if( robustFlag ) {
-				err = arGetTransMatMultiSquareRobust( arc->ar3DHandle, markerInfo, markerNum, arMulti );
-			} else {
-				err = arGetTransMatMultiSquare( arc->ar3DHandle, markerInfo, markerNum, arMulti );
-			}
-			arglCameraViewRH(arMulti->trans, modelView, arc->cameraViewScale);
-			for (k = 0; k < arMulti->marker_num; k++) {
-				if (arMulti->marker[k].visible >= 0) {
-					transferMultiMarker(id, multiMatch->id);
-					break;
-				}
-			}
-
-			for (k = 0; k < arMulti->marker_num; k++) {
-				matrixMul(transform, arMulti->trans, arMulti->marker[k].trans);
-				arglCameraViewRH(transform, modelView, arc->cameraViewScale);
-				transferMultiMarkerSub(id, multiMatch->id, k, &(arMulti->marker[k]));
-			}
-		}
-	}
-
-
-
 
 
 	/********
@@ -834,18 +739,20 @@ extern "C" {
 		ARLOGi("Allocated videoFrameSize %d\n", arc->videoFrameSize);
 
 		EM_ASM_({
-			artoolkit.onFrameMalloc($0, {
-				framepointer: $1,
-				framesize: $2,
-				camera: $3,
-				modelView: $4
-			});
+			if (!artoolkit["frameMalloc"]) {
+				artoolkit["frameMalloc"] = ({});
+			}
+			var frameMalloc = artoolkit["frameMalloc"];
+			frameMalloc["framepointer"] = $1;
+			frameMalloc["framesize"] = $2;
+			frameMalloc["camera"] = $3;
+			frameMalloc["transform"] = $4;
 		},
 			arc->id,
 			arc->videoFrame,
 			arc->videoFrameSize,
-			cameraLens,
-			modelView
+			arc->cameraLens,
+			gTransform
 		);
 
 		return arc->id;

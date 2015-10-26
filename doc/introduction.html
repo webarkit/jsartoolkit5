@@ -44,15 +44,14 @@
 <p>Yes, as you have figured out, we’re going to need three things to build our AR app. We’re going to need an AR marker, a video, and a way to draw 3D graphics on top of the video. For the marker, we’ll use a special built-in marker called a BarcodeMarker. The video we’ll get from your device camera using the getUserMedia API. And we’re going to use Three.js to do the 3D graphics.
 The first thing we’ll do is create the video source. For that, we’ll use the getUserMedia API to get a URL for the device camera and then use that URL as the source for a video element. With this, we have a video element that shows the device camera video feed on it.
 
-<p>The simple way to do all this is to use a helper function in JSARToolKit5: <code class="prettyprint">ARController.getUserVideo(options)</code>. The onSuccess callback in the options object gets called with a ready-to-use video element.
+<p>The simple way to do all this is to use a helper function in JSARToolKit5: <code class="prettyprint">ARController.getUserMedia(options)</code>. The onSuccess callback in the options object gets called with a ready-to-use video element. Note that on Chrome for Android, mobile video only plays after interacting with the page. ARController.getUserMedia adds a window-level touch event listener that plays the video.
 
-<pre class="prettyprint"><code>ARController.getUserVideo({
-	maxWidth: 640,
-	maxHeight: 480,
+<pre class="prettyprint"><code>var video = ARController.getUserMedia({
+	width: 640,
+	height: 480,
 	facing: "environment",
 	onSuccess: function(video) {
 		console.log('got video', video);
-
 	}
 });
 </code></pre>
@@ -148,7 +147,7 @@ arController.process(video);
 
 <p>Code-wise, I'm going to cheat a bit and use the Three.js integration in JSARToolKit5. It does all the stuff that we set up above, and packages it up into a couple of easy-to-use methods.
 
-<pre class="prettyprint"><code>ARController.getUserVideoThreeScene(
+<pre class="prettyprint"><code>ARController.getUserMediaThreeScene(
 	width: 320,
 	height: 320,
 	facing: 'environment',

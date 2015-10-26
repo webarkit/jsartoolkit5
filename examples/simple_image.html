@@ -23,21 +23,27 @@ cameraParam.onload = function() {
 
 	ar3 = new ARController(v3, cameraParam);
 	ar3.debugSetup();
-	ar3.process();
+	ar3.detectMarker();
+	ar3.debugDraw();
 
 	ar4 = new ARController(v4, cameraParam);
 	ar4.debugSetup();
-	ar4.process();
+	ar4.detectMarker();
+	ar4.debugDraw();
 
 	ar5 = new ARController(v5, cameraParam);
 
-	ar1.process();
-	ar2.process();
+	ar1.detectMarker();
+	ar1.debugDraw();
+	ar2.detectMarker();
+	ar2.debugDraw();
 
-	ar4.debugSetup();
+	ar5.debugSetup();
+	ar5.detectMarker();
+	ar5.debugDraw();
 };
 
-cameraParam.src = 'Data/camera_para.dat';
+cameraParam.load('Data/camera_para.dat');
 
 </script>
 
