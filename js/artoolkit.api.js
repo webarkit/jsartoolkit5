@@ -118,43 +118,39 @@
 
 		var markerNum = this.getMarkerNum();
 		var k,o;
-		for (k in this.lastFramePatternMarkers) {
-			o = this.lastFramePatternMarkers[k]
+		for (k in this.patternMarkers) {
+			o = this.patternMarkers[k]
 			o.inPrevious = o.inCurrent;
 			o.inCurrent = false;
 		}
-		for (k in this.lastFrameBarcodeMarkers) {
-			o = this.lastFrameBarcodeMarkers[k]
+		for (k in this.barcodeMarkers) {
+			o = this.barcodeMarkers[k]
 			o.inPrevious = o.inCurrent;
 			o.inCurrent = false;
 		}
+
 		for (var i=0; i<markerNum; i++) {
 			var markerInfo = this.getMarker(i);
-			var visible = false;
 
 			var markerType = artoolkit.UNKNOWN_MARKER;
+			var visible = this.trackPatternMarkerId(-1);
 
-			if (markerInfo.idPatt >= 0 || (markerInfo.id === markerInfo.idPatt && markerInfo.idMatrix < 0)) {
-				visible = this.patternMarkers[markerInfo.idPatt];
+			if (markerInfo.idPatt > -1 && markerInfo.idMatrix == -1) {
+				visible = this.trackPatternMarkerId(markerInfo.idPatt);
 				markerType = artoolkit.PATTERN_MARKER;
-			} else if (markerInfo.idMatrix >= 0) {
-				visible = this.barcodeMarkers[markerInfo.idMatrix];
+
+			} else if (markerInfo.idMatrix > -1) {
+				visible = this.trackBarcodeMarkerId(markerInfo.idMatrix);
 				markerType = artoolkit.BARCODE_MARKER;
+
 			}
+
 			if (visible && visible.inPrevious) {
 				this.getTransMatSquareCont(i, visible.markerWidth, visible.matrix, visible.matrix);
 			} else {
-				if (!visible) {
-					if (markerInfo.idPatt > 0) {
-						visible = this.trackPatternMarkerId(markerInfo.idPatt);
-					} else if (markerInfo.idMatrix >= 0) {
-						visible = this.trackBarcodeMarkerId(markerInfo.idPatt);
-					} else {
-						visible = this.trackPatternMarkerId(-1);
-					}
-				}
 				this.getTransMatSquare(i, visible.markerWidth, visible.matrix);
 			}
+
 			visible.inCurrent = true;
 			this.transMatToGLMat(visible.matrix, this.transform_mat);
 			this.dispatchEvent({
@@ -166,8 +162,9 @@
 					marker: markerInfo,
 					matrix: this.transform_mat
 				}
-			})
+			});
 		}
+
 		var multiMarkerCount = this.getMultiMarkerCount();
 		for (var i=0; i<multiMarkerCount; i++) {
 			var subMarkerCount = this.getMultiMarkerNum(i);

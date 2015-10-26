@@ -230,10 +230,10 @@
 			*/
 			this.addEventListener('getMarker', function(ev) {
 				var marker = ev.data.marker;
+				var obj;
 				if (ev.data.type === artoolkit.PATTERN_MARKER) {
 					obj = this.threePatternMarkers[ev.data.marker.idPatt];
-				}
-				if (ev.data.type === artoolkit.BARCODE_MARKER) {
+				} else if (ev.data.type === artoolkit.BARCODE_MARKER) {
 					obj = this.threeBarcodeMarkers[ev.data.marker.idMatrix];
 				}
 				if (obj) {

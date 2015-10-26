@@ -108,13 +108,13 @@ window.ARThreeOnLoad = function() {
 			arScene.scene.add(markerRoot);
 
 			arController.loadMarker('Data/patt.hiro', function(markerId) {
-				var markerRoot = arController.createThreeMarker(markerId, 2);
+				var markerRoot = arController.createThreeMarker(markerId, 3);
 				markerRoot.add(sphere);
 				arScene.scene.add(markerRoot);
 			});
 
 			arController.loadMarker('Data/patt.kanji', function(markerId) {
-				var markerRoot = arController.createThreeMarker(markerId, 2);
+				var markerRoot = arController.createThreeMarker(markerId, 3);
 				markerRoot.add(torus);
 				arScene.scene.add(markerRoot);
 			});
