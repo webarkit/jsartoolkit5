@@ -72226,10 +72226,10 @@ function _matrixCopy($src, $dst) {
  var $i$03 = 0;
  $i$03 = 0;
  do {
-  HEAPF64[$src + ($i$03 << 5) >> 3] = +HEAPF64[$dst + ($i$03 << 5) >> 3];
-  HEAPF64[$src + ($i$03 << 5) + 8 >> 3] = +HEAPF64[$dst + ($i$03 << 5) + 8 >> 3];
-  HEAPF64[$src + ($i$03 << 5) + 16 >> 3] = +HEAPF64[$dst + ($i$03 << 5) + 16 >> 3];
-  HEAPF64[$src + ($i$03 << 5) + 24 >> 3] = +HEAPF64[$dst + ($i$03 << 5) + 24 >> 3];
+  HEAPF64[$dst + ($i$03 << 5) >> 3] = +HEAPF64[$src + ($i$03 << 5) >> 3];
+  HEAPF64[$dst + ($i$03 << 5) + 8 >> 3] = +HEAPF64[$src + ($i$03 << 5) + 8 >> 3];
+  HEAPF64[$dst + ($i$03 << 5) + 16 >> 3] = +HEAPF64[$src + ($i$03 << 5) + 16 >> 3];
+  HEAPF64[$dst + ($i$03 << 5) + 24 >> 3] = +HEAPF64[$src + ($i$03 << 5) + 24 >> 3];
   $i$03 = $i$03 + 1 | 0;
  } while (($i$03 | 0) != 3);
  return;

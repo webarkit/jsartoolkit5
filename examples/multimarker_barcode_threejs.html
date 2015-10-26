@@ -72,7 +72,7 @@ ARController.getUserMediaThreeScene({
 
 			for (var i=0; i<markerNum; i++) {
 				markerRoot.markers[i] = makeRedCube();
-				arScene.scene.add(markerRoot.markers[i]);
+				markerRoot.add(markerRoot.markers[i]);
 			}
 
 			var tick = function() {

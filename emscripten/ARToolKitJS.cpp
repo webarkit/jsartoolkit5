@@ -55,6 +55,10 @@ static ARdouble	gTransform[3][4];
 static int gARControllerID = 0;
 static int gCameraID = 0;
 
+static int ARCONTROLLER_NOT_FOUND = -1;
+static int MULTIMARKER_NOT_FOUND = -2;
+static int MARKER_INDEX_OUT_OF_BOUNDS = -3;
+
 
 extern "C" {
 
@@ -488,14 +492,10 @@ extern "C" {
 	void matrixCopy(ARdouble src[3][4], ARdouble dst[3][4]) {
 		for (int i=0; i<3; i++) {
 			for (int j=0; j<4; j++) {
-				src[i][j] = dst[i][j];
+				dst[i][j] = src[i][j];
 			}
 		}
 	}
-
-	static int ARCONTROLLER_NOT_FOUND = -1;
-	static int MULTIMARKER_NOT_FOUND = -2;
-	static int MARKER_INDEX_OUT_OF_BOUNDS = -3;
 
 	int getTransMatSquare(int id, int markerIndex, int markerWidth) {
 		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
@@ -507,6 +507,7 @@ extern "C" {
 		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
 
 		arGetTransMatSquare(arc->ar3DHandle, marker, markerWidth, gTransform);
+
 		return 0;
 	}
 
@@ -520,6 +521,7 @@ extern "C" {
 		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
 
 		arGetTransMatSquareCont(arc->ar3DHandle, marker, gTransform, markerWidth, gTransform);
+
 		return 0;
 	}
 
@@ -535,6 +537,7 @@ extern "C" {
 
 		arGetTransMatMultiSquareRobust( arc->ar3DHandle, arc->arhandle->markerInfo, arc->arhandle->marker_num, arMulti );
 		matrixCopy(arMulti->trans, gTransform);
+
 		return 0;
 	}
 

@@ -3,15 +3,6 @@
 (function() {
 	var integrate = function() {
 		/**
-			Set this matrix's elements to the given column-major matrix array.
-
-			@param {Float32Array} m - The array to copy
-		*/
-		THREE.Matrix4.prototype.setFromArray = function(m) {
-			return this.elements.set(m);
-		};
-
-		/**
 			Helper for setting up a Three.js AR scene using the device camera as input.
 			Pass in the maximum dimensions of the video you want to process and onSuccess and onError callbacks.
 
@@ -96,10 +87,12 @@
 			}
 
 			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera(45, 1, 1, 1000)
+			var camera = new THREE.Camera();
+			camera.matrixAutoUpdate = false;
+			camera.projectionMatrix.elements.set(this.getCameraMatrix());
+
 			scene.add(camera);
 
-			camera.matrixAutoUpdate = false;
 
 			var self = this;
 
@@ -118,11 +111,9 @@
 						self.threePatternMarkers[i].visible = false;
 					}
 					for (var i in self.threeBarcodeMarkers) {
-						self.threeBarcodeMarkers[i].wasInLastFrame = self.threeBarcodeMarkers[i].visible;
 						self.threeBarcodeMarkers[i].visible = false;
 					}
 					for (var i in self.threeMultiMarkers) {
-						self.threeMultiMarkers[i].wasInLastFrame = self.threeMultiMarkers[i].visible;
 						self.threeMultiMarkers[i].visible = false;
 						for (var j=0; j<self.threeMultiMarkers[i].markers.length; j++) {
 							if (self.threeMultiMarkers[i].markers[j]) {
@@ -131,7 +122,6 @@
 						}
 					}
 					self.process(video);
-					camera.projectionMatrix.setFromArray(self.getCameraMatrix());
 				},
 
 				renderOn: function(renderer) {
@@ -247,7 +237,7 @@
 					obj = this.threeBarcodeMarkers[ev.data.marker.idMatrix];
 				}
 				if (obj) {
-					obj.matrix.elements.set(this.getTransformationMatrix());
+					obj.matrix.elements.set(ev.data.matrix);
 					obj.visible = true;
 				}
 			});
@@ -260,7 +250,7 @@
 			this.addEventListener('getMultiMarker', function(ev) {
 				var obj = this.threeMultiMarkers[ev.data.multiMarkerId];
 				if (obj) {
-					obj.matrix.elements.set(this.getTransformationMatrix());
+					obj.matrix.elements.set(ev.data.matrix);
 					obj.visible = true;
 				}
 			});
@@ -277,7 +267,7 @@
 				var obj = this.threeMultiMarkers[marker];
 				if (obj && obj.markers && obj.markers[subMarkerID]) {
 					var sub = obj.markers[subMarkerID];
-					this.transMatToGLMat(this.getMarkerTransformationMatrix(), sub.matrix.elements);
+					sub.matrix.elements.set(ev.data.matrix);
 					sub.visible = (subMarker.visible >= 0);
 				}
 			});

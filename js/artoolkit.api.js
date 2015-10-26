@@ -171,34 +171,41 @@
 		var multiMarkerCount = this.getMultiMarkerCount();
 		for (var i=0; i<multiMarkerCount; i++) {
 			var subMarkerCount = this.getMultiMarkerNum(i);
+			var visible = false;
+
+			artoolkit.getTransMatMultiSquareRobust(this.id, i);
+			this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
+
 			for (var j=0; j<subMarkerCount; j++) {
-				var markerInfo = this.getMultiEachMarker(i, j);
-				if (markerInfo.visible) {
-					artoolkit.getTransMatSquareMultiRobust(this.id, i);
-					this.transMatToGL(this.marker_transform_mat, this.transform_mat);
+				var multiEachMarkerInfo = this.getMultiEachMarker(i, j);
+				if (multiEachMarkerInfo.visible >= 0) {
+					visible = true;
 					this.dispatchEvent({
-						name: 'getMultiMatrix',
+						name: 'getMultiMarker',
 						target: this,
 						data: {
 							multiMarkerId: i,
 							matrix: this.transform_mat
 						}
 					});
+					break;
 				}
 			}
-			for (var j=0; j<subMarkerCount; j++) {
-				var markerInfo = this.getMultiEachMarker(i, j);
-				this.transMatToGL(this.marker_transform_mat, this.transform_mat);
-				this.dispatchEvent({
-					name: 'getMultiMarkerSub',
-					target: this,
-					data: {
-						multiMarkerId: i,
-						markerIndex: j,
-						marker: markerInfo,
-						matrix: this.transform_mat
-					}
-				});
+			if (visible) {
+				for (var j=0; j<subMarkerCount; j++) {
+					var multiEachMarkerInfo = this.getMultiEachMarker(i, j);
+					this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
+					this.dispatchEvent({
+						name: 'getMultiMarkerSub',
+						target: this,
+						data: {
+							multiMarkerId: i,
+							markerIndex: j,
+							marker: multiEachMarkerInfo,
+							matrix: this.transform_mat
+						}
+					});
+				}
 			}
 		}
 		if (this._bwpointer) {
@@ -325,14 +332,14 @@
 		return dst;
 	};
 
-	ARController.prototype.getTransMatSquareMulti = function(multiMarkerId, dst) {
-		artoolkit.getTransMatSquareMulti(this.id, multiMarkerId);
+	ARController.prototype.getTransMatMultiSquare = function(multiMarkerId, dst) {
+		artoolkit.getTransMatMultiSquare(this.id, multiMarkerId);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
 
-	ARController.prototype.getTransMatSquareMultiRobust = function(multiMarkerId, dst) {
-		artoolkit.getTransMatSquareMulti(this.id, multiMarkerId);
+	ARController.prototype.getTransMatMultiSquareRobust = function(multiMarkerId, dst) {
+		artoolkit.getTransMatMultiSquare(this.id, multiMarkerId);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
@@ -929,8 +936,8 @@
 		'getTransMatSquare',
 		'getTransMatSquareCont',
 
-		'getTransMatSquareMulti',
-		'getTransMatSquareMultiRobust',
+		'getTransMatMultiSquare',
+		'getTransMatMultiSquareRobust',
 
 		'getMultiMarkerNum',
 		'getMultiMarkerCount',
