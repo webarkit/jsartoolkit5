@@ -135,7 +135,7 @@
 			var markerType = artoolkit.UNKNOWN_MARKER;
 			var visible = this.trackPatternMarkerId(-1);
 
-			if (markerInfo.idPatt > -1 && markerInfo.idMatrix == -1) {
+			if (markerInfo.idPatt > -1 && markerInfo.idMatrix === -1) {
 				visible = this.trackPatternMarkerId(markerInfo.idPatt);
 				markerType = artoolkit.PATTERN_MARKER;
 
@@ -145,7 +145,7 @@
 
 			}
 
-			if (visible && visible.inPrevious) {
+			if (markerType !== artoolkit.UNKNOWN_MARKER && visible.inPrevious) {
 				this.getTransMatSquareCont(i, visible.markerWidth, visible.matrix, visible.matrix);
 			} else {
 				this.getTransMatSquare(i, visible.markerWidth, visible.matrix);
