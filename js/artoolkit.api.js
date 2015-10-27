@@ -626,10 +626,20 @@
 		return artoolkit.getDebugMode(this.id);
 	};
 
+	/**
+		Returns the Emscripten HEAP offset to the debug processing image used by ARToolKit.
+
+		@return {number} HEAP offset to the debug processing image.
+	*/
 	ARController.prototype.getProcessingImage = function() {
 		return artoolkit.getProcessingImage(this.id);
 	}
 
+	/**
+		Sets the logging level to use by ARToolKit.
+
+		@param 
+	*/
 	ARController.prototype.setLogLevel = function(mode) {
 		return artoolkit.setLogLevel(mode);
 	};
@@ -658,12 +668,18 @@
 		return artoolkit.getProjectionFarPlane(this.id);
 	};
 
+
 	/**
-	 * Sets the current threshold mode used for image binarization.
-	 * @param {number} mode		The new threshold mode
-	 * @see				setVideoThresholdMode()
+	    Set the labeling threshold mode (auto/manual).
+
+	    @param {number}		mode An integer specifying the mode. One of:
+	        AR_LABELING_THRESH_MODE_MANUAL,
+	        AR_LABELING_THRESH_MODE_AUTO_MEDIAN,
+	        AR_LABELING_THRESH_MODE_AUTO_OTSU,
+	        AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE,
+	        AR_LABELING_THRESH_MODE_AUTO_BRACKETING
 	 */
-	ARController.prototype.setThresholdMode = function(mode) {
+ 	ARController.prototype.setThresholdMode = function(mode) {
 		return artoolkit.setThresholdMode(this.id, mode);
 	};
 
@@ -677,61 +693,222 @@
 	};
 
 	/**
-	 * Sets the threshold value used for image binarization.
-	 * @param {number} threshold	The new threshold value to use
-	 * @see					getThreshold()
-	 */
+    	Set the labeling threshhold.
+
+        This function forces sets the threshold value.
+        The default value is AR_DEFAULT_LABELING_THRESH which is 100.
+        
+        The current threshold mode is not affected by this call.
+        Typically, this function is used when labeling threshold mode
+        is AR_LABELING_THRESH_MODE_MANUAL.
+ 
+        The threshold value is not relevant if threshold mode is
+        AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE.
+ 
+        Background: The labeling threshold is the value which
+		the AR library uses to differentiate between black and white
+		portions of an ARToolKit marker. Since the actual brightness,
+		contrast, and gamma of incoming images can vary signficantly
+		between different cameras and lighting conditions, this
+		value typically needs to be adjusted dynamically to a
+		suitable midpoint between the observed values for black
+		and white portions of the markers in the image.
+
+		@param {number}     thresh An integer in the range [0,255] (inclusive).
+	*/
 	ARController.prototype.setThreshold = function(threshold) {
 		return artoolkit.setThreshold(this.id, threshold);
 	};
 
 	/**
-	 * Returns the current threshold value used for image binarization.
-	 * @return {number}	The current threshold value
-	 * @see				setThreshold()
-	 */
+	    Get the current labeling threshold.
+
+		This function queries the current labeling threshold. For,
+		AR_LABELING_THRESH_MODE_AUTO_MEDIAN, AR_LABELING_THRESH_MODE_AUTO_OTSU,
+		and AR_LABELING_THRESH_MODE_AUTO_BRACKETING
+		the threshold value is only valid until the next auto-update.
+
+		The current threshold mode is not affected by this call.
+
+		The threshold value is not relevant if threshold mode is
+		AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE.
+
+	    @return {number} The current threshold value.
+	*/
 	ARController.prototype.getThreshold = function() {
 		return artoolkit.getThreshold(this.id);
 	};
 
+
+	/**
+		Set the pattern detection mode
+
+		The pattern detection determines the method by which ARToolKit
+		matches detected squares in the video image to marker templates
+		and/or IDs. ARToolKit v4.x can match against pictorial "template" markers,
+		whose pattern files are created with the mk_patt utility, in either colour
+		or mono, and additionally can match against 2D-barcode-type "matrix"
+		markers, which have an embedded marker ID. Two different two-pass modes
+		are also available, in which a matrix-detection pass is made first,
+		followed by a template-matching pass.
+
+		@param {number} mode
+			Options for this field are:
+			AR_TEMPLATE_MATCHING_COLOR
+			AR_TEMPLATE_MATCHING_MONO
+			AR_MATRIX_CODE_DETECTION
+			AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX
+			AR_TEMPLATE_MATCHING_MONO_AND_MATRIX
+			The default mode is AR_TEMPLATE_MATCHING_COLOR.
+	*/
 	ARController.prototype.setPatternDetectionMode = function(value) {
 		return artoolkit.setPatternDetectionMode(this.id, value);
 	};
 
+	/**
+		Returns the current pattern detection mode.
+
+		@return {number} The current pattern detection mode.
+	*/
 	ARController.prototype.getPatternDetectionMode = function() {
 		return artoolkit.getPatternDetectionMode(this.id);
 	};
 
+	/**
+		Set the size and ECC algorithm to be used for matrix code (2D barcode) marker detection.
+
+		When matrix-code (2D barcode) marker detection is enabled (see arSetPatternDetectionMode)
+		then the size of the barcode pattern and the type of error checking and correction (ECC)
+		with which the markers were produced can be set via this function.
+
+		This setting is global to a given ARHandle; It is not possible to have two different matrix
+		code types in use at once.
+
+	    @param      type The type of matrix code (2D barcode) in use. Options include:
+	        AR_MATRIX_CODE_3x3
+	        AR_MATRIX_CODE_3x3_HAMMING63
+	        AR_MATRIX_CODE_3x3_PARITY65
+	        AR_MATRIX_CODE_4x4
+	        AR_MATRIX_CODE_4x4_BCH_13_9_3
+	        AR_MATRIX_CODE_4x4_BCH_13_5_5
+	        The default mode is AR_MATRIX_CODE_3x3.
+	*/
 	ARController.prototype.setMatrixCodeType = function(value) {
 		return artoolkit.setMatrixCodeType(this.id, value);
 	};
 
+	/**
+		Returns the current matrix code (2D barcode) marker detection type.
+
+		@return {number} The current matrix code type.
+	*/
 	ARController.prototype.getMatrixCodeType = function() {
 		return artoolkit.getMatrixCodeType(this.id);
 	};
 
+	/**
+		Select between detection of black markers and white markers.
+	
+		ARToolKit's labelling algorithm can work with both black-bordered
+		markers on a white background (AR_LABELING_BLACK_REGION) or
+		white-bordered markers on a black background (AR_LABELING_WHITE_REGION).
+		This function allows you to specify the type of markers to look for.
+		Note that this does not affect the pattern-detection algorith
+		which works on the interior of the marker.
+
+		@param {number}      mode
+			Options for this field are:
+			AR_LABELING_WHITE_REGION
+			AR_LABELING_BLACK_REGION
+			The default mode is AR_LABELING_BLACK_REGION.
+	*/
 	ARController.prototype.setLabelingMode = function(value) {
 		return artoolkit.setLabelingMode(this.id, value);
 	};
 
+	/**
+		Enquire whether detection is looking for black markers or white markers.
+	    
+	    See discussion for setLabelingMode.
+
+	    @result {number} The current labeling mode.
+	*/
 	ARController.prototype.getLabelingMode = function() {
 		return artoolkit.getLabelingMode(this.id);
 	};
 
-	ARController.prototype.setPattRatio = function(value) {
+	/**
+		Set the width/height of the marker pattern space, as a proportion of marker width/height.
+
+	    @param {number}		pattRatio The the width/height of the marker pattern space, as a proportion of marker
+	        width/height. To set the default, pass AR_PATT_RATIO.
+	        If compatibility with ARToolKit verions 1.0 through 4.4 is required, this value
+	        must be 0.5.
+	 */
+ 	ARController.prototype.setPattRatio = function(value) {
 		return artoolkit.setPattRatio(this.id, value);
 	};
 
+	/**
+		Returns the current ratio of the marker pattern to the total marker size.
+
+		@return {number} The current pattern ratio.
+	*/
 	ARController.prototype.getPattRatio = function() {
 		return artoolkit.getPattRatio(this.id);
 	};
 
+	/**
+	    Set the image processing mode.
+
+        When the image processing mode is AR_IMAGE_PROC_FRAME_IMAGE,
+        ARToolKit processes all pixels in each incoming image
+        to locate markers. When the mode is AR_IMAGE_PROC_FIELD_IMAGE,
+        ARToolKit processes pixels in only every second pixel row and
+        column. This is useful both for handling images from interlaced
+        video sources (where alternate lines are assembled from alternate
+        fields and thus have one field time-difference, resulting in a
+        "comb" effect) such as Digital Video cameras.
+        The effective reduction by 75% in the pixels processed also
+        has utility in accelerating tracking by effectively reducing
+        the image size to one quarter size, at the cost of pose accuraccy.
+
+	    @param {number} mode
+			Options for this field are:
+			AR_IMAGE_PROC_FRAME_IMAGE
+			AR_IMAGE_PROC_FIELD_IMAGE
+			The default mode is AR_IMAGE_PROC_FRAME_IMAGE.
+	*/
 	ARController.prototype.setImageProcMode = function(value) {
 		return artoolkit.setImageProcMode(this.id, value);
 	};
 
+	/**
+	    Get the image processing mode.
+
+		See arSetImageProcMode() for a complete description.
+
+	    @return {number} The current image processing mode.
+	*/
 	ARController.prototype.getImageProcMode = function() {
 		return artoolkit.getImageProcMode(this.id);
+	};
+
+
+	/**
+		Draw the black and white image and debug markers to the ARController canvas.
+
+		See setDebugMode.
+	*/
+	ARController.prototype.debugDraw = function() {
+		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
+		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
+		this.ctx.putImageData(id, 0, 0)
+
+		var marker_num = this.getMarkerNum();
+		for (var i=0; i<marker_num; i++) {
+			this._debugMarker(this.getMarker(i));
+		}
 	};
 
 
@@ -757,6 +934,10 @@
 			if (self.onload) {
 				self.onload();
 			}
+			self.dispatchEvent({
+				name: 'load',
+				target: self
+			});
 		}, 1);
 	};
 
@@ -785,26 +966,6 @@
 			return true;
 		}
 		return false;
-	};
-
-	ARController.prototype._onMarkerNum = function(ev) {
-		if (ev.target === self.id) {
-			if (this.bwpointer) {
-				this._detected_markers = new Array(ev.data);
-			}
-			this.dispatchEvent(ev);
-		}
-	};
-
-	ARController.prototype.debugDraw = function() {
-		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
-		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
-		this.ctx.putImageData(id, 0, 0)
-
-		var marker_num = this.getMarkerNum();
-		for (var i=0; i<marker_num; i++) {
-			this._debugMarker(this.getMarker(i));
-		}
 	};
 
 	ARController.prototype._debugMarker = function(marker) {
