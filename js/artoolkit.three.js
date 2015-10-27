@@ -157,8 +157,6 @@
 		ARController.prototype.createThreeMarker = function(markerUID, markerWidth) {
 			this.setupThree();
 			var obj = new THREE.Object3D();
-			obj.wasInLastFrame = false;
-			obj.markerTransform = new Float64Array(12);
 			obj.markerTracker = this.trackPatternMarkerId(markerUID, markerWidth);
 			obj.matrixAutoUpdate = false;
 			this.threePatternMarkers[markerUID] = obj;
@@ -183,7 +181,6 @@
 		ARController.prototype.createThreeMultiMarker = function(markerUID) {
 			this.setupThree();
 			var obj = new THREE.Object3D();
-			obj.markerTransform = new Float64Array(12);
 			obj.matrixAutoUpdate = false;
 			obj.markers = [];
 			this.threeMultiMarkers[markerUID] = obj;
@@ -209,8 +206,6 @@
 		ARController.prototype.createThreeBarcodeMarker = function(markerUID, markerWidth) {
 			this.setupThree();
 			var obj = new THREE.Object3D();
-			obj.wasInLastFrame = false;
-			obj.markerTransform = new Float64Array(12);
 			obj.markerTracker = this.trackBarcodeMarkerId(markerUID, markerWidth);
 			obj.matrixAutoUpdate = false;
 			this.threeBarcodeMarkers[markerUID] = obj;
@@ -233,8 +228,10 @@
 				var obj;
 				if (ev.data.type === artoolkit.PATTERN_MARKER) {
 					obj = this.threePatternMarkers[ev.data.marker.idPatt];
+					
 				} else if (ev.data.type === artoolkit.BARCODE_MARKER) {
 					obj = this.threeBarcodeMarkers[ev.data.marker.idMatrix];
+
 				}
 				if (obj) {
 					obj.matrix.elements.set(ev.data.matrix);

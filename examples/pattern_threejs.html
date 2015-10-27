@@ -40,8 +40,6 @@ window.ARThreeOnLoad = function() {
 
 		document.body.className = arController.orientation;
 
-		arController.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_MONO);
-
 		var renderer = new THREE.WebGLRenderer({antialias: true});
 		if (arController.orientation === 'portrait') {
 			var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;

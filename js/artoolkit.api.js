@@ -135,7 +135,7 @@
 			var markerType = artoolkit.UNKNOWN_MARKER;
 			var visible = this.trackPatternMarkerId(-1);
 
-			if (markerInfo.idPatt > -1 && markerInfo.idMatrix === -1) {
+			if (markerInfo.idPatt > -1 && (markerInfo.id === markerInfo.idPatt || markerInfo.idMatrix === -1)) {
 				visible = this.trackPatternMarkerId(markerInfo.idPatt);
 				markerType = artoolkit.PATTERN_MARKER;
 
