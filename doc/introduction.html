@@ -41,14 +41,18 @@
 
 <!-- [image: AR Marker, caption: This is the BarcodeMarker we are going to use in our app] -->
 
+<p>To load JSARToolKit, include the minified script into your webpage.</p>
+
+<pre class="prettyprint"><code>&lt;script src="build/artoolkit.min.js">&lt;/script>
+</code></pre>
+
 <p>Yes, as you have figured out, we’re going to need three things to build our AR app. We’re going to need an AR marker, a video, and a way to draw 3D graphics on top of the video. For the marker, we’ll use a special built-in marker called a BarcodeMarker. The video we’ll get from your device camera using the getUserMedia API. And we’re going to use Three.js to do the 3D graphics.
 The first thing we’ll do is create the video source. For that, we’ll use the getUserMedia API to get a URL for the device camera and then use that URL as the source for a video element. With this, we have a video element that shows the device camera video feed on it.
 
 <p>The simple way to do all this is to use a helper function in JSARToolKit5: <code class="prettyprint">ARController.getUserMedia(options)</code>. The onSuccess callback in the options object gets called with a ready-to-use video element. Note that on Chrome for Android, mobile video only plays after interacting with the page. ARController.getUserMedia adds a window-level touch event listener that plays the video.
 
 <pre class="prettyprint"><code>var video = ARController.getUserMedia({
-	width: 640,
-	height: 480,
+	maxARVideoSize: 320, // do AR processing on scaled down video of this size
 	facing: "environment",
 	onSuccess: function(video) {
 		console.log('got video', video);
@@ -145,13 +149,16 @@ arController.process(video);
 
 <p>I added a small animation to the tap listener as well, so that when you click on the box object, it opens and stuff flies out. To check it out, go visit the demo page and allow access to your camera. Now point your camera at a flat piece of paper with the marker. Hohoo, you can now see the box. Tap on it to open it!
 
-<p>Code-wise, I'm going to cheat a bit and use the Three.js integration in JSARToolKit5. It does all the stuff that we set up above, and packages it up into a couple of easy-to-use methods.
+<p>Code-wise, I'm going to cheat a bit and use the Three.js integration in JSARToolKit5. It does all the stuff that we set up above, and packages it up into a couple of easy-to-use methods. Just load the <code>js/artoolkit.three.js</code> support library and you're good to go.
 
-<pre class="prettyprint"><code>ARController.getUserMediaThreeScene(
-	width: 320,
-	height: 320,
+<pre class="prettyprint"><code>&lt;script src="build/artoolkit.min.js">&lt;/script>
+&lt;script src="js/artoolkit.three.js">&lt;/script>
+&lt;script>
+ARController.getUserMediaThreeScene(
 	facing: 'environment',
 	onSuccess: function(arScene, arController, arCameraParam) {
+
+		arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
 
 		// Track the barcode marker with id 20.
 		// markerRoot is a THREE.Object3D that tracks the marker position.
@@ -214,6 +221,7 @@ arController.process(video);
 
 	}
 );
+&lt;/script>
 </code></pre>
 
 <p><a href="artk_demos/index.html">See the demo in action.</a> Best viewed on Firefox Android or Chrome Android. Also works on the desktop browsers, though it's a bit more hassle to interact with webcam video. Sadly, iOS doesn't support live camera feeds on websites, so you can't view this demo on iOS.
@@ -353,6 +361,69 @@ if (arController.orientation === 'portrait') {
 	renderer.setSize(video.videoWidth, video.videoHeight);	
 }
 </code></pre>
+
+
+<h2>How about doing things the ARToolKit way?</h2>
+
+<p>If you feel like this whole event loop thing is not really your thing, I hear you. It's not for everyone. So: JSARToolKit5 also exposes the C-style ARToolKit API. Because, hey, it's pretty neat! Here's how to do the marker processing loop with it:
+
+<pre class="prettyprint"><code>// Detect barcode markers
+arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
+
+// Process the video frame.
+arController.detectMarker(video);
+
+var markerMatrix = new Float32Array(12);
+var glMatrix = new Float32Array(16);
+
+// Get the number of markers from the ARController and iterate over each marker.
+var markers = arController.getMarkerNum();
+for (var i=0; i &lt; markers.length; i++) {
+
+	var marker = arController.getMarker(i);
+
+	// If we found the number 5 marker, let's get its transform matrix.
+	if (marker.idMatrix === 5) {
+		arController.getTransMatSquare(i, 1 /* marker width */, markerMatrix);
+
+		// And convert it to a WebGL matrix.
+		arController.transMatToGLMat(markerMatrix, glMatrix);
+
+		// Do something with the glMatrix ...
+
+	}
+}
+</code></pre>
+
+<p>If we had seen the marker before in the previous frame, we could use the previous marker matrix as an input to the matrix calculation. By using the previous matrix as the basis for the current matrix calculation, we can achieve more stable tracking.
+
+<pre class="prettyprint"><code>// ... skip to the marker detection loop
+if (marker.idMatrix === 5) {
+	if (markerWasInPreviousFrame) {
+		// Get the marker matrix using continuous tracking
+		arController.getTransMatSquareCont(i, 1, markerMatrix, markerMatrix);
+	} else {
+		arController.getTransMatSquare(i, 1, markerMatrix);	
+	}
+
+	// ... The rest is as usual
+}
+
+</code></pre>
+
+<h2>Emscripten? How do I debug that?</h2>
+
+<p>Oh yes, the JSARToolKit5 port of the ARToolKit library is powered by Emscripten, the amazing C/C++ to ASM.js compiler. As a result, JSARToolKit5 runs at near-native speeds on Firefox, and not too shabbily on other browsers. And, better still, porting new features and improvements from the upstream library is just a compile away (well, you do need to add a few lines of bindings.)
+
+<p>As a result, JSARToolKit comes with a two variants. One is a debug build, built with all debug symbols intact and making life easy for debugging the C++ side of the codebase. The other one is the minified optimized build that loads and runs faster.
+
+<p>To use the debug build, load <code>build/artoolkit.debug.js</code> and <code>js/artoolkit.api.js</code> into your page. The <code>artoolkit.api.js</code> file contains the C++ &lt;-&gt; JS API bindings alongside the implementations of ARController and ARCameraParam.
+
+<pre class="prettyprint"><code>&lt;script src="build/artoolkit.debug.js">&lt;/script>
+&lt;script src="js/artoolkit.api.js">&lt;/script>
+</code></pre>
+
+
 
 <h2>Conclusion</h2>
 
