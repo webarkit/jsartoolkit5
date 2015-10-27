@@ -37,10 +37,6 @@ void main(void)
 
 <script>
 
-THREE.Matrix4.prototype.setFromArray = function(m) {
-	return this.elements.set(m);
-};
-
 var cMat = new THREE.Matrix4();
 var tMat = new THREE.Matrix4();
 
@@ -123,7 +119,7 @@ function tick() {
 		markerRoot.visible = false;
 	}
 
-	arController._debugDraw();
+	arController.debugDraw();
 
 	// Render the scene.
 	renderer.autoClear = false;
@@ -142,9 +138,9 @@ cameraParam.onload = function() {
 	var camera_mat = arController.getCameraMatrix();
 
 	if (USE_SHADER) {
-		shaderMaterial.uniforms.cameraMatrix.value.setFromArray(camera_mat);
+		shaderMaterial.uniforms.cameraMatrix.value.elements.set(camera_mat);
 	} else {
-		camera.projectionMatrix.setFromArray(camera_mat);
+		camera.projectionMatrix.elements.set(camera_mat);
 	}
 
 };

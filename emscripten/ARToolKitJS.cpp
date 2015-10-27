@@ -183,7 +183,7 @@ extern "C" {
 		arPattAttach(arc->arhandle, arc->arPattHandle);
 		// ARLOGi("setCamera(): Pattern handler attached.\n");
 
-		arglCameraFrustumRH(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, arc->cameraLens);
+		arglCameraFrustum(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, arc->cameraLens);
 
 		return 0;
 	}
@@ -450,6 +450,13 @@ extern "C" {
 
 		arSetDebugMode(arc->arhandle, enable ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
 		ARLOGi("Debug mode set to %s\n", enable ? "on." : "off.");
+
+		return enable;
+	}
+
+	int getProcessingImage(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return NULL; }
+		arController *arc = &(arControllers[id]);
 
 		return (int)arc->arhandle->labelInfo.bwImage;
 	}

@@ -289,7 +289,8 @@
 	*/
 	ARController.prototype.debugSetup = function() {
 		document.body.appendChild(this.canvas)
-		this._bwpointer = this.setDebugMode(1);
+		this.setDebugMode(1);
+		this._bwpointer = this.getProcessingImage();
 	};
 
 	/**
@@ -344,7 +345,7 @@
 		return dst;
 	};
 
-	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
+	ARController.prototype.transMatToGLMatRH = function(transMat, glMat, scale) {
 		glMat[0 + 0*4] = transMat[0]; // R1C1
 		glMat[0 + 1*4] = transMat[1]; // R1C2
 		glMat[0 + 2*4] = transMat[2];
@@ -357,6 +358,31 @@
 		glMat[2 + 1*4] = -transMat[9];
 		glMat[2 + 2*4] = -transMat[10];
 		glMat[2 + 3*4] = -transMat[11];
+		glMat[3 + 0*4] = 0.0;
+		glMat[3 + 1*4] = 0.0;
+		glMat[3 + 2*4] = 0.0;
+		glMat[3 + 3*4] = 1.0;
+		if (scale != undefined && scale !== 0.0) {
+			glMat[12] *= scale;
+			glMat[13] *= scale;
+			glMat[14] *= scale;
+		}
+		return glMat;
+	};
+
+	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
+		glMat[0 + 0*4] = transMat[0]; // R1C1
+		glMat[0 + 1*4] = transMat[1]; // R1C2
+		glMat[0 + 2*4] = transMat[2];
+		glMat[0 + 3*4] = transMat[3];
+		glMat[1 + 0*4] = transMat[4]; // R2
+		glMat[1 + 1*4] = transMat[5];
+		glMat[1 + 2*4] = transMat[6];
+		glMat[1 + 3*4] = transMat[7];
+		glMat[2 + 0*4] = transMat[8]; // R3
+		glMat[2 + 1*4] = transMat[9];
+		glMat[2 + 2*4] = transMat[10];
+		glMat[2 + 3*4] = transMat[11];
 		glMat[3 + 0*4] = 0.0;
 		glMat[3 + 1*4] = 0.0;
 		glMat[3 + 2*4] = 0.0;
@@ -415,6 +441,10 @@
 	ARController.prototype.getDebugMode = function() {
 		return artoolkit.getDebugMode(this.id);
 	};
+
+	ARController.prototype.getProcessingImage = function() {
+		return artoolkit.getProcessingImage(this.id);
+	}
 
 	ARController.prototype.setLogLevel = function(mode) {
 		return artoolkit.setLogLevel(mode);
@@ -944,6 +974,8 @@
 
 		'setDebugMode',
 		'getDebugMode',
+
+		'getProcessingImage',
 
 		'setMarkerInfoDir',
 

@@ -1,87 +1,138 @@
 <html>
 <head>
+<title>Pattern multimarker example with Three.js</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-<title>Multimarker tracking demo</title>
 <style>
-html, body {
+html,body {
 	margin: 0;
 	padding: 0;
+	width: 100%;
 	text-align: center;
+	overflow-x: hidden;
 }
-
+.portrait canvas {
+	transform-origin: 0 0;
+	transform: rotate(-90deg) translateX(-100%);
+}
+.desktop canvas {
+ 	transform: scale(-1, 1);
+}
 </style>
 </head>
 <body>
 
-<script src="js/third_party/three.js/three.min.js"></script>
+<h1>Pattern multimarker example with Three.js</h1>
+<p>On Chrome on Android, tap the screen to start playing video stream.</p>
+<p>Show <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Multi%20pattern%20(template%2C%20A4).pdf">Multi pattern (template)</a> to camera to display objects on top of it.
 
-<script src="../build/artoolkit.debug.js"></script>
-<script src="../js/artoolkit.api.js"></script>
-<script src="../js/artoolkit.three.js"></script>
+<p>&larr; <a href="index.html">Back to examples</a></p>
+
+<script async src="../build/artoolkit.min.js"></script>
+<script async src="js/third_party/three.js/three.min.js"></script>
+<script async src="../js/artoolkit.three.js"></script>
 
 <script>
 
-ARController.getUserMediaThreeScene({
-	width: 640,
-	height: 640,
-	cameraParam: 'Data/camera_para.dat',
-	onSuccess: function(arScene, arController, arCamera) {
-		var renderer = new THREE.WebGLRenderer({antialias: true});
-		var f = window.innerWidth / arScene.video.videoWidth; 
-		renderer.setSize(f * arScene.video.videoWidth, f * arScene.video.videoHeight);
+window.ARThreeOnLoad = function() {
 
-		document.body.appendChild(renderer.domElement);
+	ARController.getUserMediaThreeScene({
+		maxARVideoSize: 640,
+		cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
+		onSuccess: function(arScene, arController, arCamera) {
 
-		// Create a couple of lights for our AR scene.
-		var light = new THREE.PointLight(0xffffff);
-		light.position.set(40, 40, 40);
-		arScene.scene.add(light);
+			document.body.className = arController.orientation;
 
-		var light = new THREE.PointLight(0xff8800);
-		light.position.set(-40, -20, -30);
-		arScene.scene.add(light);
+			arController.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX);
 
-		var makeRedCube = function() {
-			var cube = new THREE.Mesh( new THREE.BoxGeometry(40,40,40), new THREE.MeshLambertMaterial({ color: 0xff3333 }) );
-			cube.matrixAutoUpdate = false;
-			cube.position.z = 20;
-			return cube;
-		};
-
-		// Load the marker to use.
-		arController.loadMultiMarker('Data/multi/marker.dat', function(marker, markerNum) {
-
-			window.onclick = function() {
-				arScene.video.play();
-			};
-
-			console.log('multi is', marker);
-
-			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(100,100,100), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
-			greenCube.position.z = 50;
-
-			// Create an object that tracks the marker transform.
-			var markerRoot = arController.createThreeMultiMarker(marker);
-			arScene.scene.add(markerRoot);
-			markerRoot.add(greenCube);
-
-			for (var i=0; i<markerNum; i++) {
-				markerRoot.markers[i] = makeRedCube();
-				arScene.scene.add(markerRoot.markers[i]);
+			var renderer = new THREE.WebGLRenderer({antialias: true});
+			if (arController.orientation === 'portrait') {
+				var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
+				var h = window.innerWidth;
+				renderer.setSize(w, h);
+				renderer.domElement.style.paddingBottom = (w-h) + 'px';
+			} else {
+				if (/Android|mobile|iPad|iPhone/i.test(navigator.userAgent)) {
+					renderer.setSize(window.innerWidth, (window.innerWidth / arController.videoWidth) * arController.videoHeight);
+				} else {
+					renderer.setSize(arController.videoWidth, arController.videoHeight);
+					document.body.className += ' desktop';
+				}
 			}
 
-			var tick = function() {
-				requestAnimationFrame(tick);
-				arScene.process();
-				arScene.renderOn(renderer);
+			document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+			var rotationV = 0;
+			var rotationTarget = 0;
+
+			renderer.domElement.addEventListener('click', function(ev) {
+				ev.preventDefault();
+				rotationTarget += 1;
+			}, false);
+
+			// Create a couple of lights for our AR scene.
+			var light = new THREE.PointLight(0xffffff);
+			light.position.set(400, 400, 400);
+			arScene.scene.add(light);
+
+			var light = new THREE.PointLight(0xff8800);
+			light.position.set(-400, -200, -300);
+			arScene.scene.add(light);
+
+			var makeRedCube = function() {
+				var cube = new THREE.Mesh( new THREE.BoxGeometry(40,40,40), new THREE.MeshLambertMaterial({ color: 0xff8888 }) );
+				cube.matrixAutoUpdate = false;
+				cube.position.z = 20;
+				return cube;
 			};
-			tick();
 
-		});
+			// Load the marker to use.
+			arController.loadMultiMarker('Data/multi/marker.dat', function(marker, markerNum) {
 
-	}
-});
+				window.onclick = function() {
+					arScene.video.play();
+				};
 
+				console.log('multi is', marker);
+				console.log('submarker count', markerNum);
+
+				var greenCube = new THREE.Mesh( new THREE.BoxGeometry(100,100,100), new THREE.MeshLambertMaterial({ color: 0xffffff }) );
+				greenCube.position.z = 50;
+
+				// Create an object that tracks the marker transform.
+				var markerRoot = arController.createThreeMultiMarker(marker);
+				arScene.scene.add(markerRoot);
+				markerRoot.add(greenCube);
+
+				for (var i=0; i<markerNum; i++) {
+					markerRoot.markers[i] = makeRedCube();
+					markerRoot.add(markerRoot.markers[i]);
+				}
+
+				var tick = function() {
+					requestAnimationFrame(tick);
+
+					rotationV += (rotationTarget - greenCube.rotation.z) * 0.1;
+					greenCube.rotation.z += rotationV;
+					rotationV *= 0.85;
+					
+					arScene.process();
+					arScene.renderOn(renderer);
+				};
+				tick();
+
+			});
+
+
+		}
+	});
+
+	delete window.ARThreeOnLoad;
+
+};
+
+if (window.ARController && ARController.getUserMediaThreeScene) {
+	ARThreeOnLoad();
+}
 </script>
 
 </body>

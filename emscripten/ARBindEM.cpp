@@ -34,6 +34,8 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	function("setDebugMode", &setDebugMode);
 	function("getDebugMode", &getDebugMode);
 
+	function("getProcessingImage", &getProcessingImage);
+
 	function("setLogLevel", &setLogLevel);
 	function("getLogLevel", &getLogLevel);
 
