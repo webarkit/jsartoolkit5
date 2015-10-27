@@ -15,6 +15,8 @@
 				scene: THREE.Scene, // The 3D scene. Put your AR objects here.
 				camera: THREE.Camera, // The 3D scene camera.
 
+				arController: ARController,
+
 				video: HTMLVideoElement, // The userMedia video element.
 
 				videoScene: THREE.Scene, // The userMedia video image scene. Shows the video feed.
@@ -51,6 +53,29 @@
 
 		/**
 			Creates a Three.js scene for use with this ARController.
+
+			Returns a ThreeARScene object that contains two THREE.js scenes (one for the video image and other for the 3D scene)
+			and a couple of helper functions for doing video frame processing and AR rendering.
+
+			Here's the structure of the ThreeARScene object:
+			{
+				scene: THREE.Scene, // The 3D scene. Put your AR objects here.
+				camera: THREE.Camera, // The 3D scene camera.
+
+				arController: ARController,
+
+				video: HTMLVideoElement, // The userMedia video element.
+
+				videoScene: THREE.Scene, // The userMedia video image scene. Shows the video feed.
+				videoCamera: THREE.Camera, // Camera for the userMedia video scene.
+
+				process: function(), // Process the current video frame and update the markers in the scene.
+				renderOn: function( THREE.WebGLRenderer ) // Render the AR scene and video background on the given Three.js renderer.
+			}
+
+			You should use the arScene.video.videoWidth and arScene.video.videoHeight to set the width and height of your renderer.
+
+			In your frame loop, use arScene.process() and arScene.renderOn(renderer) to do frame processing and 3D rendering, respectively.
 
 			@param video Video image to use as scene background. Defaults to this.image
 		*/
@@ -218,17 +243,15 @@
 			}
 			this.THREE_JS_ENABLED = true;
 
-			/**
+			/*
 				Listen to getMarker events to keep track of Three.js markers.
-
-				@param {Object} marker - The marker object received from ARToolKitJS.cpp
 			*/
 			this.addEventListener('getMarker', function(ev) {
 				var marker = ev.data.marker;
 				var obj;
 				if (ev.data.type === artoolkit.PATTERN_MARKER) {
 					obj = this.threePatternMarkers[ev.data.marker.idPatt];
-					
+
 				} else if (ev.data.type === artoolkit.BARCODE_MARKER) {
 					obj = this.threeBarcodeMarkers[ev.data.marker.idMatrix];
 
@@ -239,10 +262,8 @@
 				}
 			});
 
-			/**
+			/*
 				Listen to getMultiMarker events to keep track of Three.js multimarkers.
-
-				@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
 			*/
 			this.addEventListener('getMultiMarker', function(ev) {
 				var obj = this.threeMultiMarkers[ev.data.multiMarkerId];
@@ -252,10 +273,8 @@
 				}
 			});
 
-			/**
+			/*
 				Listen to getMultiMarkerSub events to keep track of Three.js multimarker submarkers.
-
-				@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
 			*/
 			this.addEventListener('getMultiMarkerSub', function(ev) {
 				var marker = ev.data.multiMarkerId;
