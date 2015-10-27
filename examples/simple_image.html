@@ -23,13 +23,11 @@ cameraParam.onload = function() {
 
 	ar3 = new ARController(v3, cameraParam);
 	ar3.debugSetup();
-	ar3.detectMarker();
-	ar3.debugDraw();
+	ar3.process();
 
 	ar4 = new ARController(v4, cameraParam);
 	ar4.debugSetup();
-	ar4.detectMarker();
-	ar4.debugDraw();
+	ar4.process();
 
 	ar5 = new ARController(v5, cameraParam);
 
@@ -41,6 +39,30 @@ cameraParam.onload = function() {
 	ar5.debugSetup();
 	ar5.detectMarker();
 	ar5.debugDraw();
+
+	var assertEq = function(message, value, shouldBe) {
+		if (value !== shouldBe) {
+			throw(message + ' ' + value + ' is not the expected ' + shouldBe);
+		}
+	};
+
+	ar5.setMarkerInfoDir(0, 1);
+	assertEq('dir changed to 1', ar5.getMarker(0).dir, 1);
+	ar5.setMarkerInfoDir(0, 2);
+	assertEq('dir changed to 2', ar5.getMarker(0).dir, 2);
+
+	// Test setter/getter pairs
+	var methods = "DebugMode LogLevel ProjectionNearPlane ProjectionFarPlane ThresholdMode Threshold PatternDetectionMode PattRatio MatrixCodeType LabelingMode ImageProcMode".split(" ");
+	for (var i=0; i<methods.length; i++) {
+		var m = methods[i];
+		var v = ar5['get'+m]();
+		var nv = v === 1 ? 0 : ((v < 1 && v > 0) ? 0.7848 : 1);
+		ar5['set'+m](nv);
+		assertEq(m + ' changed', ar5['get'+m](), nv);
+		ar5['set'+m](v);
+		assertEq(m + ' changed back', ar5['get'+m](), v);
+	}
+	console.log("Setter/Getter tests run successfully.");
 };
 
 cameraParam.load('Data/camera_para.dat');

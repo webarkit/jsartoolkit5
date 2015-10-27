@@ -249,20 +249,12 @@
 		return obj;
 	};
 
-	ARController.prototype.setMarkerInfoDir = function(markerIndex, dir) {
-		return artoolkit.setMarkerInfoDir(this.id, markerIndex, dir);
-	};
-
 	ARController.prototype.getMultiMarkerCount = function() {
 		return artoolkit.getMultiMarkerCount(this.id);
 	};
 
 	ARController.prototype.getMultiMarkerNum = function(multiMarkerId) {
 		return artoolkit.getMultiMarkerNum(this.id, multiMarkerId);
-	};
-
-	ARController.prototype.getTransformationMatrix = function() {
-		return this.transform_mat;
 	};
 
 	ARController.prototype.addEventListener = function(name, callback) {
@@ -297,7 +289,7 @@
 	*/
 	ARController.prototype.debugSetup = function() {
 		document.body.appendChild(this.canvas)
-		this._bwpointer = artoolkit.setDebugMode(this.id, 1);
+		this._bwpointer = this.setDebugMode(1);
 	};
 
 	/**
@@ -401,22 +393,39 @@
 	};
 
 
+	ARController.prototype.getTransformationMatrix = function() {
+		return this.transform_mat;
+	};
+
+	ARController.prototype.getCameraMatrix = function() {
+		return this.camera_mat;
+	};
+
+	ARController.prototype.getMarkerTransformationMatrix = function() {
+		return this.marker_transform_mat;
+	};
+
+
 	/* Setter / Getter Proxies */
 
-	ARController.prototype.setScale = function(value) {
-		return artoolkit.setScale(this.id, value);
+	ARController.prototype.setDebugMode = function(mode) {
+		return artoolkit.setDebugMode(this.id, mode);
 	};
 
-	ARController.prototype.getScale = function() {
-		return artoolkit.getScale(this.id);
+	ARController.prototype.getDebugMode = function() {
+		return artoolkit.getDebugMode(this.id);
 	};
 
-	ARController.prototype.setMarkerWidth = function(value) {
-		return artoolkit.setMarkerWidth(this.id, value);
+	ARController.prototype.setLogLevel = function(mode) {
+		return artoolkit.setLogLevel(mode);
 	};
 
-	ARController.prototype.getMarkerWidth = function() {
-		return artoolkit.getMarkerWidth(this.id);
+	ARController.prototype.getLogLevel = function() {
+		return artoolkit.getLogLevel();
+	};
+
+	ARController.prototype.setMarkerInfoDir = function(markerIndex, dir) {
+		return artoolkit.setMarkerInfoDir(this.id, markerIndex, dir);
 	};
 
 	ARController.prototype.setProjectionNearPlane = function(value) {
@@ -489,14 +498,6 @@
 
 	ARController.prototype.getImageProcMode = function() {
 		return artoolkit.getImageProcMode(this.id);
-	};
-
-	ARController.prototype.getCameraMatrix = function() {
-		return this.camera_mat;
-	};
-
-	ARController.prototype.getMarkerTransformationMatrix = function() {
-		return this.marker_transform_mat;
 	};
 
 
@@ -939,7 +940,10 @@
 		'teardown',
 
 		'setLogLevel',
+		'getLogLevel',
+
 		'setDebugMode',
+		'getDebugMode',
 
 		'setMarkerInfoDir',
 

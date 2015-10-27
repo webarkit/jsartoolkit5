@@ -69,6 +69,10 @@ extern "C" {
 		arLogLevel = level;
 	}
 
+	int getLogLevel() {
+		return arLogLevel;
+	}
+
 	/***********
 	* Teardown *
 	***********/
@@ -308,7 +312,7 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return; }
 		arController *arc = &(arControllers[id]);
 		if (arSetPatternDetectionMode(arc->arhandle, mode) == 0) {
-			ARLOGi("Pattern detection mode set to %d.", mode);
+			ARLOGi("Pattern detection mode set to %d.\n", mode);
 		}
 	}
 
@@ -331,7 +335,7 @@ extern "C" {
 		ARdouble pattRatio = (ARdouble)ratio;
 		if (arc->arhandle) {
 			if (arSetPattRatio(arc->arhandle, pattRatio) == 0) {
-				ARLOGi("Pattern ratio size set to %f.", pattRatio);
+				ARLOGi("Pattern ratio size set to %f.\n", pattRatio);
 			}
 		}
 	}
@@ -374,11 +378,11 @@ extern "C" {
 		int labelingMode = mode;
 
 		if (arSetLabelingMode(arc->arhandle, labelingMode) == 0) {
-			ARLOGi("Labeling mode set to %d", labelingMode);
+			ARLOGi("Labeling mode set to %d\n", labelingMode);
 		}
 	}
 
-	int getLabelingMode(int id, int mode) {
+	int getLabelingMode(int id) {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
 
@@ -397,7 +401,7 @@ extern "C" {
 
 		if (threshold < 0 || threshold > 255) return;
 		if (arSetLabelingThresh(arc->arhandle, threshold) == 0) {
-			ARLOGi("Threshold set to %d", threshold);
+			ARLOGi("Threshold set to %d\n", threshold);
 		};
 		// default 100
 		// arSetLabelingThreshMode
@@ -423,7 +427,7 @@ extern "C" {
 		AR_LABELING_THRESH_MODE thresholdMode = (AR_LABELING_THRESH_MODE)mode;
 
 		if (arSetLabelingThreshMode(arc->arhandle, thresholdMode) == 0) {
-			ARLOGi("Threshold mode set to %d", (int)thresholdMode);
+			ARLOGi("Threshold mode set to %d\n", (int)thresholdMode);
 		}
 	}
 
@@ -466,7 +470,7 @@ extern "C" {
 
 		int imageProcMode = mode;
 		if (arSetImageProcMode(arc->arhandle, mode) == 0) {
-			ARLOGi("Image proc. mode set to %d.", imageProcMode);
+			ARLOGi("Image proc. mode set to %d.\n", imageProcMode);
 		}
 	}
 

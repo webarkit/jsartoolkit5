@@ -15,9 +15,6 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 
 	function("_loadCamera", &loadCamera);
 
-	function("setDebugMode", &setDebugMode);
-	function("setLogLevel", &setLogLevel);
-
 	function("setMarkerInfoDir", &setMarkerInfoDir);
 
 	function("getTransMatSquare", &getTransMatSquare);
@@ -34,6 +31,12 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 
 
 	/* AR Toolkit C APIS */
+	function("setDebugMode", &setDebugMode);
+	function("getDebugMode", &getDebugMode);
+
+	function("setLogLevel", &setLogLevel);
+	function("getLogLevel", &getLogLevel);
+
 	function("setProjectionNearPlane", &setProjectionNearPlane);
 	function("getProjectionNearPlane", &getProjectionNearPlane);
 
