@@ -174,7 +174,7 @@
 
 		var multiMarkerCount = this.getMultiMarkerCount();
 		for (var i=0; i<multiMarkerCount; i++) {
-			var subMarkerCount = this.getMultiMarkerNum(i);
+			var subMarkerCount = this.getMultiMarkerPatternCount(i);
 			var visible = false;
 
 			artoolkit.getTransMatMultiSquareRobust(this.id, i);
@@ -217,6 +217,18 @@
 		}
 	};
 
+	/**
+		Adds the given pattern marker ID to the index of tracked IDs.
+		Sets the markerWidth for the pattern marker to markerWidth.
+
+		Used by process() to implement continuous tracking, 
+		keeping track of the marker's transformation matrix
+		and customizable marker widths.
+
+		@param {number} id ID of the pattern marker to track.
+		@param {number} markerWidth The width of the marker to track.
+		@return {Object} The marker tracking object.
+	*/
 	ARController.prototype.trackPatternMarkerId = function(id, markerWidth) {
 		var obj = this.patternMarkers[id];
 		if (!obj) {
@@ -233,6 +245,18 @@
 		return obj;
 	};
 
+	/**
+		Adds the given barcode marker ID to the index of tracked IDs.
+		Sets the markerWidth for the pattern marker to markerWidth.
+
+		Used by process() to implement continuous tracking, 
+		keeping track of the marker's transformation matrix
+		and customizable marker widths.
+
+		@param {number} id ID of the barcode marker to track.
+		@param {number} markerWidth The width of the marker to track.
+		@return {Object} The marker tracking object.
+	*/
 	ARController.prototype.trackBarcodeMarkerId = function(id, markerWidth) {
 		var obj = this.barcodeMarkers[id];
 		if (!obj) {
@@ -249,21 +273,51 @@
 		return obj;
 	};
 
+	/**
+		Returns the number of multimarkers registered on this ARController.
+
+		@return {number} Number of multimarkers registered.
+	*/
 	ARController.prototype.getMultiMarkerCount = function() {
 		return artoolkit.getMultiMarkerCount(this.id);
 	};
 
-	ARController.prototype.getMultiMarkerNum = function(multiMarkerId) {
+	/**
+		Returns the number of markers in the multimarker registered for the given multiMarkerId.
+
+		@param {number} multiMarkerId The id number of the multimarker to access. Given by loadMultiMarker.
+		@return {number} Number of markers in the multimarker. Negative value indicates failure to find the multimarker.
+	*/
+	ARController.prototype.getMultiMarkerPatternCount = function(multiMarkerId) {
 		return artoolkit.getMultiMarkerNum(this.id, multiMarkerId);
 	};
 
+	/**
+		Add an event listener on this ARController for the named event, calling the callback function
+		whenever that event is dispatched.
+
+		Possible events are: 
+		  * getMarker - dispatched whenever process() finds a square marker
+		  * getMultiMarker - dispatched whenever process() finds a visible registered multimarker
+		  * getMultiMarkerSub - dispatched by process() for each marker in a visible multimarker
+		  * load - dispatched when the ARController is ready to use (useful if passing in a camera URL in the constructor)
+
+		@param {string} name Name of the event to listen to.
+		@param {function} callback Callback function to call when an event with the given name is dispatched.
+	*/
 	ARController.prototype.addEventListener = function(name, callback) {
        if (!this.listeners[name]) {
 			this.listeners[name] = [];
 		}
 		this.listeners[name].push(callback);
 	};
- 
+
+	/**
+		Remove an event listener from the named event.
+
+		@param {string} name Name of the event to stop listening to.
+		@param {function} callback Callback function to remove from the listeners of the named event.
+	*/
 	ARController.prototype.removeEventListener = function(name, callback) {
 		if (this.listeners[name]) {
 			var index = this.listeners[name].indexOf(callback);
@@ -273,6 +327,11 @@
 		}
 	};
 
+	/**
+		Dispatches the given event to all registered listeners on event.name.
+
+		@param {Object} event Event to dispatch.
+	*/
 	ARController.prototype.dispatchEvent = function(event) {
 		var listeners = this.listeners[event.name];
 		if (listeners) {
@@ -319,13 +378,32 @@
 		return artoolkit.addMultiMarker(this.id, markerURL, onSuccess, onError);
 	};
 
-
+	/**
+	 * Populates the provided float array with the current transformation for the specified marker. After 
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * checked.
+	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
+	 * @param {number} markerWidth	The width of the marker
+	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
+	 * @return	{Float64Array} The dst array.
+	 */
 	ARController.prototype.getTransMatSquare = function(markerIndex, markerWidth, dst) {
 		artoolkit.getTransMatSquare(this.id, markerIndex, markerWidth);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
 
+	/**
+	 * Populates the provided float array with the current transformation for the specified marker, using 
+	 * previousMarkerTransform as the previously detected transformation. After 
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * checked.
+	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
+	 * @param {number} markerWidth	The width of the marker
+	 * @param {Float64Array} previousMarkerTransform	The float array to use as the previous 3x4 marker transformation matrix
+	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
+	 * @return	{Float64Array} The dst array.
+	 */
 	ARController.prototype.getTransMatSquareCont = function(markerIndex, markerWidth, previousMarkerTransform, dst) {
 		this.marker_transform_mat.set(previousMarkerTransform)
 		artoolkit.getTransMatSquareCont(this.id, markerIndex, markerWidth);
@@ -333,43 +411,47 @@
 		return dst;
 	};
 
+	/**
+	 * Populates the provided float array with the current transformation for the specified multimarker. After 
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * checked.
+	 *
+	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
+	 * @param {number} markerWidth	The width of the marker
+	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
+	 * @return	{Float64Array} The dst array.
+	 */
 	ARController.prototype.getTransMatMultiSquare = function(multiMarkerId, dst) {
 		artoolkit.getTransMatMultiSquare(this.id, multiMarkerId);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
 
+	/**
+	 * Populates the provided float array with the current robust transformation for the specified multimarker. After 
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * checked.
+	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
+	 * @param {number} markerWidth	The width of the marker
+	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
+	 * @return	{Float64Array} The dst array.
+	 */
 	ARController.prototype.getTransMatMultiSquareRobust = function(multiMarkerId, dst) {
 		artoolkit.getTransMatMultiSquare(this.id, multiMarkerId);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
 
-	ARController.prototype.transMatToGLMatRH = function(transMat, glMat, scale) {
-		glMat[0 + 0*4] = transMat[0]; // R1C1
-		glMat[0 + 1*4] = transMat[1]; // R1C2
-		glMat[0 + 2*4] = transMat[2];
-		glMat[0 + 3*4] = transMat[3];
-		glMat[1 + 0*4] = -transMat[4]; // R2
-		glMat[1 + 1*4] = -transMat[5];
-		glMat[1 + 2*4] = -transMat[6];
-		glMat[1 + 3*4] = -transMat[7];
-		glMat[2 + 0*4] = -transMat[8]; // R3
-		glMat[2 + 1*4] = -transMat[9];
-		glMat[2 + 2*4] = -transMat[10];
-		glMat[2 + 3*4] = -transMat[11];
-		glMat[3 + 0*4] = 0.0;
-		glMat[3 + 1*4] = 0.0;
-		glMat[3 + 2*4] = 0.0;
-		glMat[3 + 3*4] = 1.0;
-		if (scale != undefined && scale !== 0.0) {
-			glMat[12] *= scale;
-			glMat[13] *= scale;
-			glMat[14] *= scale;
-		}
-		return glMat;
-	};
+	/**
+		Converts the given 3x4 marker transformation matrix in the 12-element transMat array
+		into a 4x4 WebGL matrix and writes the result into the 16-element glMat array.
 
+		If scale parameter is given, scales the transform of the glMat by the scale parameter.
+
+		@param {Float64Array} transMat The 3x4 marker transformation matrix.
+		@param {Float64Array} glMat The 4x4 GL transformation matrix.
+		@param {number} scale The scale for the transform.
+	*/ 
 	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
 		glMat[0 + 0*4] = transMat[0]; // R1C1
 		glMat[0 + 1*4] = transMat[1]; // R1C2
@@ -395,6 +477,21 @@
 		return glMat;
 	};
 
+	/**
+		This is the core ARToolKit marker detection function. It calls through to a set of
+		internal functions to perform the key marker detection steps of binarization and
+		labelling, contour extraction, and template matching and/or matrix code extraction.
+        
+        Typically, the resulting set of detected markers is retrieved by calling arGetMarkerNum
+        to get the number of markers detected and arGetMarker to get an array of ARMarkerInfo
+        structures with information on each detected marker, followed by a step in which
+        detected markers are possibly examined for some measure of goodness of match (e.g. by
+        examining the match confidence value) and pose extraction.
+
+		@param {image} Image to be processed to detect markers.
+		@return {number}     0 if the function proceeded without error, or a value less than 0 in case of error.
+			A result of 0 does not however, imply any markers were detected.
+	*/
 	ARController.prototype.detectMarker = function(image) {
 		if (this._copyImageToHeap(image)) {
 			return artoolkit.detectMarker(this.id);
@@ -402,16 +499,72 @@
 		return -99;
 	};
 
+	/**
+		Get the number of markers detected in a video frame.
+  
+	    @return {number}     The number of detected markers in the most recent image passed to arDetectMarker.
+    	    Note that this is actually a count, not an index. A better name for this function would be
+        	arGetDetectedMarkerCount, but the current name lives on for historical reasons.
+    */
 	ARController.prototype.getMarkerNum = function() {
 		return artoolkit.getMarkerNum(this.id);
 	};
 
+	/**
+		Get the marker info struct for the given marker index in detected markers.
+
+		Call this.detectMarker first, then use this.getMarkerNum to get the detected marker count.
+
+		The returned object is the global artoolkit.markerInfo object and will be overwritten
+		by subsequent calls. If you need to hang on to it, create a copy using this.cloneMarkerInfo();
+
+		Returns undefined if no marker was found.
+
+		The fields of the markerInfo struct are:
+		    @field      area Area in pixels of the largest connected region, comprising the marker border and regions connected to it. Note that this is
+		        not the same as the actual onscreen area inside the marker border.
+			@field      id If pattern detection mode is either pattern mode OR matrix but not both, will be marker ID (>= 0) if marker is valid, or -1 if invalid.
+			@field      idPatt If pattern detection mode includes a pattern mode, will be marker ID (>= 0) if marker is valid, or -1 if invalid.
+		    @field      idMatrix If pattern detection mode includes a matrix mode, will be marker ID (>= 0) if marker is valid, or -1 if invalid.
+			@field      dir If pattern detection mode is either pattern mode OR matrix but not both, and id != -1, will be marker direction (range 0 to 3, inclusive).
+			@field      dirPatt If pattern detection mode includes a pattern mode, and id != -1, will be marker direction (range 0 to 3, inclusive).
+			@field      dirMatrix If pattern detection mode includes a matrix mode, and id != -1, will be marker direction (range 0 to 3, inclusive).
+			@field      cf If pattern detection mode is either pattern mode OR matrix but not both, will be marker matching confidence (range 0.0 to 1.0 inclusive) if marker is valid, or -1.0 if marker is invalid.
+			@field      cfPatt If pattern detection mode includes a pattern mode, will be marker matching confidence (range 0.0 to 1.0 inclusive) if marker is valid, or -1.0 if marker is invalid.
+			@field      cfMatrix If pattern detection mode includes a matrix mode, will be marker matching confidence (range 0.0 to 1.0 inclusive) if marker is valid, or -1.0 if marker is invalid.
+			@field      pos 2D position (in camera image coordinates, origin at top-left) of the centre of the marker.
+			@field      line Line equations for the 4 sides of the marker.
+			@field      vertex 2D positions (in camera image coordinates, origin at top-left) of the corners of the marker. vertex[(4 - dir)%4][] is the top-left corner of the marker. Other vertices proceed clockwise from this. These are idealised coordinates (i.e. the onscreen position aligns correctly with the undistorted camera image.)
+
+
+		@param {number} markerIndex The index of the marker to query.
+		@returns {Object} The markerInfo struct.
+	*/
 	ARController.prototype.getMarker = function(markerIndex) {
 		if (0 === artoolkit.getMarker(this.id, markerIndex)) {
 			return artoolkit.markerInfo;
 		}
 	};
 
+	/**
+		Get the marker info struct for the given marker index in detected markers.
+
+		Call this.detectMarker first, then use this.getMarkerNum to get the detected marker count.
+
+		The returned object is the global artoolkit.markerInfo object and will be overwritten
+		by subsequent calls. If you need to hang on to it, create a copy using this.cloneMarkerInfo();
+
+		Returns undefined if no marker was found.
+
+		@field {number} pattId The index of the marker.
+		@field {number} pattType The type of the marker. Either AR_MULTI_PATTERN_TYPE_TEMPLATE or AR_MULTI_PATTERN_TYPE_MATRIX.
+		@field {number} visible 0 or larger if the marker is visible
+		@field {number} width The width of the marker.
+
+		@param {number} multiMarkerId The multimarker to query.
+		@param {number} markerIndex The index of the marker to query.
+		@returns {Object} The markerInfo struct.
+	*/
 	ARController.prototype.getMultiEachMarker = function(multiMarkerId, markerIndex) {
 		if (0 === artoolkit.getMultiEachMarker(this.id, multiMarkerId, markerIndex)) {
 			return artoolkit.multiEachMarkerInfo;
@@ -419,14 +572,33 @@
 	};
 
 
+	/**
+		Returns the 16-element WebGL transformation matrix used by ARController.process to 
+		pass marker WebGL matrices to event listeners.
+
+		Unique to each ARController.
+
+		@return {Float64Array} The 16-element WebGL transformation matrix used by the ARController.
+	*/
 	ARController.prototype.getTransformationMatrix = function() {
 		return this.transform_mat;
 	};
 
+	/**
+	 * Returns the projection matrix computed from camera parameters for the ARController.
+	 *
+	 * @return {Float64Array} The 16-element WebGL camera matrix for the ARController camera parameters.
+	 */
 	ARController.prototype.getCameraMatrix = function() {
 		return this.camera_mat;
 	};
 
+	/**
+		Returns the shared ARToolKit 3x4 marker transformation matrix, used for passing and receiving
+		marker transforms to/from the Emscripten side.
+
+		@return {Float64Array} The 12-element 3x4 row-major marker transformation matrix used by ARToolKit.
+	*/
 	ARController.prototype.getMarkerTransformationMatrix = function() {
 		return this.marker_transform_mat;
 	};
@@ -434,10 +606,22 @@
 
 	/* Setter / Getter Proxies */
 
+	/**
+	 * Enables or disables debug mode in the tracker. When enabled, a black and white debug
+	 * image is generated during marker detection. The debug image is useful for visualising
+	 * the binarization process and choosing a threshold value.
+	 * @param {number} debug		true to enable debug mode, false to disable debug mode
+	 * @see				getDebugMode()
+	 */
 	ARController.prototype.setDebugMode = function(mode) {
 		return artoolkit.setDebugMode(this.id, mode);
 	};
 
+	/**
+	 * Returns whether debug mode is currently enabled.
+	 * @return			true when debug mode is enabled, false when debug mode is disabled
+	 * @see				setDebugMode()
+	 */
 	ARController.prototype.getDebugMode = function() {
 		return artoolkit.getDebugMode(this.id);
 	};
@@ -474,18 +658,38 @@
 		return artoolkit.getProjectionFarPlane(this.id);
 	};
 
+	/**
+	 * Sets the current threshold mode used for image binarization.
+	 * @param {number} mode		The new threshold mode
+	 * @see				setVideoThresholdMode()
+	 */
 	ARController.prototype.setThresholdMode = function(mode) {
 		return artoolkit.setThresholdMode(this.id, mode);
 	};
 
+	/**
+	 * Gets the current threshold mode used for image binarization.
+	 * @return	{number}		The current threshold mode
+	 * @see				getVideoThresholdMode()
+	 */
 	ARController.prototype.getThresholdMode = function() {
 		return artoolkit.getThresholdMode(this.id);
 	};
 
-	ARController.prototype.setThreshold = function(mode) {
-		return artoolkit.setThreshold(this.id, mode);
+	/**
+	 * Sets the threshold value used for image binarization.
+	 * @param {number} threshold	The new threshold value to use
+	 * @see					getThreshold()
+	 */
+	ARController.prototype.setThreshold = function(threshold) {
+		return artoolkit.setThreshold(this.id, threshold);
 	};
 
+	/**
+	 * Returns the current threshold value used for image binarization.
+	 * @return {number}	The current threshold value
+	 * @see				setThreshold()
+	 */
 	ARController.prototype.getThreshold = function() {
 		return artoolkit.getThreshold(this.id);
 	};
