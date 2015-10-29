@@ -520,6 +520,8 @@
 
 		Returns undefined if no marker was found.
 
+		A markerIndex of -1 is used to access the global custom marker.
+
 		The fields of the markerInfo struct are:
 		    @field      area Area in pixels of the largest connected region, comprising the marker border and regions connected to it. Note that this is
 		        not the same as the actual onscreen area inside the marker border.
@@ -544,6 +546,35 @@
 		if (0 === artoolkit.getMarker(this.id, markerIndex)) {
 			return artoolkit.markerInfo;
 		}
+	};
+
+	/**
+		Set marker vertices to the given vertexData[4][2] array.
+
+		Sets the marker pos to the center of the vertices.
+
+		Useful for building custom markers for getTransMatSquare.
+
+		A markerIndex of -1 is used to access the global custom marker.
+
+		@param {number} markerIndex The index of the marker to edit.
+	*/
+	ARController.prototype.setMarkerInfoVertex = function(markerIndex, vertexData) {
+		for (var i=0; i<vertexData.length; i++) {
+			this.marker_transform_mat[i*2+0] = vertexData[i][0];
+			this.marker_transform_mat[i*2+1] = vertexData[i][1];
+		}
+		return artoolkit.setMarkerInfoVertex(this.id, markerIndex);
+	};
+
+	/**
+		Makes a deep copy of the given marker info.
+
+		@param {Object} markerInfo The marker info object to copy.
+		@return {Object} The new copy of the marker info.
+	*/
+	ARController.prototype.cloneMarkerInfo = function(markerInfo) {
+		return JSON.parse(JSON.stringify(markerInfo));
 	};
 
 	/**
@@ -1343,6 +1374,7 @@
 		'getProcessingImage',
 
 		'setMarkerInfoDir',
+		'setMarkerInfoVertex',
 
 		'getTransMatSquare',
 		'getTransMatSquareCont',

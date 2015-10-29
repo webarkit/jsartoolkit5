@@ -59,6 +59,7 @@ static int ARCONTROLLER_NOT_FOUND = -1;
 static int MULTIMARKER_NOT_FOUND = -2;
 static int MARKER_INDEX_OUT_OF_BOUNDS = -3;
 
+static ARMarkerInfo gMarkerInfo;
 
 extern "C" {
 
@@ -515,7 +516,7 @@ extern "C" {
 		if (arc->arhandle->marker_num <= markerIndex) {
 			return MARKER_INDEX_OUT_OF_BOUNDS;
 		}
-		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
+		ARMarkerInfo* marker = markerIndex < 0 ? &gMarkerInfo : &((arc->arhandle)->markerInfo[markerIndex]);
 
 		arGetTransMatSquare(arc->ar3DHandle, marker, markerWidth, gTransform);
 
@@ -529,7 +530,7 @@ extern "C" {
 		if (arc->arhandle->marker_num <= markerIndex) {
 			return MARKER_INDEX_OUT_OF_BOUNDS;
 		}
-		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
+		ARMarkerInfo* marker = markerIndex < 0 ? &gMarkerInfo : &((arc->arhandle)->markerInfo[markerIndex]);
 
 		arGetTransMatSquareCont(arc->ar3DHandle, marker, gTransform, markerWidth, gTransform);
 
@@ -543,10 +544,36 @@ extern "C" {
 		if (arc->arhandle->marker_num <= markerIndex) {
 			return MARKER_INDEX_OUT_OF_BOUNDS;
 		}
-		ARMarkerInfo* marker = &((arc->arhandle)->markerInfo[markerIndex]);
+		ARMarkerInfo* marker = markerIndex < 0 ? &gMarkerInfo : &((arc->arhandle)->markerInfo[markerIndex]);
 
 		marker->dir = dir;
 		
+		return 0;
+	}
+
+	int setMarkerInfoVertex(int id, int markerIndex) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->arhandle->marker_num <= markerIndex) {
+			return MARKER_INDEX_OUT_OF_BOUNDS;
+		}
+		ARMarkerInfo* marker = markerIndex < 0 ? &gMarkerInfo : &((arc->arhandle)->markerInfo[markerIndex]);
+
+		auto v = marker->vertex;
+
+		v[0][0] = gTransform[0][0];
+		v[0][1] = gTransform[0][1];
+		v[1][0] = gTransform[0][2];
+		v[1][1] = gTransform[0][3];
+		v[2][0] = gTransform[1][0];
+		v[2][1] = gTransform[1][1];
+		v[3][0] = gTransform[1][2];
+		v[3][1] = gTransform[1][3];
+
+		marker->pos[0] = (v[0][0] + v[1][0] + v[2][0] + v[3][0]) * 0.25;
+		marker->pos[1] = (v[0][1] + v[1][1] + v[2][1] + v[3][1]) * 0.25;
+
 		return 0;
 	}
 
@@ -554,7 +581,7 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
 		arController *arc = &(arControllers[id]);
 
-		if (arc->multi_markers.size() <= multiMarkerId) {
+		if (arc->multi_markers.size() <= multiMarkerId || multiMarkerId < 0) {
 			return MULTIMARKER_NOT_FOUND;
 		}
 		multi_marker *multiMatch = &(arc->multi_markers[multiMarkerId]);
@@ -570,7 +597,7 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
 		arController *arc = &(arControllers[id]);
 
-		if (arc->multi_markers.size() <= multiMarkerId) {
+		if (arc->multi_markers.size() <= multiMarkerId || multiMarkerId < 0) {
 			return MULTIMARKER_NOT_FOUND;
 		}
 		multi_marker *multiMatch = &(arc->multi_markers[multiMarkerId]);
@@ -600,13 +627,13 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
 		arController *arc = &(arControllers[id]);
 
-		if (arc->multi_markers.size() <= multiMarkerId) {
+		if (arc->multi_markers.size() <= multiMarkerId || multiMarkerId < 0) {
 			return MULTIMARKER_NOT_FOUND;
 		}
 		multi_marker *multiMatch = &(arc->multi_markers[multiMarkerId]);
 		ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
 
-		if (arMulti->marker_num <= markerIndex) {
+		if (arMulti->marker_num <= markerIndex || markerIndex < 0) {
 			return MARKER_INDEX_OUT_OF_BOUNDS;
 		}
 
@@ -639,8 +666,7 @@ extern "C" {
 		if (arc->arhandle->marker_num <= markerIndex) {
 			return MARKER_INDEX_OUT_OF_BOUNDS;
 		}
-
-		ARMarkerInfo *markerInfo = &((arc->arhandle)->markerInfo[markerIndex]);
+		ARMarkerInfo* markerInfo = markerIndex < 0 ? &gMarkerInfo : &((arc->arhandle)->markerInfo[markerIndex]);
 
 		EM_ASM_({
 			var $a = arguments;
