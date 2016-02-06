@@ -4,15 +4,21 @@
 <script src='js/third_party/three.js/OrbitControls.js'></script>
 <script src="../build/artoolkit.debug.js"></script>
 <script src="../js/artoolkit.api.js"></script>
-<body>
-	
-<video id="video" src="Data/output_4.ogg" width="640" height="480" loop="" controls="" autoplay webkit-playsinline></video>
-<script>
+<body><script>
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Init
 	//////////////////////////////////////////////////////////////////////////////////
 
-	var video = document.getElementById('video');
+	var video = document.createElement('video');
+	// video.style.position = 'absolute'
+	document.body.appendChild(video)
+	video.src = 'Data/output_4.ogg';
+	video.autoplay = true;
+	video.webkitPlaysinline = true;
+	video.controls = false;
+	video.loop = true;
+	video.width = 640;
+	video.height = 480;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Init
@@ -75,10 +81,10 @@
 		// update markerRoot with the found markers
 		var markerNum = arController.getMarkerNum();
 		if (markerNum > 0) {
-			if (markerRoot.visible) {
-				arController.getTransMatSquareCont(0, 1, markerRoot.markerMatrix, markerRoot.markerMatrix);
-			} else {
+			if( markerRoot.visible === false ) {
 				arController.getTransMatSquare(0 /* Marker index */, 1 /* Marker width */, markerRoot.markerMatrix);
+			} else {
+				arController.getTransMatSquareCont(0, 1, markerRoot.markerMatrix, markerRoot.markerMatrix);
 			}
 			arController.transMatToGLMat(markerRoot.markerMatrix, markerRoot.matrix.elements);
 		}
@@ -98,7 +104,6 @@
 
 	// add a torus knot	
 	var geometry	= new THREE.CubeGeometry(1,1,1);
-	var material	= new THREE.MeshNormalMaterial({wireframe: true}); 
 	var material	= new THREE.MeshNormalMaterial({
 		transparent : true,
 		opacity: 0.5,
@@ -107,6 +112,18 @@
 	var mesh	= new THREE.Mesh( geometry, material );
 	mesh.position.z	= geometry.parameters.height/2
 	markerRoot.add( mesh );
+	
+	var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,32,32);
+	var material	= new THREE.MeshNormalMaterial(); 
+	var mesh	= new THREE.Mesh( geometry, material );
+	mesh.position.z	= 0.5
+	markerRoot.add( mesh );
+	
+	onRenderFcts.push(function(){
+		mesh.rotation.x += 0.1
+	})
+	
+	
 		
 	//////////////////////////////////////////////////////////////////////////////////
 	//		render the whole thing on the page
