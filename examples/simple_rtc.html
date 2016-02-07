@@ -56,9 +56,9 @@ function success(stream) {
 		var arController;
 
 		var interval = setInterval(function() {
-			if (!video.videoWidth) {
-				return;
-			} else if (!arController) {
+			if (!video.videoWidth)	return;
+
+			if (!arController) {
 				arController = new ARController(video, cameraParam);
 				arController.debugSetup();
 			}
