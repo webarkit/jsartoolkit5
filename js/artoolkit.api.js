@@ -1150,7 +1150,8 @@
 		  	}
 		};
 
-		if (navigator.mediaDevices || window.MediaStreamTrack) {
+		if ( false ) {
+		// if ( navigator.mediaDevices || window.MediaStreamTrack) {
 			if (navigator.mediaDevices) {
 				navigator.mediaDevices.getUserMedia({
 					audio: false,
