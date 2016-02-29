@@ -56,7 +56,7 @@
 			this.cameraParam = new ARCameraParam(camera, function() {
 				self._initialize();
 			}, function(err) {
-				console.log("ARController: Failed to load ARCameraParam", err);
+				console.error("ARController: Failed to load ARCameraParam", err);
 			});
 
 		} else {
@@ -1073,7 +1073,7 @@
 		var facing = configuration.facingMode || 'environment';
 
 		var onSuccess = configuration.onSuccess;
-		var onError = configuration.onError || function(err) { console.log("ARController.getUserMedia", err); };
+		var onError = configuration.onError || function(err) { console.error("ARController.getUserMedia", err); };
 
 		var video = document.createElement('video');
 
@@ -1265,7 +1265,7 @@
 				}
 				onSuccess(arController, arCameraParam);
 			}, function(err) {
-				console.log("ARController: Failed to load ARCameraParam", err);
+				console.error("ARController: Failed to load ARCameraParam", err);
 			});
 		};
 
@@ -1534,7 +1534,7 @@
 
 	function writeByteArrayToFS(target, byteArray, callback) {
 		FS.writeFile(target, byteArray, { encoding: 'binary' });
-		console.log('FS written', target);
+		// console.log('FS written', target);
 
 		callback(byteArray);
 	}
@@ -1549,7 +1549,7 @@
 		oReq.responseType = 'arraybuffer'; // blob arraybuffer
 
 		oReq.onload = function(oEvent) {
-			console.log('ajax done for ', url);
+			// console.log('ajax done for ', url);
 			var arrayBuffer = oReq.response;
 			var byteArray = new Uint8Array(arrayBuffer);
 			writeByteArrayToFS(target, byteArray, callback);
