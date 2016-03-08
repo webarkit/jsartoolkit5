@@ -4,11 +4,12 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 
 ## Project Structure
 
-- web (demos and examples using ARToolKit.js)
-- tools (build scripts for building ARToolKit.js)
-- emscripten (source code for ARToolKit.js)
-- builds (compiled versions of ARToolKit.js)
-- docs (documentation, coming...)
+- `build/` (compiled debug and minified versions of ARToolKit.js)
+- `doc/` (documentation, coming...)
+- `emscripten/` (source code for ARToolKit.js)
+- `examples/` (demos and examples using ARToolKit.js)
+- `js/` (compiled versions of ARToolKit.js with Three.js helper api)
+- `tools/` (build scripts for building ARToolKit.js)
 
 ## Build Instructions
 
