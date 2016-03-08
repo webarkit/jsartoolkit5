@@ -93,8 +93,8 @@ The basic operation goes like this: load a camera param, create an AR controller
 - `artoolkit.process(canvas);` - extracts a frame from a canvas and process it
 - `artoolkit.debugSetup()` - enables debugging, adds a threshold image to the dom
 - `artoolkit.getDetectedMarkers()` - returns an array of detected markers from last detection process
-- `artoolkit.getCameraMatrix()` -
-- `artoolkit.getTransformationMatrix()` -
+- `artoolkit.getCameraMatrix()` - returns the projection matrix computed from camera parameters
+- `artoolkit.getTransformationMatrix()` - returns the 16-element WebGL transformation matrix
 
 ## Internals
 
