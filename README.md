@@ -14,25 +14,28 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 ## Build Instructions
 
 1. Install Emscripten (w/ node.js + python)
-2. Configure parameters in jsartoolkit/tools/makem.js
-3. Run `node jsartoolkit/tools/makem.js`
-	(Make sure EMSCRIPTEN env variable is set. E.g. EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node jsartoolkit/tools/makem)
-4. The built ASM.js files are in jsartoolkit/build. There's a build with debug symbols in artoolkit.debug.js and the optimized build with bundled JS API in artoolkit.min.js.
+2. Configure parameters in `tools/makem.js`
+3. Run `node tools/makem.js`
+	(Make sure `EMSCRIPTEN` env variable is set, e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`)
+4. The built ASM.js files are in `build/`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
 
 # ARToolKit JS API
-`<script async src="jsartoolkit/build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
+
+`<script async src="build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
 
 # ARToolKit JS debug build
-`<script src="jsartoolkit/build/artoolkit.debug.js></script>` - include debug build
 
-`<script src="jsartoolkit/js/artoolkit.api.js></script>` - include JS API
+`<script src="build/artoolkit.debug.js></script>` - include debug build
+
+`<script src="js/artoolkit.api.js></script>` - include JS API
 
 # ARToolKit Three.js helper API
-`<script async src="jsartoolkit/build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
+
+`<script async src="build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
 
 `<script async src="three.min.js"></script>` - include Three.js
 
-`<script async src="jsartoolkit/js/artoolkit.three.js></script>` - include Three.js helper API
+`<script async src="js/artoolkit.three.js></script>` - include Three.js helper API
 
     <script>
     window.ARThreeOnLoad = function() {
@@ -46,11 +49,11 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 
 # Examples
 
-See jsartoolkit/examples for examples on using the raw API and the Three.js helper API.
+See `examples/` for examples on using the raw API and the Three.js helper API.
 
 The basic operation goes like this: load a camera param, create an AR controller, set pattern detection mode, load pattern markers or multimarkers if needed, add a getMarker event listener, and call the AR controller's process method with the image.
 
-    <script src="jsartoolkit/build/artoolkit.min.js"></script>
+    <script src="build/artoolkit.min.js"></script>
     <script>
         var param = new ARCameraParam();
         param.onload = function() {
@@ -81,7 +84,9 @@ The basic operation goes like this: load a camera param, create an AR controller
 
 
 ## Public
+
 *the calls your JS apps needs*
+
 - `artoolkit.init(path, camera_param_path)` - load path for artoolkit emscripten files
 - `artoolkit.onReady(callback)` - runs callback when artoolkit has completely downloaded, initalized and ready to run
 - `artoolkit.setup(width, height);` - initalize a buffer size for a canvas of width & height
@@ -94,11 +99,13 @@ The basic operation goes like this: load a camera param, create an AR controller
 ## Internals
 
 *calls called from emscripten runtime -> artoolkit.js*
+
 - `artoolkit.onFrameMalloc(object)` - gets called when frame buffer gets allocated for canvas
 - `artoolkit.onMarkerNum(number)` - gets called with the numbers of markers detected
 - `artoolkit.onGetMarker(object, index)` - gets called with the marker struct for the positioned marker
 
 *calls available from js -> emscripten*
+
 - `_setup(width, height)`
 - `_setThreshold(int)` - 0 to 255
 - `_process()`
@@ -113,6 +120,7 @@ The basic operation goes like this: load a camera param, create an AR controller
 - `setPattRatio`
 
 ## Examples
+
 ```
 artoolkit.init('', 'camera_para.dat').onReady(function() {
   artoolkit.setProjectionNearPlane(1);
@@ -129,7 +137,9 @@ artoolkit.init('', 'camera_para.dat').onReady(function() {
 ```
 
 ## Constants
+
 *prepend all these constants with `Module.` or `artoolkit.CONSTANTS` to access them*
+
 ```
 - AR_DEBUG_DISABLE
 - AR_DEBUG_ENABLE
