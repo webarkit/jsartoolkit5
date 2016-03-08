@@ -1,5 +1,6 @@
 # ARToolKit.js
-Emscripten port of ARToolKit to JavaScript
+
+Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaScript.
 
 ## Project Structure
 
