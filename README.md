@@ -21,67 +21,90 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 
 # ARToolKit JS API
 
-`<script async src="build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
+```js
+<script async src="build/artoolkit.min.js">
+  // include optimized ASM.js build and JS API
+</script>
+```
 
 # ARToolKit JS debug build
 
-`<script src="build/artoolkit.debug.js></script>` - include debug build
-
-`<script src="js/artoolkit.api.js></script>` - include JS API
+```js
+<script src="build/artoolkit.debug.js">
+  // - include debug build
+</script>
+<script src="js/artoolkit.api.js">
+  // - include JS API
+</script>
+```
 
 # ARToolKit Three.js helper API
 
-`<script async src="build/artoolkit.min.js></script>` - include optimized ASM.js build and JS API
-
-`<script async src="three.min.js"></script>` - include Three.js
-
-`<script async src="js/artoolkit.three.js></script>` - include Three.js helper API
-
-    <script>
-    window.ARThreeOnLoad = function() {
-        console.log("Three.js helper API loaded");
-    };
-
-    if (window.ARController && window.ARController.getUserMediaThreeScene) {
-        ARThreeOnLoad();
-    }
-    </script>
+```js
+<script async src="build/artoolkit.min.js">
+  // - include optimized ASM.js build and JS API
+</script>
+<script async src="three.min.js">
+  // - include Three.js
+</script>
+<script async src="js/artoolkit.three.js">
+  // - include Three.js helper API
+</script>
+<script>
+  window.ARThreeOnLoad = function () {
+    console.log("Three.js helper API loaded");
+  };
+  if (window.ARController && window.ARController.getUserMediaThreeScene) {
+    ARThreeOnLoad();
+  }
+</script>
+  ```
 
 # Examples
 
 See `examples/` for examples on using the raw API and the Three.js helper API.
 
-The basic operation goes like this: load a camera param, create an AR controller, set pattern detection mode, load pattern markers or multimarkers if needed, add a getMarker event listener, and call the AR controller's process method with the image.
+The basic operation goes like this:
 
-    <script src="build/artoolkit.min.js"></script>
-    <script>
-        var param = new ARCameraParam();
-        param.onload = function() {
-            var img = document.getElementById('my-image');
-            var ar = new ARController(img.width, img.height, param);
+1. Load a `ARCameraParam` object
+2. Create a `ARController` object
+3. Set pattern detection mode
+4. Load pattern markers or multimarkers if needed
+5. Add a `'getMarker'` event listener
+6. Call `ARController.process(img)`
 
-            // Set pattern detection mode to detect both pattern markers and barcode markers.
-            // This is more error-prone than detecting only pattern markers (default) or only barcode markers.
-            //
-            // For barcode markers, use artoolkit.AR_MATRIX_CODE_DETECTION
-            // For pattern markers, use artoolkit.AR_TEMPLATE_MATCHING_COLOR
-            // 
-            ar.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
+```js
+<script src="build/artoolkit.min.js"></script>
+<script>
+  var param = new ARCameraParam();
 
-            ar.addEventListener('markerNum', function(ev) {
-                console.log('got markers', markerNum);
-            })
-            ar.addEventListener('getMarker', function(ev) {
-                console.log('found marker?', ev);
-            })
+  param.onload = function () {
+    var img = document.getElementById('my-image');
+    var ar = new ARController(img.width, img.height, param);
 
-            ar.loadMarker('Data/patt.hiro', function(marker) {
-                console.log('loaded marker', marker);
-                ar.process(img);
-            });
-        };
-        param.src = 'Data/camera_para.dat';
+    // Set pattern detection mode to detect both pattern markers and barcode markers.
+    // This is more error-prone than detecting only pattern markers (default) or only barcode markers.
+    //
+    // For barcode markers, use artoolkit.AR_MATRIX_CODE_DETECTION
+    // For pattern markers, use artoolkit.AR_TEMPLATE_MATCHING_COLOR
+    //
+    ar.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
 
+    ar.addEventListener('markerNum', function (ev) {
+      console.log('got markers', markerNum);
+    });
+    ar.addEventListener('getMarker', function (ev) {
+      console.log('found marker?', ev);
+    });
+    ar.loadMarker('Data/patt.hiro', function (marker) {
+      console.log('loaded marker', marker);
+      ar.process(img);
+    });
+  };
+
+  param.src = 'Data/camera_para.dat';
+</script>
+```
 
 ## Public
 
