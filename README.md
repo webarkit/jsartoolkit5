@@ -18,11 +18,10 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
   2. Install python2 (https://www.python.org/downloads/)
   3. Install emscripten (http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html#platform-notes-installation-instructions-portable-sdk)
 
-2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`
-Note: If you already cloned ARToolKit5 to a different directory you can:
-- create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`)
-- or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
-- or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
+2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
+  - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`)
+  - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
+  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
 
 3. Building
   1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
