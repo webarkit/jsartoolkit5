@@ -13,16 +13,11 @@ var
 var HAVE_NFT = 0;
 
 var EMSCRIPTEN_PATH = process.env.EMSCRIPTEN;
-var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT;
+var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || "../emscripten/artoolkit5";
 
 if (!EMSCRIPTEN_PATH) {
 	console.log("\nWarning: EMSCRIPTEN environment variable not found.")
 	console.log("If you get a \"command not found\" error,\ndo `source <path to emsdk>/emsdk_env.sh` and try again.");
-}
-
-if(!ARTOOLKIT5_ROOT){
-    console.log("\nWarning: Environment variable ARTOOLKIT5_ROOT not found. Please make sure you have either cloned the ARToolKit GitHub repository using 'git submodule update --init' or that you have a link from jsartoolkit5/emscripten/artoolkit5 that points to your artoolkit5 clone ot that you set the environment variable ARTOOLKIT5_ROOT to the root directory of ARToolKit5 (eg. /Users/johnd/artoolkit5).\n\n Continuing with looking for ARToolKit5 at jsartoolkit5/emscripten/artoolkit5");
-    var ARTOOLKIT5_ROOT = "../emscripten/artoolkit5";
 }
 
 var EMCC = EMSCRIPTEN_PATH ? path.resolve(EMSCRIPTEN_PATH, 'emcc') : 'emcc';
