@@ -13,17 +13,28 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 
 ## Build Instructions
 
-1. Install Emscripten (w/ node.js + python)
-2. Configure parameters in `tools/makem.js`
-3. Run `node tools/makem.js`
-	(Make sure `EMSCRIPTEN` env variable is set, e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`)
-4. The built ASM.js files are in `build/`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
+1. Install build tools
+  1. Install node.js (https://nodejs.org/en/)
+  2. Install python2 (https://www.python.org/downloads/)
+  3. Install emscripten (http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html#platform-notes-installation-instructions-portable-sdk)
+
+2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
+  - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`)
+  - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
+  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
+
+3. Building
+  1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
+  2. Rename the `ARTOOLKIT5_ROOT/include/AR/config.h.in` file to `config.h`
+  3. Run `node tools/makem.js`
+
+4. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
 
 # ARToolKit JS API
 
 ```js
 <script async src="build/artoolkit.min.js">
-  // include optimized ASM.js build and JS API
+// include optimized ASM.js build and JS API
 </script>
 ```
 
@@ -31,10 +42,10 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 
 ```js
 <script src="build/artoolkit.debug.js">
-  // - include debug build
+// - include debug build
 </script>
 <script src="js/artoolkit.api.js">
-  // - include JS API
+// - include JS API
 </script>
 ```
 
@@ -42,23 +53,23 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 
 ```js
 <script async src="build/artoolkit.min.js">
-  // - include optimized ASM.js build and JS API
+// - include optimized ASM.js build and JS API
 </script>
 <script async src="three.min.js">
-  // - include Three.js
+// - include Three.js
 </script>
 <script async src="js/artoolkit.three.js">
-  // - include Three.js helper API
+// - include Three.js helper API
 </script>
 <script>
-  window.ARThreeOnLoad = function () {
-    console.log("Three.js helper API loaded");
-  };
-  if (window.ARController && window.ARController.getUserMediaThreeScene) {
-    ARThreeOnLoad();
-  }
+window.ARThreeOnLoad = function () {
+console.log("Three.js helper API loaded");
+};
+if (window.ARController && window.ARController.getUserMediaThreeScene) {
+ARThreeOnLoad();
+}
 </script>
-  ```
+```
 
 # Examples
 
@@ -76,33 +87,33 @@ The basic operation goes like this:
 ```js
 <script src="build/artoolkit.min.js"></script>
 <script>
-  var param = new ARCameraParam();
+var param = new ARCameraParam();
 
-  param.onload = function () {
-    var img = document.getElementById('my-image');
-    var ar = new ARController(img.width, img.height, param);
+param.onload = function () {
+var img = document.getElementById('my-image');
+var ar = new ARController(img.width, img.height, param);
 
-    // Set pattern detection mode to detect both pattern markers and barcode markers.
-    // This is more error-prone than detecting only pattern markers (default) or only barcode markers.
-    //
-    // For barcode markers, use artoolkit.AR_MATRIX_CODE_DETECTION
-    // For pattern markers, use artoolkit.AR_TEMPLATE_MATCHING_COLOR
-    //
-    ar.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
+// Set pattern detection mode to detect both pattern markers and barcode markers.
+// This is more error-prone than detecting only pattern markers (default) or only barcode markers.
+//
+// For barcode markers, use artoolkit.AR_MATRIX_CODE_DETECTION
+// For pattern markers, use artoolkit.AR_TEMPLATE_MATCHING_COLOR
+//
+ar.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
 
-    ar.addEventListener('markerNum', function (ev) {
-      console.log('got markers', markerNum);
-    });
-    ar.addEventListener('getMarker', function (ev) {
-      console.log('found marker?', ev);
-    });
-    ar.loadMarker('Data/patt.hiro', function (marker) {
-      console.log('loaded marker', marker);
-      ar.process(img);
-    });
-  };
+ar.addEventListener('markerNum', function (ev) {
+console.log('got markers', markerNum);
+});
+ar.addEventListener('getMarker', function (ev) {
+console.log('found marker?', ev);
+});
+ar.loadMarker('Data/patt.hiro', function (marker) {
+console.log('loaded marker', marker);
+ar.process(img);
+});
+};
 
-  param.src = 'Data/camera_para.dat';
+param.src = 'Data/camera_para.dat';
 </script>
 ```
 
@@ -146,16 +157,16 @@ The basic operation goes like this:
 
 ```
 artoolkit.init('', 'camera_para.dat').onReady(function() {
-  artoolkit.setProjectionNearPlane(1);
-  artoolkit.setProjectionFarPlane(1000);
-  artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
-  artoolkit.setMatrixCodeType(artoolkit.CONSTANTS.AR_MATRIX_CODE_4x4);
+artoolkit.setProjectionNearPlane(1);
+artoolkit.setProjectionFarPlane(1000);
+artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
+artoolkit.setMatrixCodeType(artoolkit.CONSTANTS.AR_MATRIX_CODE_4x4);
 })
 
 artoolkit.init('', 'camera_para.dat').onReady(function() {
-  artoolkit.addMarker('../bin/Data/patt.hiro', function(marker) {
-    artoolkit.process(v);
-  })
+artoolkit.addMarker('../bin/Data/patt.hiro', function(marker) {
+artoolkit.process(v);
+})
 })
 ```
 
