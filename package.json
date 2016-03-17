@@ -1,0 +1,23 @@
+{
+  "name": "jsartoolkit",
+  "version": "0.0.0",
+  "description": "Emscripten port of ARToolKit to JavaScript",
+  "keywords": [
+    "ARToolKit",
+    "AR",
+    "Augmented Reality"
+  ],
+  "author": "ARToolKit (https://github.com/artoolkit)",
+  "repository": "git://https://github.com/artoolkit/jsartoolkit5.git",
+  "homepage": "https://github.com/artoolkit/jsartoolkit5",
+  "contributors": [
+    "Github Contributors (https://github.com/artoolkit/jsartoolkit5/graphs/contributors)"
+  ],
+  "bugs": {
+    "url": "https://github.com/artoolkit/jsartoolkit5/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "license": "LGPLv3",
+  "scripts": {}
+}
