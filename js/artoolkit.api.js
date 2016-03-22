@@ -1464,7 +1464,7 @@
 		'getPattRatio',
 
 		'setImageProcMode',
-		'getImageProcMode',
+		'getImageProcMode'
 	];
 
 	function runWhenLoaded() {
