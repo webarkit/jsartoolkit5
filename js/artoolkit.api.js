@@ -17,6 +17,9 @@
 		If the camera argument is an URL, it is loaded into a new ARCameraParam, and the ARController dispatches
 		a 'load' event and calls the onload method if it is defined.
 
+	 	@exports ARController
+	 	@constructor
+
 		@param {number} width The width of the images to process.
 		@param {number} height The height of the images to process.
 		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
@@ -1335,6 +1338,9 @@
 
 	/**
 		Destroys the camera parameter and frees associated Emscripten resources.
+
+		 @exports ARCameraParam
+		 @constructor
 	*/
 	ARCameraParam.prototype.dispose = function() {
 		if (this.id !== -1) {
