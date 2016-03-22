@@ -1,5 +1,5 @@
 (function() {
-	'use strict'
+	'use strict';
 
 	/**
 		The ARController is the main object for doing AR marker detection with JSARToolKit.
@@ -119,12 +119,12 @@
 		var markerNum = this.getMarkerNum();
 		var k,o;
 		for (k in this.patternMarkers) {
-			o = this.patternMarkers[k]
+			o = this.patternMarkers[k];
 			o.inPrevious = o.inCurrent;
 			o.inCurrent = false;
 		}
 		for (k in this.barcodeMarkers) {
-			o = this.barcodeMarkers[k]
+			o = this.barcodeMarkers[k];
 			o.inPrevious = o.inCurrent;
 			o.inCurrent = false;
 		}
@@ -347,7 +347,7 @@
 		The debug canvas is added to document.body.
 	*/
 	ARController.prototype.debugSetup = function() {
-		document.body.appendChild(this.canvas)
+		document.body.appendChild(this.canvas);
 		this.setDebugMode(1);
 		this._bwpointer = this.getProcessingImage();
 	};
@@ -664,7 +664,7 @@
 	*/
 	ARController.prototype.getProcessingImage = function() {
 		return artoolkit.getProcessingImage(this.id);
-	}
+	};
 
 	/**
 		Sets the logging level to use by ARToolKit.
@@ -933,8 +933,8 @@
 	*/
 	ARController.prototype.debugDraw = function() {
 		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
-		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
-		this.ctx.putImageData(id, 0, 0)
+		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height);
+		this.ctx.putImageData(id, 0, 0);
 
 		var marker_num = this.getMarkerNum();
 		for (var i=0; i<marker_num; i++) {
@@ -957,7 +957,7 @@
 		this.camera_mat = new Float64Array(Module.HEAPU8.buffer, params.camera, 16);
 		this.marker_transform_mat = new Float64Array(Module.HEAPU8.buffer, params.transform, 12);
 
-		this.setProjectionNearPlane(0.1)
+		this.setProjectionNearPlane(0.1);
 		this.setProjectionFarPlane(1000);
 
 		var self = this;
@@ -1005,31 +1005,31 @@
 		var ctx = this.ctx;
 		ctx.strokeStyle = 'red';
 
-		ctx.beginPath()
-		ctx.moveTo(vertex[0][0], vertex[0][1])
-		ctx.lineTo(vertex[1][0], vertex[1][1])
+		ctx.beginPath();
+		ctx.moveTo(vertex[0][0], vertex[0][1]);
+		ctx.lineTo(vertex[1][0], vertex[1][1]);
 		ctx.stroke();
 
-		ctx.beginPath()
-		ctx.moveTo(vertex[2][0], vertex[2][1])
-		ctx.lineTo(vertex[3][0], vertex[3][1])
-		ctx.stroke()
+		ctx.beginPath();
+		ctx.moveTo(vertex[2][0], vertex[2][1]);
+		ctx.lineTo(vertex[3][0], vertex[3][1]);
+		ctx.stroke();
 
 		ctx.strokeStyle = 'green';
-		ctx.beginPath()
-		ctx.lineTo(vertex[1][0], vertex[1][1])
-		ctx.lineTo(vertex[2][0], vertex[2][1])
+		ctx.beginPath();
+		ctx.lineTo(vertex[1][0], vertex[1][1]);
+		ctx.lineTo(vertex[2][0], vertex[2][1]);
 		ctx.stroke();
 
-		ctx.beginPath()
-		ctx.moveTo(vertex[3][0], vertex[3][1])
-		ctx.lineTo(vertex[0][0], vertex[0][1])
+		ctx.beginPath();
+		ctx.moveTo(vertex[3][0], vertex[3][1]);
+		ctx.lineTo(vertex[0][0], vertex[0][1]);
 		ctx.stroke();
 
-		pos = marker.pos
-		ctx.beginPath()
-		ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2)
-		ctx.fillStyle = 'red'
+		pos = marker.pos;
+		ctx.beginPath();
+		ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2);
+		ctx.fillStyle = 'red';
 		ctx.fill()
 	};
 
@@ -1423,7 +1423,7 @@
 	function runWhenLoaded() {
 		FUNCTIONS.forEach(function(n) {
 			artoolkit[n] = Module[n];
-		})
+		});
 
 		for (var m in Module) {
 			if (m.match(/^AR/))
@@ -1496,10 +1496,10 @@
 
 			if (!files.length) return ok();
 
-			var path = url.split('/').slice(0, -1).join('/')
+			var path = url.split('/').slice(0, -1).join('/');
 			files = files.map(function(file) {
 				return [path + '/' + file, file]
-			})
+			});
 
 			ajaxDependencies(files, ok);
 		});
