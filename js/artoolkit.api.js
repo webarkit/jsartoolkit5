@@ -388,8 +388,8 @@
 	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
 	 * @return	{Float64Array} The dst array.
 	 */
-	ARController.prototype.getTransMatSquare = function(markerIndex, markerWidth, dst) {
-		artoolkit.getTransMatSquare(this.id, markerIndex, markerWidth);
+	ARController.prototype.getTransMatSquare = function(markerUID, markerWidth, dst) {
+		artoolkit.getTransMatSquare(this.id, markerUID, markerWidth);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
@@ -405,9 +405,9 @@
 	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
 	 * @return	{Float64Array} The dst array.
 	 */
-	ARController.prototype.getTransMatSquareCont = function(markerIndex, markerWidth, previousMarkerTransform, dst) {
-		this.marker_transform_mat.set(previousMarkerTransform)
-		artoolkit.getTransMatSquareCont(this.id, markerIndex, markerWidth);
+	ARController.prototype.getTransMatSquareCont = function(markerUID, markerWidth, previousMarkerTransform, dst) {
+		this.marker_transform_mat.set(previousMarkerTransform);
+		artoolkit.getTransMatSquareCont(this.id, markerUID, markerWidth);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
@@ -421,8 +421,8 @@
 	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
 	 * @return	{Float64Array} The dst array.
 	 */
-	ARController.prototype.getTransMatMultiSquare = function(multiMarkerId, dst) {
-		artoolkit.getTransMatMultiSquare(this.id, multiMarkerId);
+	ARController.prototype.getTransMatMultiSquare = function(markerUID, dst) {
+		artoolkit.getTransMatMultiSquare(this.id, markerUID);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
@@ -435,8 +435,8 @@
 	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
 	 * @return	{Float64Array} The dst array.
 	 */
-	ARController.prototype.getTransMatMultiSquareRobust = function(multiMarkerId, dst) {
-		artoolkit.getTransMatMultiSquare(this.id, multiMarkerId);
+	ARController.prototype.getTransMatMultiSquareRobust = function(markerUID, dst) {
+		artoolkit.getTransMatMultiSquare(this.id, markerUID);
 		dst.set(this.marker_transform_mat);
 		return dst;
 	};
@@ -793,8 +793,8 @@
 			AR_TEMPLATE_MATCHING_MONO_AND_MATRIX
 			The default mode is AR_TEMPLATE_MATCHING_COLOR.
 	*/
-	ARController.prototype.setPatternDetectionMode = function(value) {
-		return artoolkit.setPatternDetectionMode(this.id, value);
+	ARController.prototype.setPatternDetectionMode = function(mode) {
+		return artoolkit.setPatternDetectionMode(this.id, mode);
 	};
 
 	/**
@@ -825,8 +825,8 @@
 	        AR_MATRIX_CODE_4x4_BCH_13_5_5
 	        The default mode is AR_MATRIX_CODE_3x3.
 	*/
-	ARController.prototype.setMatrixCodeType = function(value) {
-		return artoolkit.setMatrixCodeType(this.id, value);
+	ARController.prototype.setMatrixCodeType = function(type) {
+		return artoolkit.setMatrixCodeType(this.id, type);
 	};
 
 	/**
@@ -854,8 +854,8 @@
 			AR_LABELING_BLACK_REGION
 			The default mode is AR_LABELING_BLACK_REGION.
 	*/
-	ARController.prototype.setLabelingMode = function(value) {
-		return artoolkit.setLabelingMode(this.id, value);
+	ARController.prototype.setLabelingMode = function(mode) {
+		return artoolkit.setLabelingMode(this.id, mode);
 	};
 
 	/**
@@ -877,8 +877,8 @@
 	        If compatibility with ARToolKit verions 1.0 through 4.4 is required, this value
 	        must be 0.5.
 	 */
- 	ARController.prototype.setPattRatio = function(value) {
-		return artoolkit.setPattRatio(this.id, value);
+ 	ARController.prototype.setPattRatio = function(pattRatio) {
+		return artoolkit.setPattRatio(this.id, pattRatio);
 	};
 
 	/**
@@ -911,8 +911,8 @@
 			AR_IMAGE_PROC_FIELD_IMAGE
 			The default mode is AR_IMAGE_PROC_FRAME_IMAGE.
 	*/
-	ARController.prototype.setImageProcMode = function(value) {
-		return artoolkit.setImageProcMode(this.id, value);
+	ARController.prototype.setImageProcMode = function(mode) {
+		return artoolkit.setImageProcMode(this.id, mode);
 	};
 
 	/**
