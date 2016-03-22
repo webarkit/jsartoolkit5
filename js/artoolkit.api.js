@@ -110,7 +110,7 @@
 
 		If the debugSetup has been called, draws debug markers on the debug canvas.
 
-		@param {ImageElement | VideoElement} image The image to process [optional]. 
+		@param {HTMLImageElement|HTMLVideoElement} [image] The image to process [optional].
 	*/
 	ARController.prototype.process = function(image) {
 		this.detectMarker(image);
@@ -227,7 +227,7 @@
 		and customizable marker widths.
 
 		@param {number} id ID of the pattern marker to track.
-		@param {number} markerWidth The width of the marker to track.
+		@param {number} [markerWidth] The width of the marker to track.
 		@return {Object} The marker tracking object.
 	*/
 	ARController.prototype.trackPatternMarkerId = function(id, markerWidth) {
@@ -255,7 +255,7 @@
 		and customizable marker widths.
 
 		@param {number} id ID of the barcode marker to track.
-		@param {number} markerWidth The width of the marker to track.
+		@param {number} [markerWidth] The width of the marker to track.
 		@return {Object} The marker tracking object.
 	*/
 	ARController.prototype.trackBarcodeMarkerId = function(id, markerWidth) {
@@ -418,7 +418,6 @@
 	 * checked.
 	 *
 	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
-	 * @param {number} markerWidth	The width of the marker
 	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
 	 * @return	{Float64Array} The dst array.
 	 */
@@ -433,7 +432,6 @@
 	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
 	 * checked.
 	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
-	 * @param {number} markerWidth	The width of the marker
 	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
 	 * @return	{Float64Array} The dst array.
 	 */
@@ -451,7 +449,7 @@
 
 		@param {Float64Array} transMat The 3x4 marker transformation matrix.
 		@param {Float64Array} glMat The 4x4 GL transformation matrix.
-		@param {number} scale The scale for the transform.
+		@param {number} [scale] The scale for the transform.
 	*/ 
 	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
 		glMat[0 + 0*4] = transMat[0]; // R1C1
@@ -489,7 +487,7 @@
         detected markers are possibly examined for some measure of goodness of match (e.g. by
         examining the match confidence value) and pose extraction.
 
-		@param {image} Image to be processed to detect markers.
+		@param {HTMLImageElement|HTMLVideoElement} [image] to be processed to detect markers.
 		@return {number}     0 if the function proceeded without error, or a value less than 0 in case of error.
 			A result of 0 does not however, imply any markers were detected.
 	*/
@@ -559,6 +557,7 @@
 		A markerIndex of -1 is used to access the global custom marker.
 
 		@param {number} markerIndex The index of the marker to edit.
+	 	@param {*} vertexData
 	*/
 	ARController.prototype.setMarkerInfoVertex = function(markerIndex, vertexData) {
 		for (var i=0; i<vertexData.length; i++) {
@@ -642,7 +641,7 @@
 	 * Enables or disables debug mode in the tracker. When enabled, a black and white debug
 	 * image is generated during marker detection. The debug image is useful for visualising
 	 * the binarization process and choosing a threshold value.
-	 * @param {number} debug		true to enable debug mode, false to disable debug mode
+	 * @param {boolean} mode		true to enable debug mode, false to disable debug mode
 	 * @see				getDebugMode()
 	 */
 	ARController.prototype.setDebugMode = function(mode) {
@@ -651,27 +650,28 @@
 
 	/**
 	 * Returns whether debug mode is currently enabled.
-	 * @return			true when debug mode is enabled, false when debug mode is disabled
-	 * @see				setDebugMode()
+	 * @return {boolean}	true when debug mode is enabled, false when debug mode is disabled
+	 * @see					setDebugMode()
 	 */
 	ARController.prototype.getDebugMode = function() {
 		return artoolkit.getDebugMode(this.id);
 	};
 
 	/**
-		Returns the Emscripten HEAP offset to the debug processing image used by ARToolKit.
-
-		@return {number} HEAP offset to the debug processing image.
-	*/
+	 * Returns the Emscripten HEAP offset to the debug processing image used by ARToolKit.
+	 *
+	 * @return {number} HEAP offset to the debug processing image.
+	 */
 	ARController.prototype.getProcessingImage = function() {
 		return artoolkit.getProcessingImage(this.id);
 	};
 
 	/**
-		Sets the logging level to use by ARToolKit.
-
-		@param 
-	*/
+	 * Sets the logging level to use by ARToolKit.
+	 *
+	 * //TODOC
+	 * @param mode
+	 */
 	ARController.prototype.setLogLevel = function(mode) {
 		return artoolkit.setLogLevel(mode);
 	};
@@ -746,7 +746,7 @@
 		suitable midpoint between the observed values for black
 		and white portions of the markers in the image.
 
-		@param {number}     thresh An integer in the range [0,255] (inclusive).
+		@param {number}     threshold An integer in the range [0,255] (inclusive).
 	*/
 	ARController.prototype.setThreshold = function(threshold) {
 		return artoolkit.setThreshold(this.id, threshold);
@@ -1068,7 +1068,7 @@
 		width, height and facingMode attributes.
 
 		@param {object} configuration The configuration object.
-		@return {VideoElement} Returns the created video element.
+		@return {HTMLVideoElement} Returns the created video element.
 	*/
 	ARController.getUserMedia = function(configuration) {
 		var facing = configuration.facingMode || 'environment';
@@ -1231,7 +1231,7 @@
 		are set to be always in landscape configuration so that width is larger than height.
 
 		@param {object} configuration The configuration object.
-		@return {VideoElement} Returns the created video element.
+		@return {HTMLVideoElement} Returns the created video element.
 	*/
 	ARController.getUserMediaARController = function(configuration) {
 		var obj = {};
@@ -1287,8 +1287,8 @@
 			});
 
 		@param {string} src URL to load camera parameters from.
-		@param {string} onload Onload callback to be called on successful parameter loading.
-		@param {string} onerror Error callback to called when things don't work out.
+		@param {Function} onload Onload callback to be called on successful parameter loading.
+		@param {Function} onerror Error callback to called when things don't work out.
 	*/
 	var ARCameraParam = function(src, onload, onerror) {
 		this.id = -1;
