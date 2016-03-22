@@ -1503,7 +1503,7 @@
 
 		lines.forEach(function(line) {
 			line = line.trim();
-			if (!line || line.startsWith('#')) return;
+			if (!line || line.startsWith('#')) return; // FIXME: Should probably be `if (line.indexOf('#') === 0) { return; }`
 
 			switch (state) {
 				case 0:
