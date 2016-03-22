@@ -22,7 +22,6 @@
 		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
 	*/
 	var ARController = function(width, height, camera) {
-		var id;
 		var w = width, h = height;
 
 		this.orientation = 'landscape';
@@ -129,11 +128,13 @@
 			o.inCurrent = false;
 		}
 
-		for (var i=0; i<markerNum; i++) {
+		var i, j, visible, multiEachMarkerInfo;
+
+		for (i=0; i<markerNum; i++) {
 			var markerInfo = this.getMarker(i);
 
 			var markerType = artoolkit.UNKNOWN_MARKER;
-			var visible = this.trackPatternMarkerId(-1);
+			visible = this.trackPatternMarkerId(-1);
 
 			if (markerInfo.idPatt > -1 && (markerInfo.id === markerInfo.idPatt || markerInfo.idMatrix === -1)) {
 				visible = this.trackPatternMarkerId(markerInfo.idPatt);
@@ -173,15 +174,15 @@
 		}
 
 		var multiMarkerCount = this.getMultiMarkerCount();
-		for (var i=0; i<multiMarkerCount; i++) {
+		for (i=0; i<multiMarkerCount; i++) {
 			var subMarkerCount = this.getMultiMarkerPatternCount(i);
-			var visible = false;
+			visible = false;
 
 			artoolkit.getTransMatMultiSquareRobust(this.id, i);
 			this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
 
-			for (var j=0; j<subMarkerCount; j++) {
-				var multiEachMarkerInfo = this.getMultiEachMarker(i, j);
+			for (j=0; j<subMarkerCount; j++) {
+				multiEachMarkerInfo = this.getMultiEachMarker(i, j);
 				if (multiEachMarkerInfo.visible >= 0) {
 					visible = true;
 					this.dispatchEvent({
@@ -196,8 +197,8 @@
 				}
 			}
 			if (visible) {
-				for (var j=0; j<subMarkerCount; j++) {
-					var multiEachMarkerInfo = this.getMultiEachMarker(i, j);
+				for (j=0; j<subMarkerCount; j++) {
+					multiEachMarkerInfo = this.getMultiEachMarker(i, j);
 					this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
 					this.dispatchEvent({
 						name: 'getMultiMarkerSub',
@@ -1089,7 +1090,7 @@
 			'click', 'mousedown', 'mouseup', 'mousemove',
 			'keydown', 'keyup', 'keypress', 'scroll'
 		];
-		var play = function(ev) {
+		var play = function() {
 			if (readyToPlay) {
 				video.play();
 				if (!video.paused) {
@@ -1548,7 +1549,7 @@
 		oReq.open('GET', url, true);
 		oReq.responseType = 'arraybuffer'; // blob arraybuffer
 
-		oReq.onload = function(oEvent) {
+		oReq.onload = function() {
 			// console.log('ajax done for ', url);
 			var arrayBuffer = oReq.response;
 			var byteArray = new Uint8Array(arrayBuffer);
