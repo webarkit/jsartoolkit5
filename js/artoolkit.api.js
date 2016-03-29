@@ -1288,6 +1288,9 @@
 				console.log('failed to load camera', err);
 			});
 
+		@exports ARCameraParam
+		@constructor
+	 
 		@param {string} src URL to load camera parameters from.
 		@param {string} onload Onload callback to be called on successful parameter loading.
 		@param {string} onerror Error callback to called when things don't work out.
@@ -1339,8 +1342,6 @@
 	/**
 		Destroys the camera parameter and frees associated Emscripten resources.
 
-		 @exports ARCameraParam
-		 @constructor
 	*/
 	ARCameraParam.prototype.dispose = function() {
 		if (this.id !== -1) {

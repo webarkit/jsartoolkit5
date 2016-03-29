@@ -20,7 +20,8 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-jsdoc": "^1.1.0",
-    "ink-docstrap": "^1.1.4"
+    "ink-docstrap": "^1.1.4",
+    "jsdoc": "^3.4.0"
   },
   "license": "LGPL-3.0",
   "scripts": {}
