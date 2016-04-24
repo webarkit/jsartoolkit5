@@ -8,6 +8,9 @@
 #include <vector>
 #include <unordered_map>
 #include <AR/config.h>
+#include <AR/arFilterTransMat.h>
+#include <AR2/tracking.h>
+#include <KPM/kpm.h>
 
 struct multi_marker {
 	int id;
@@ -62,6 +65,58 @@ static int MARKER_INDEX_OUT_OF_BOUNDS = -3;
 static ARMarkerInfo gMarkerInfo;
 
 extern "C" {
+
+	/**
+		NFT API bindings
+	*/
+	void ar2_SetInitTrans() {
+		//surface, surfaceSet[detectedPage], trackingTrans);
+		// ar2SetInitTrans
+	}
+
+	float kpmMatch(KpmHandle *kpmHandle, ARUint8 *imagePtr, float trans[3][4], int *pageNo ) {
+		KpmResult              *kpmResult = NULL;
+		int                     kpmResultNum;
+		float                  err = -1;
+		int                    i, j, k;
+
+	    kpmGetResult( kpmHandle, &kpmResult, &kpmResultNum );
+
+        kpmMatching( kpmHandle, imagePtr );
+
+        int flag = 0;
+        for( i = 0; i < kpmResultNum; i++ ) {
+            if( kpmResult[i].camPoseF != 0 ) continue;
+            ARLOGd("kpmGetPose OK.\n");
+            if( flag == 0 || err > kpmResult[i].error ) { // Take the first or best result.
+                flag = 1;
+                *pageNo = kpmResult[i].pageNo;
+                for (j = 0; j < 3; j++)
+                	for (k = 0; k < 4; k++)
+                		trans[j][k] = kpmResult[i].camPose[j][k];
+                err = kpmResult[i].error;
+            }
+        }
+        return err;
+	}
+
+	KpmHandle *createKpmHandle(ARParamLT *cparamLT) {
+		KpmHandle *kpmHandle;
+	    kpmHandle = kpmCreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA);
+		return kpmHandle;
+	}
+
+	int getKpmImageWidth(KpmHandle *kpmHandle) {
+		return kpmHandleGetXSize(kpmHandle);
+	}
+
+	int getKpmImageHeight(KpmHandle *kpmHandle) {
+		return kpmHandleGetYSize(kpmHandle);
+	}
+
+	int getKpmPixelSize(KpmHandle *kpmHandle) {
+		return arUtilGetPixelSize(kpmHandleGetPixelFormat(kpmHandle));
+	}
 
 	/***************
 	 * Set Log Level

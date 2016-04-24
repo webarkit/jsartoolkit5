@@ -118,7 +118,7 @@ var DEFINES = ' ';
 if (HAVE_NFT) DEFINES += ' -D HAVE_NFT ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
-FLAGS += ' -Wno-warn-absolute-paths ';
+// FLAGS += ' -Wno-warn-absolute-paths ';
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 // FLAGS += ' -s FULL_ES2=1 '
 FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
@@ -141,7 +141,7 @@ var INCLUDES = [
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/include'),
 	OUTPUT_PATH,
 	SOURCE_PATH,
-	// 'lib/SRC/KPM/FreakMatcher',
+	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/FreakMatcher'),
 	// 'include/macosx-universal/',
 	// '../jpeg-6b',
 ].map(function(s) { return '-I' + s }).join(' ');
@@ -260,6 +260,7 @@ function addJob(job) {
 
 addJob(clean_builds);
 addJob(compile_arlib);
+addJob(compile_kpm);
 // compile_kpm
 // addJob(compile_libjpeg);
 addJob(compile_combine);
