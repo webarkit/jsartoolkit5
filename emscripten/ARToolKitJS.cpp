@@ -118,6 +118,71 @@ extern "C" {
 		return arUtilGetPixelSize(kpmHandleGetPixelFormat(kpmHandle));
 	}
 
+	AR2HandleT* initAR2(ARParamLT *cparamLT, KpmHandle *kpmHandle) {
+		AR2HandleT *ar2Handle = NULL;
+		// AR2 init.
+		if( (ar2Handle = ar2CreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA, AR2_TRACKING_DEFAULT_THREAD_NUM)) == NULL ) {
+			ARLOGe("Error: ar2CreateHandle.\n");
+			kpmDeleteHandle(&kpmHandle);
+			return NULL;
+		}
+		ARLOGi("Using NFT tracking settings for a single CPU.\n");
+		ar2SetTrackingThresh(ar2Handle, 5.0);
+		ar2SetSimThresh(ar2Handle, 0.50);
+		ar2SetSearchFeatureNum(ar2Handle, 16);
+		ar2SetSearchSize(ar2Handle, 6);
+		ar2SetTemplateSize1(ar2Handle, 6);
+		ar2SetTemplateSize2(ar2Handle, 6);
+		return ar2Handle;
+	}
+
+	int loadNFTMarker(KpmHandle *kpmHandle, const char* datasetPathname) {
+		int i, pageNo, surfaceSetCount = 0;
+		AR2SurfaceSetT *surfaceSet;
+		KpmRefDataSet *refDataSet;
+
+		refDataSet = NULL;
+
+		// Load KPM data.
+		KpmRefDataSet  *refDataSet2;
+		ARLOGi("Reading %s.fset3\n", datasetPathname);
+		if (kpmLoadRefDataSet(datasetPathname, "fset3", &refDataSet2) < 0 ) {
+			ARLOGe("Error reading KPM data from %s.fset3\n", datasetPathname);
+			pageNo = -1;
+			return -1;
+		}
+		pageNo = surfaceSetCount;
+		ARLOGi("  Assigned page no. %d.\n", surfaceSetCount);
+		if (kpmChangePageNoOfRefDataSet(refDataSet2, KpmChangePageNoAllPages, surfaceSetCount) < 0) {
+		    ARLOGe("Error: kpmChangePageNoOfRefDataSet\n");
+		    return -1;
+		}
+		if (kpmMergeRefDataSet(&refDataSet, &refDataSet2) < 0) {
+		    ARLOGe("Error: kpmMergeRefDataSet\n");
+		    return -1;
+		}
+		ARLOGi("  Done.\n");
+
+		// Load AR2 data.
+		ARLOGi("Reading %s.fset\n", datasetPathname);
+
+		if ((surfaceSet = ar2ReadSurfaceSet(datasetPathname, "fset", NULL)) == NULL ) {
+		    ARLOGe("Error reading data from %s.fset\n", datasetPathname);
+		}
+		ARLOGi("  Done.\n");
+
+		surfaceSetCount++;
+
+		if (kpmSetRefDataSet(kpmHandle, refDataSet) < 0) {
+		    ARLOGe("Error: kpmSetRefDataSet\n");
+		    return -1;
+		}
+		kpmDeleteRefDataSet(&refDataSet);
+
+		ARLOGi("Loading of NFT data complete.\n");
+		return 0;
+	}
+
 	/***************
 	 * Set Log Level
 	 ****************/
