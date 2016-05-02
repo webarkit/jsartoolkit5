@@ -34,6 +34,12 @@ struct arController {
 	ARMultiMarkerInfoT *arMultiMarkerHandle = NULL;
 	AR3DHandle* ar3DHandle;
 
+	KpmHandle* kpmHandle;
+	AR2HandleT* ar2Handle;
+
+	int surfaceSetCount = 0; // Running NFT marker id
+	std::unordered_map<int, AR2SurfaceSetT*> surfaceSets;
+
 	ARdouble nearPlane = 0.0001;
 	ARdouble farPlane = 1000.0;
 
@@ -69,35 +75,130 @@ extern "C" {
 	/**
 		NFT API bindings
 	*/
-	void ar2_SetInitTrans() {
-		//surface, surfaceSet[detectedPage], trackingTrans);
-		// ar2SetInitTrans
+
+	int getNFTMarkerInfo(int id, int markerIndex) {
+		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
+		arController *arc = &(arControllers[id]);
+
+		if (arc->surfaceSetCount <= markerIndex) {
+			return MARKER_INDEX_OUT_OF_BOUNDS;
+		}
+
+		KpmResult *kpmResult = NULL;
+		int kpmResultNum = -1;
+
+        kpmGetResult( arc->kpmHandle, &kpmResult, &kpmResultNum );
+
+		int i, j, k;
+        int flag = -1;
+        float err = -1;
+        float trans[3][4];
+        for( i = 0; i < kpmResultNum; i++ ) {
+            if (kpmResult[i].pageNo == markerIndex) {
+	            if( kpmResult[i].camPoseF != 0 ) continue;
+	            if( flag == -1 || err > kpmResult[i].error ) { // Take the first or best result.
+	                flag = i;
+	                err = kpmResult[i].error;
+	            }
+	        }
+        }
+
+        if (flag > -1) {
+            for (j = 0; j < 3; j++)
+            	for (k = 0; k < 4; k++)
+            		trans[j][k] = kpmResult[flag].camPose[j][k];
+			EM_ASM_({
+				var $a = arguments;
+				var i = 0;
+				if (!artoolkit["NFTMarkerInfo"]) {
+					artoolkit["NFTMarkerInfo"] = ({
+						id: 0,
+						error: -1,
+						found: 0,
+						pose: [0,0,0,0, 0,0,0,0, 0,0,0,0]
+					});
+				}
+				var markerInfo = artoolkit["NFTMarkerInfo"];
+				markerInfo["id"] = $a[i++];
+				markerInfo["error"] = $a[i++];
+				markerInfo["found"] = 1;
+				markerInfo["pose"][0] = $a[i++];
+				markerInfo["pose"][1] = $a[i++];
+				markerInfo["pose"][2] = $a[i++];
+				markerInfo["pose"][3] = $a[i++];
+				markerInfo["pose"][4] = $a[i++];
+				markerInfo["pose"][5] = $a[i++];
+				markerInfo["pose"][6] = $a[i++];
+				markerInfo["pose"][7] = $a[i++];
+				markerInfo["pose"][8] = $a[i++];
+				markerInfo["pose"][9] = $a[i++];
+				markerInfo["pose"][10] = $a[i++];
+				markerInfo["pose"][11] = $a[i++];
+			},
+				markerIndex,
+				err,
+
+				trans[0][0],
+				trans[0][1],
+				trans[0][2],
+				trans[0][3],
+
+				trans[1][0],
+				trans[1][1],
+				trans[1][2],
+				trans[1][3],
+
+				trans[1][0],
+				trans[1][1],
+				trans[1][2],
+				trans[1][3]
+			);
+        } else {
+			EM_ASM_({
+				var $a = arguments;
+				var i = 0;
+				if (!artoolkit["NFTMarkerInfo"]) {
+					artoolkit["NFTMarkerInfo"] = ({
+						id: 0,
+						error: -1,
+						found: 0,
+						pose: [0,0,0,0, 0,0,0,0, 0,0,0,0]
+					});
+				}
+				var markerInfo = artoolkit["NFTMarkerInfo"];
+				markerInfo["id"] = $a[i++];
+				markerInfo["error"] = -1;
+				markerInfo["found"] = 0;
+				markerInfo["pose"][0] = 0;
+				markerInfo["pose"][1] = 0;
+				markerInfo["pose"][2] = 0;
+				markerInfo["pose"][3] = 0;
+				markerInfo["pose"][4] = 0;
+				markerInfo["pose"][5] = 0;
+				markerInfo["pose"][6] = 0;
+				markerInfo["pose"][7] = 0;
+				markerInfo["pose"][8] = 0;
+				markerInfo["pose"][9] = 0;
+				markerInfo["pose"][10] = 0;
+				markerInfo["pose"][11] = 0;
+			},
+				markerIndex
+			);
+        }
+
+		return 0;
 	}
 
-	float kpmMatch(KpmHandle *kpmHandle, ARUint8 *imagePtr, float trans[3][4], int *pageNo ) {
-		KpmResult              *kpmResult = NULL;
-		int                     kpmResultNum;
-		float                  err = -1;
-		int                    i, j, k;
+	int detectNFTMarker(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
 
-	    kpmGetResult( kpmHandle, &kpmResult, &kpmResultNum );
+		KpmResult *kpmResult = NULL;
+		int kpmResultNum = -1;
 
-        kpmMatching( kpmHandle, imagePtr );
-
-        int flag = 0;
-        for( i = 0; i < kpmResultNum; i++ ) {
-            if( kpmResult[i].camPoseF != 0 ) continue;
-            ARLOGd("kpmGetPose OK.\n");
-            if( flag == 0 || err > kpmResult[i].error ) { // Take the first or best result.
-                flag = 1;
-                *pageNo = kpmResult[i].pageNo;
-                for (j = 0; j < 3; j++)
-                	for (k = 0; k < 4; k++)
-                		trans[j][k] = kpmResult[i].camPose[j][k];
-                err = kpmResult[i].error;
-            }
-        }
-        return err;
+        kpmMatching( arc->kpmHandle, arc->videoFrame );
+        kpmGetResult( arc->kpmHandle, &kpmResult, &kpmResultNum );
+        return kpmResultNum;
 	}
 
 	KpmHandle *createKpmHandle(ARParamLT *cparamLT) {
@@ -121,7 +222,7 @@ extern "C" {
 	AR2HandleT* initAR2(ARParamLT *cparamLT, KpmHandle *kpmHandle) {
 		AR2HandleT *ar2Handle = NULL;
 		// AR2 init.
-		if( (ar2Handle = ar2CreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA, AR2_TRACKING_DEFAULT_THREAD_NUM)) == NULL ) {
+		if( (ar2Handle = ar2CreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA, 1)) == NULL ) {
 			ARLOGe("Error: ar2CreateHandle.\n");
 			kpmDeleteHandle(&kpmHandle);
 			return NULL;
@@ -136,10 +237,22 @@ extern "C" {
 		return ar2Handle;
 	}
 
-	int loadNFTMarker(KpmHandle *kpmHandle, const char* datasetPathname) {
-		int i, pageNo, surfaceSetCount = 0;
+	int setupAR2(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		arc->kpmHandle = createKpmHandle(arc->paramLT);
+		arc->ar2Handle = initAR2(arc->paramLT, arc->kpmHandle);
+
+		return 0;
+	}
+
+	int loadNFTMarker(arController *arc, int surfaceSetCount, const char* datasetPathname) {
+		int i, pageNo;
 		AR2SurfaceSetT *surfaceSet;
 		KpmRefDataSet *refDataSet;
+
+		KpmHandle *kpmHandle = arc->kpmHandle;
 
 		refDataSet = NULL;
 
@@ -149,17 +262,17 @@ extern "C" {
 		if (kpmLoadRefDataSet(datasetPathname, "fset3", &refDataSet2) < 0 ) {
 			ARLOGe("Error reading KPM data from %s.fset3\n", datasetPathname);
 			pageNo = -1;
-			return -1;
+			return (FALSE);
 		}
 		pageNo = surfaceSetCount;
 		ARLOGi("  Assigned page no. %d.\n", surfaceSetCount);
 		if (kpmChangePageNoOfRefDataSet(refDataSet2, KpmChangePageNoAllPages, surfaceSetCount) < 0) {
 		    ARLOGe("Error: kpmChangePageNoOfRefDataSet\n");
-		    return -1;
+		    return (FALSE);
 		}
 		if (kpmMergeRefDataSet(&refDataSet, &refDataSet2) < 0) {
 		    ARLOGe("Error: kpmMergeRefDataSet\n");
-		    return -1;
+		    return (FALSE);
 		}
 		ARLOGi("  Done.\n");
 
@@ -171,16 +284,16 @@ extern "C" {
 		}
 		ARLOGi("  Done.\n");
 
-		surfaceSetCount++;
+		arc->surfaceSets[surfaceSetCount] = surfaceSet;
 
 		if (kpmSetRefDataSet(kpmHandle, refDataSet) < 0) {
 		    ARLOGe("Error: kpmSetRefDataSet\n");
-		    return -1;
+		    return (FALSE);
 		}
 		kpmDeleteRefDataSet(&refDataSet);
 
 		ARLOGi("Loading of NFT data complete.\n");
-		return 0;
+		return (TRUE);
 	}
 
 	/***************
@@ -306,6 +419,9 @@ extern "C" {
 
 		arglCameraFrustum(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, arc->cameraLens);
 
+		arc->kpmHandle = createKpmHandle(arc->paramLT);
+		arc->ar2Handle = initAR2(arc->paramLT, arc->kpmHandle);
+
 		return 0;
 	}
 
@@ -358,6 +474,22 @@ extern "C" {
 		}
 
 		return arc->patt_id;
+	}
+
+	int addNFTMarker(int id, std::string datasetPathname) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		// Load marker(s).
+		int patt_id = arc->surfaceSetCount;
+		if (!loadNFTMarker(arc, patt_id, datasetPathname.c_str())) {
+			ARLOGe("ARToolKitJS(): Unable to set up NFT marker.\n");
+			return -1;
+		}
+
+		arc->surfaceSetCount++;
+
+		return patt_id;
 	}
 
 	int addMultiMarker(int id, std::string patt_name) {

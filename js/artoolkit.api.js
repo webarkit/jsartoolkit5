@@ -369,6 +369,19 @@
 	};
 
 	/**
+		Loads an NFT marker from the given URL prefix and calls the onSuccess callback with the UID of the marker.
+
+		arController.loadNFTMarker(markerURL, onSuccess, onError);
+
+		@param {string} markerURL - The URL prefix of the NFT markers to load.
+		@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
+		@param {function} onError - The error callback. Called with the encountered error if the load fails.
+	*/
+	ARController.prototype.loadNFTMarker = function(markerURL, onSuccess, onError) {
+		return artoolkit.addNFTMarker(this.id, markerURL, onSuccess, onError);
+	};
+
+	/**
 		Loads a multimarker from the given URL and calls the onSuccess callback with the UID of the marker.
 
 		arController.loadMultiMarker(markerURL, onSuccess, onError);
@@ -975,6 +988,10 @@
 		}, 1);
 	};
 
+	ARController.prototype._initNFT = function() {
+		artoolkit.setupAR2(this.id);
+	};
+
 	ARController.prototype._copyImageToHeap = function(image) {
 		if (!image) {
 			image = this.image;
@@ -1365,13 +1382,16 @@
 		loadCamera: loadCamera,
 
 		addMarker: addMarker,
-		addMultiMarker: addMultiMarker
+		addMultiMarker: addMultiMarker,
+		addNFTMarker: addNFTMarker
 
 	};
 
 	var FUNCTIONS = [
 		'setup',
 		'teardown',
+
+		'setupAR2',
 
 		'setLogLevel',
 		'getLogLevel',
@@ -1396,8 +1416,11 @@
 		'detectMarker',
 		'getMarkerNum',
 
+		'detectNFTMarker',
+
 		'getMarker',
 		'getMultiEachMarker',
+		'getNFTMarker',
 
 		'setProjectionNearPlane',
 		'getProjectionNearPlane',
@@ -1444,6 +1467,22 @@
 		ajax(url, filename, function() {
 			var id = Module._addMarker(arId, filename);
 			if (callback) callback(id);
+		});
+	}
+
+	function addNFTMarker(arId, url, callback) {
+		var mId = marker_count++;
+		var prefix = '/markerNFT_' + mId;
+		var filename1 = prefix + '.fset';
+		var filename2 = prefix + '.iset';
+		var filename3 = prefix + '.fset3';
+		ajax(url + '.fset', filename1, function() {
+			ajax(url + '.iset', filename2, function() {
+				ajax(url + '.fset3', filename3, function() {
+					var id = Module._addNFTMarker(arId, prefix);
+					if (callback) callback(id);
+				});
+			});
 		});
 	}
 
