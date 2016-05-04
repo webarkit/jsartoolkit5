@@ -40,9 +40,12 @@
 			this.image = image;
 		}
 
+		this.nftMarkerCount = 0;
+
 		this.defaultMarkerWidth = 1;
 		this.patternMarkers = {};
 		this.barcodeMarkers = {};
+		this.nftMarkers = {};
 		this.transform_mat = new Float32Array(16);
 
 		this.canvas = document.createElement('canvas');
@@ -131,6 +134,11 @@
 			o.inPrevious = o.inCurrent;
 			o.inCurrent = false;
 		}
+		for (k in this.nftMarkers) {
+			o = this.nftMarkers[k]
+			o.inPrevious = o.inCurrent;
+			o.inCurrent = false;
+		}
 
 		for (var i=0; i<markerNum; i++) {
 			var markerInfo = this.getMarker(i);
@@ -173,6 +181,28 @@
 					matrix: this.transform_mat
 				}
 			});
+		}
+
+		var nftMarkerCount = this.nftMarkerCount;
+		artoolkit.detectNFTMarker(this.id);
+		for (var i=0; i<nftMarkerCount; i++) {
+			var markerInfo = this.getNFTMarker(i);
+
+			if (markerInfo.found) {
+				var visible = this.trackNFTMarkerId(i);
+				visible.matrix.set(markerInfo.pose);
+				visible.inCurrent = true;
+				this.transMatToGLMat(visible.matrix, this.transform_mat);
+				this.dispatchEvent({
+					name: 'getNFTMarker',
+					target: this,
+					data: {
+						index: i,
+						marker: markerInfo,
+						matrix: this.transform_mat
+					}
+				});
+			}
 		}
 
 		var multiMarkerCount = this.getMultiMarkerCount();
@@ -264,6 +294,34 @@
 		var obj = this.barcodeMarkers[id];
 		if (!obj) {
 			this.barcodeMarkers[id] = obj = {
+				inPrevious: false,
+				inCurrent: false,
+				matrix: new Float32Array(12),
+				markerWidth: markerWidth || this.defaultMarkerWidth
+			};
+		}
+		if (markerWidth) {
+			obj.markerWidth = markerWidth;
+		}
+		return obj;
+	};
+
+	/**
+		Adds the given NFT marker ID to the index of tracked IDs.
+		Sets the markerWidth for the pattern marker to markerWidth.
+
+		Used by process() to implement continuous tracking, 
+		keeping track of the marker's transformation matrix
+		and customizable marker widths.
+
+		@param {number} id ID of the NFT marker to track.
+		@param {number} markerWidth The width of the marker to track.
+		@return {Object} The marker tracking object.
+	*/
+	ARController.prototype.trackNFTMarkerId = function(id, markerWidth) {
+		var obj = this.nftMarkers[id];
+		if (!obj) {
+			this.nftMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
 				matrix: new Float32Array(12),
@@ -378,7 +436,11 @@
 		@param {function} onError - The error callback. Called with the encountered error if the load fails.
 	*/
 	ARController.prototype.loadNFTMarker = function(markerURL, onSuccess, onError) {
-		return artoolkit.addNFTMarker(this.id, markerURL, onSuccess, onError);
+		var self = this;
+		return artoolkit.addNFTMarker(this.id, markerURL, function(id) {
+			self.nftMarkerCount = id + 1;
+			onSuccess(id);
+		}, onError);
 	};
 
 	/**
@@ -561,6 +623,12 @@
 	ARController.prototype.getMarker = function(markerIndex) {
 		if (0 === artoolkit.getMarker(this.id, markerIndex)) {
 			return artoolkit.markerInfo;
+		}
+	};
+
+	ARController.prototype.getNFTMarker = function(markerIndex) {
+		if (0 === artoolkit.getNFTMarker(this.id, markerIndex)) {
+			return artoolkit.NFTMarkerInfo;
 		}
 	};
 
@@ -963,6 +1031,8 @@
 
 	ARController.prototype._initialize = function() {
 		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
+
+		this._initNFT();
 
 		var params = artoolkit.frameMalloc;
 		this.framepointer = params.framepointer;

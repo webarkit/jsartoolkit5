@@ -21,9 +21,9 @@ html,body {
 </head>
 <body>
 
-<h1>Pattern marker example with Three.js</h1>
+<h1>NFT marker example with Three.js</h1>
 <p>On Chrome on Android, tap the screen to start playing video stream.</p>
-<p>Show  <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Hiro%20pattern.pdf">Hiro pattern</a> and <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Kanji%20pattern.pdf">Kanji pattern</a> to camera to display a colorful objects on top of them. Tap the screen to rotate the objects.
+<p>Show  <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/Marker%20images/pinball.jpg">Pinball image</a> to camera to display a colorful object on top of it. Tap the screen to rotate the object.
 
 <p>&larr; <a href="index.html">Back to examples</a></p>
 
@@ -37,8 +37,6 @@ window.ARThreeOnLoad = function() {
 
 	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', 
 	onSuccess: function(arScene, arController, arCamera) {
-
-		arController._initNFT();
 
 		document.body.className = arController.orientation;
 
@@ -72,7 +70,10 @@ window.ARThreeOnLoad = function() {
 			new THREE.MeshNormalMaterial()
 		);
 		sphere.material.shading = THREE.FlatShading;
-		sphere.position.z = 0.5;
+		sphere.position.z = 40;
+		sphere.position.x = 80;
+		sphere.position.y = 80;
+		sphere.scale.set(80,80,80);
 
 		var torus = new THREE.Mesh(
 			new THREE.TorusGeometry(0.3, 0.2, 8, 8),
@@ -82,24 +83,25 @@ window.ARThreeOnLoad = function() {
 		torus.position.z = 0.5;
 		torus.rotation.x = Math.PI/2;
 
-		var nftMarkerId = -1;
-
 		arController.loadNFTMarker('DataNFT/pinball', function(markerId) {
-			nftMarkerId = markerId;
 			var markerRoot = arController.createThreeNFTMarker(markerId);
 			markerRoot.add(sphere);
 			arScene.scene.add(markerRoot);
 		});
 
+		arController.loadMarker('Data/patt.kanji', function(markerId) {
+			var markerRoot = arController.createThreeMarker(markerId);
+			markerRoot.add(torus);
+			arScene.scene.add(markerRoot);
+		});
+
 		var tick = function() {
 			arScene.process();
-			var resultNum = artoolkit.detectNFTMarker(arController.id);
-			if (resultNum > 0) {
-				artoolkit.getNFTMarker(arController.id, nftMarkerId);
-				if (artoolkit.NFTMarkerInfo.id === nftMarkerId && artoolkit.NFTMarkerInfo.found === 1) {
-					console.log("Found:", JSON.stringify(artoolkit.NFTMarkerInfo, null, 2));
-				}
-			}
+
+			rotationV += (rotationTarget - sphere.rotation.z) * 0.05;
+			sphere.rotation.z += rotationV;
+			torus.rotation.y += rotationV;
+			rotationV *= 0.8;
 
 			arScene.renderOn(renderer);
 			requestAnimationFrame(tick);

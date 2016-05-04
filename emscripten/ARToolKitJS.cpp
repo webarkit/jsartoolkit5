@@ -94,8 +94,7 @@ extern "C" {
         float err = -1;
         float trans[3][4];
         for( i = 0; i < kpmResultNum; i++ ) {
-            if (kpmResult[i].pageNo == markerIndex) {
-	            if( kpmResult[i].camPoseF != 0 ) continue;
+            if (kpmResult[i].pageNo == markerIndex && kpmResult[i].camPoseF == 0 ) {
 	            if( flag == -1 || err > kpmResult[i].error ) { // Take the first or best result.
 	                flag = i;
 	                err = kpmResult[i].error;
@@ -104,9 +103,11 @@ extern "C" {
         }
 
         if (flag > -1) {
-            for (j = 0; j < 3; j++)
-            	for (k = 0; k < 4; k++)
+            for (j = 0; j < 3; j++) {
+            	for (k = 0; k < 4; k++) {
             		trans[j][k] = kpmResult[flag].camPose[j][k];
+            	}
+            }
 			EM_ASM_({
 				var $a = arguments;
 				var i = 0;
@@ -148,10 +149,10 @@ extern "C" {
 				trans[1][2],
 				trans[1][3],
 
-				trans[1][0],
-				trans[1][1],
-				trans[1][2],
-				trans[1][3]
+				trans[2][0],
+				trans[2][1],
+				trans[2][2],
+				trans[2][3]
 			);
         } else {
 			EM_ASM_({
@@ -219,30 +220,11 @@ extern "C" {
 		return arUtilGetPixelSize(kpmHandleGetPixelFormat(kpmHandle));
 	}
 
-	AR2HandleT* initAR2(ARParamLT *cparamLT, KpmHandle *kpmHandle) {
-		AR2HandleT *ar2Handle = NULL;
-		// AR2 init.
-		if( (ar2Handle = ar2CreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA, 1)) == NULL ) {
-			ARLOGe("Error: ar2CreateHandle.\n");
-			kpmDeleteHandle(&kpmHandle);
-			return NULL;
-		}
-		ARLOGi("Using NFT tracking settings for a single CPU.\n");
-		ar2SetTrackingThresh(ar2Handle, 5.0);
-		ar2SetSimThresh(ar2Handle, 0.50);
-		ar2SetSearchFeatureNum(ar2Handle, 16);
-		ar2SetSearchSize(ar2Handle, 6);
-		ar2SetTemplateSize1(ar2Handle, 6);
-		ar2SetTemplateSize2(ar2Handle, 6);
-		return ar2Handle;
-	}
-
 	int setupAR2(int id) {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
 
 		arc->kpmHandle = createKpmHandle(arc->paramLT);
-		arc->ar2Handle = initAR2(arc->paramLT, arc->kpmHandle);
 
 		return 0;
 	}
@@ -420,7 +402,6 @@ extern "C" {
 		arglCameraFrustum(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, arc->cameraLens);
 
 		arc->kpmHandle = createKpmHandle(arc->paramLT);
-		arc->ar2Handle = initAR2(arc->paramLT, arc->kpmHandle);
 
 		return 0;
 	}
