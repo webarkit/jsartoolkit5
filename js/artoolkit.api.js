@@ -40,6 +40,9 @@
 			this.image = image;
 		}
 
+		this.width = w;
+		this.height = h;
+
 		this.nftMarkerCount = 0;
 
 		this.defaultMarkerWidth = 1;
@@ -48,10 +51,12 @@
 		this.nftMarkers = {};
 		this.transform_mat = new Float32Array(16);
 
-		this.canvas = document.createElement('canvas');
-		this.canvas.width = w;
-		this.canvas.height = h;
-		this.ctx = this.canvas.getContext('2d');
+		if (typeof document !== 'undefined') {
+			this.canvas = document.createElement('canvas');
+			this.canvas.width = w;
+			this.canvas.height = h;
+			this.ctx = this.canvas.getContext('2d');
+		}
 
 		this.videoWidth = w;
 		this.videoHeight = h;
@@ -1030,7 +1035,7 @@
 	// private
 
 	ARController.prototype._initialize = function() {
-		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
+		this.id = artoolkit.setup(this.width, this.height, this.cameraParam.id);
 
 		this._initNFT();
 
@@ -1066,20 +1071,27 @@
 		if (!image) {
 			image = this.image;
 		}
+		if (image.data) {
+			
+			var imageData = image;
 
-		this.ctx.save();
-
-		if (this.orientation === 'portrait') {
-			this.ctx.translate(this.canvas.width, 0);
-			this.ctx.rotate(Math.PI/2);
-			this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
 		} else {
-			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
+
+			this.ctx.save();
+
+			if (this.orientation === 'portrait') {
+				this.ctx.translate(this.canvas.width, 0);
+				this.ctx.rotate(Math.PI/2);
+				this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
+			} else {
+				this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
+			}
+
+			this.ctx.restore();
+			var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+
 		}
 
-		this.ctx.restore();
-
-		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 		var data = imageData.data;
 
 		if (this.dataHeap) {
@@ -1685,15 +1697,17 @@
 		}
 	}
 
-	/* Exports */
-	window.artoolkit = artoolkit;
-	window.ARController = ARController;
-	window.ARCameraParam = ARCameraParam;
+	var scope = this || globalScope;
 
-	if (window.Module) {
+	/* Exports */
+	scope.artoolkit = artoolkit;
+	scope.ARController = ARController;
+	scope.ARCameraParam = ARCameraParam;
+
+	if (scope.Module) {
 		runWhenLoaded();
 	} else {
-		window.Module = {
+		scope.Module = {
 			onRuntimeInitialized: function() {
 				runWhenLoaded();
 			}
