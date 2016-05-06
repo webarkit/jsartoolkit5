@@ -1697,7 +1697,12 @@
 		}
 	}
 
-	var scope = this || globalScope;
+	var scope;
+	if (typeof window !== 'undefined') {
+		scope = window;
+	} else {
+		scope = self;
+	}
 
 	/* Exports */
 	scope.artoolkit = artoolkit;

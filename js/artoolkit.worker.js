@@ -2,8 +2,9 @@
 	ARToolKit Web Worker proxy.
 */
 
-importScripts("../build/artoolkit.debug.js");
-importScripts("artoolkit.api.js");
+importScripts("../build/artoolkit.min.js");
+
+console.log(typeof window, typeof globalScope, this)
 
 WorkerARControllers = {};
 WorkerARControllerID = 0;
