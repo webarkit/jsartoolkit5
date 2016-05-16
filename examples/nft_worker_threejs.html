@@ -32,223 +32,225 @@ html,body {
 <script async src="../js/artoolkit.three.js"></script>
 
 <script>
+(function() {
+	var makeARWorker = function() {
+		var worker = new Worker('../js/artoolkit.worker.js');
+		worker.callID = 0;
+		worker.callbacks = {};
+		worker.listeners = {};
+		worker.allEventListeners = [];
+
+		worker.call = function(id, method, arguments, transferables, callback) {
+			var callID = this.callID++;
+			if (typeof transferables === 'function') {
+				callback = transferables;
+				transferables = undefined;
+			}
+			this.callbacks[callID] = callback;
+			this.postMessage({
+				method: method,
+				id: id,
+				callID: callID,
+				arguments: arguments
+			}, transferables);
+		};
+
+		worker.addEventListener = function(name, callback) {
+			if (!this.listeners[name]) {
+				this.listeners[name] = [];
+			}
+			this.listeners[name].push(callback);
+		};
+
+		worker.removeEventListener = function(name, callback) {
+			if (this.listeners[name]) {
+				var index = this.listeners[name].indexOf(callback);
+				if (index > -1) {
+					this.listeners[name].splice(index, 1);
+				}
+			}
+		};
+
+		worker.dispatchEvent = function(event) {
+			var self = this;
+			this.allEventListeners.forEach(function(f) { f.call(self, event) });
+			var listeners = this.listeners[event.name];
+			if (listeners) {
+				for (var i=0; i<listeners.length; i++) {
+					listeners[i].call(this, event);
+				}
+			}
+		};
+
+		worker.listenForAllEvents = function(callback) {
+			this.allEventListeners.push(callback);
+		};
+
+		worker.onmessage = function(ev) {
+			if (ev.data.event) {
+				this.dispatchEvent(ev.data.event);
+			} else {
+				var callback = this.callbacks[ev.data.callID];
+				if (callback) {
+					callback(ev.data);
+				}
+				delete this.callbacks[ev.data.callID];
+			}
+		};
+
+		return worker;
+	};
+
+	ARProxy = function(width, height, cameraParam, callback) {
+		this.listeners = {};
+		this.allEventListeners = [];
+		this.id = null;
+
+		this.worker = makeARWorker();
+
+		this.processingDone = false;
+
+		this.canvas = document.createElement('canvas');
+		this.canvas.width = width;
+		this.canvas.height = height;
+		this.ctx = this.canvas.getContext('2d');
+
+		this.addEventListener = this.worker.addEventListener;
+		this.removeEventListener = this.worker.removeEventListener;
+		this.dispatchEvent = this.worker.dispatchEvent;
+		this.listenForAllEvents = this.worker.listenForAllEvents;
+
+		var self = this;
+		var newCallback = function(result) {
+			self.id = result.id;
+			if (callback) {
+				callback(self);
+			}
+		}
+		this.worker.call(null, 'new', [width, height, cameraParam], [], newCallback);
+		this.worker.listenForAllEvents(function(ev) { 
+			if (ev.target === self.id) {
+				self.dispatchEvent(ev);
+			}
+		});
+	};
+
+	ARProxy.callbackMethods = {
+		'loadNFTMarker': 1,
+		'loadMarker': 1,
+		'loadMultiMarker': 1
+	};
+
+	ARProxy.isCallbackMethod = function(methodName) {
+		return !!ARProxy.callbackMethods[methodName];
+	};
+
+	ARProxy.getTransferables = function(methodName, arguments) {
+		if (methodName === 'process' || methodName === 'detectMarkers') {
+			return [arguments[0].data.buffer];
+		}
+		return [];
+	};
+	ARProxy.methods = [
+		'dispose',
+		'process',
+		'trackPatternMarkerId',
+		'trackBarcodeMarkerId',
+		'trackNFTMarkerId',
+		'getMultiMarkerCount',
+		'getMultiMarkerPatternCount',
+		'addEventListener',
+		'removeEventListener',
+		'dispatchEvent',
+		'debugSetup',
+		'loadMarker',
+		'loadNFTMarker',
+		'loadMultiMarker',
+		'getTransMatSquare',
+		'getTransMatSquareCont',
+		'getTransMatMultiSquare',
+		'getTransMatMultiSquareRobust',
+		'transMatToGLMat',
+		'detectMarker',
+		'getMarkerNum',
+		'getMarker',
+		'getNFTMarker',
+		'setMarkerInfoVertex',
+		'cloneMarkerInfo',
+		'getMultiEachMarker',
+		'getTransformationMatrix',
+		'getCameraMatrix',
+		'getMarkerTransformationMatrix',
+		'setDebugMode',
+		'getDebugMode',
+		'getProcessingImage',
+		'setLogLevel',
+		'getLogLevel',
+		'setMarkerInfoDir',
+		'setProjectionNearPlane',
+		'getProjectionNearPlane',
+		'setProjectionFarPlane',
+		'getProjectionFarPlane',
+		'setThresholdMode',
+		'getThresholdMode',
+		'setThreshold',
+		'getThreshold',
+		'setPatternDetectionMode',
+		'getPatternDetectionMode',
+		'setMatrixCodeType',
+		'getMatrixCodeType',
+		'setLabelingMode',
+		'getLabelingMode',
+		'setPattRatio',
+		'getPattRatio',
+		'setImageProcMode',
+		'getImageProcMode',
+		'debugDraw',
+		'_initialize',
+		'_initNFT',
+		'_copyImageToHeap',
+		'_debugMarker',
+		'createThreeScene',
+		'createThreeMarker',
+		'createThreeNFTMarker',
+		'createThreeMultiMarker',
+		'createThreeBarcodeMarker',
+		'setupThree'
+	];
+	ARProxy.callbackIndices = {"dispose":0,"process":1,"trackPatternMarkerId":2,"trackBarcodeMarkerId":2,"trackNFTMarkerId":2,"getMultiMarkerCount":0,"getMultiMarkerPatternCount":1,"addEventListener":2,"removeEventListener":2,"dispatchEvent":1,"debugSetup":0,"loadMarker":1,"loadNFTMarker":1,"loadMultiMarker":1,"getTransMatSquare":3,"getTransMatSquareCont":4,"getTransMatMultiSquare":2,"getTransMatMultiSquareRobust":2,"transMatToGLMat":3,"detectMarker":1,"getMarkerNum":0,"getMarker":1,"getNFTMarker":1,"setMarkerInfoVertex":2,"cloneMarkerInfo":1,"getMultiEachMarker":2,"getTransformationMatrix":0,"getCameraMatrix":0,"getMarkerTransformationMatrix":0,"setDebugMode":1,"getDebugMode":0,"getProcessingImage":0,"setLogLevel":1,"getLogLevel":0,"setMarkerInfoDir":2,"setProjectionNearPlane":1,"getProjectionNearPlane":0,"setProjectionFarPlane":1,"getProjectionFarPlane":0,"setThresholdMode":1,"getThresholdMode":0,"setThreshold":1,"getThreshold":0,"setPatternDetectionMode":1,"getPatternDetectionMode":0,"setMatrixCodeType":1,"getMatrixCodeType":0,"setLabelingMode":1,"getLabelingMode":0,"setPattRatio":1,"getPattRatio":0,"setImageProcMode":1,"getImageProcMode":0,"debugDraw":0,"_initialize":0,"_initNFT":0,"_copyImageToHeap":1,"_debugMarker":1,"createThreeScene":1,"createThreeMarker":2,"createThreeNFTMarker":2,"createThreeMultiMarker":1,"createThreeBarcodeMarker":2,"setupThree":0};
+
+	for (var i = 0; i < ARProxy.methods.length; i++) {
+		var methodName = ARProxy.methods[i];
+		ARProxy.prototype[methodName] = (function(methodName) {
+			var callbackIndex = ARProxy.callbackIndices[methodName] ;
+			var onErrorIndex = callbackIndex + 1;
+			return function() {
+				var callback = arguments[callbackIndex];
+				var onError = arguments[onErrorIndex];
+				var transferables = ARProxy.getTransferables(methodName, arguments);
+				this.worker.call(this.id, methodName, [].slice.call(arguments, 0, callbackIndex), transferables, callback.bind(this));
+			};
+		})(methodName);
+	}
+
+	ARProxy.prototype.process = function(image) {
+		if (this.processingDone) {
+			this.processingDone = false;
+			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height);
+			var self = this;
+			var imageData = this.ctx.getImageData(0,0, this.canvas.width, this.canvas.height);
+			this.worker.call(this.id, 'process', [imageData], [imageData.data.buffer], function(ev) {
+				console.log('Processed frame');
+				self.processingDone = true;
+			});
+		}
+	};
+})();
+</script>
+
+<script>
 
 window.ARThreeOnLoad = function() {
-
-var makeARWorker = function() {
-	var worker = new Worker('../js/artoolkit.worker.js');
-	worker.callID = 0;
-	worker.callbacks = {};
-	worker.listeners = {};
-	worker.allEventListeners = [];
-
-	worker.call = function(id, method, arguments, transferables, callback) {
-		var callID = this.callID++;
-		if (typeof transferables === 'function') {
-			callback = transferables;
-			transferables = undefined;
-		}
-		this.callbacks[callID] = callback;
-		this.postMessage({
-			method: method,
-			id: id,
-			callID: callID,
-			arguments: arguments
-		}, transferables);
-	};
-
-	worker.addEventListener = function(name, callback) {
-		if (!this.listeners[name]) {
-			this.listeners[name] = [];
-		}
-		this.listeners[name].push(callback);
-	};
-
-	worker.removeEventListener = function(name, callback) {
-		if (this.listeners[name]) {
-			var index = this.listeners[name].indexOf(callback);
-			if (index > -1) {
-				this.listeners[name].splice(index, 1);
-			}
-		}
-	};
-
-	worker.dispatchEvent = function(event) {
-		console.log(event);
-		var self = this;
-		this.allEventListeners.forEach(function(f) { f.call(self, event) });
-		var listeners = this.listeners[event.name];
-		if (listeners) {
-			for (var i=0; i<listeners.length; i++) {
-				listeners[i].call(this, event);
-			}
-		}
-	};
-
-	worker.listenForAllEvents = function(callback) {
-		this.allEventListeners.push(callback);
-	};
-
-	worker.onmessage = function(ev) {
-		if (ev.data.event) {
-			this.dispatchEvent(ev.data.event);
-		} else {
-			var callback = this.callbacks[ev.data.callID];
-			if (callback) {
-				callback(ev.data);
-			}
-			delete this.callbacks[ev.data.callID];
-		}
-	};
-
-	return worker;
-};
-
-var ARProxy = function(width, height, cameraParam, callback) {
-	this.listeners = {};
-	this.allEventListeners = [];
-	this.id = null;
-
-	this.worker = makeARWorker();
-
-	this.processingDone = false;
-
-	this.canvas = document.createElement('canvas');
-	this.canvas.width = width;
-	this.canvas.height = height;
-	this.ctx = this.canvas.getContext('2d');
-
-	this.addEventListener = this.worker.addEventListener;
-	this.removeEventListener = this.worker.removeEventListener;
-	this.dispatchEvent = this.worker.dispatchEvent;
-	this.listenForAllEvents = this.worker.listenForAllEvents;
-
-	var self = this;
-	var newCallback = function(result) {
-		console.log('new');
-		self.id = result.id;
-		if (callback) {
-			callback(self);
-		}
-	}
-	this.worker.call(null, 'new', [width, height, cameraParam], [], newCallback);
-	this.worker.listenForAllEvents(function(ev) { 
-		if (ev.target === self.id) {
-			self.dispatchEvent(ev);
-		}
-	});
-};
-
-ARProxy.callbackMethods = {
-	'loadNFTMarker': 1,
-	'loadMarker': 1,
-	'loadMultiMarker': 1
-};
-
-ARProxy.isCallbackMethod = function(methodName) {
-	return !!ARProxy.callbackMethods[methodName];
-};
-
-ARProxy.getTransferables = function(methodName, arguments) {
-	if (methodName === 'process' || methodName === 'detectMarkers') {
-		return [arguments[0].data.buffer];
-	}
-	return [];
-};
-ARProxy.methods = [
-	'dispose',
-	'process',
-	'trackPatternMarkerId',
-	'trackBarcodeMarkerId',
-	'trackNFTMarkerId',
-	'getMultiMarkerCount',
-	'getMultiMarkerPatternCount',
-	'addEventListener',
-	'removeEventListener',
-	'dispatchEvent',
-	'debugSetup',
-	'loadMarker',
-	'loadNFTMarker',
-	'loadMultiMarker',
-	'getTransMatSquare',
-	'getTransMatSquareCont',
-	'getTransMatMultiSquare',
-	'getTransMatMultiSquareRobust',
-	'transMatToGLMat',
-	'detectMarker',
-	'getMarkerNum',
-	'getMarker',
-	'getNFTMarker',
-	'setMarkerInfoVertex',
-	'cloneMarkerInfo',
-	'getMultiEachMarker',
-	'getTransformationMatrix',
-	'getCameraMatrix',
-	'getMarkerTransformationMatrix',
-	'setDebugMode',
-	'getDebugMode',
-	'getProcessingImage',
-	'setLogLevel',
-	'getLogLevel',
-	'setMarkerInfoDir',
-	'setProjectionNearPlane',
-	'getProjectionNearPlane',
-	'setProjectionFarPlane',
-	'getProjectionFarPlane',
-	'setThresholdMode',
-	'getThresholdMode',
-	'setThreshold',
-	'getThreshold',
-	'setPatternDetectionMode',
-	'getPatternDetectionMode',
-	'setMatrixCodeType',
-	'getMatrixCodeType',
-	'setLabelingMode',
-	'getLabelingMode',
-	'setPattRatio',
-	'getPattRatio',
-	'setImageProcMode',
-	'getImageProcMode',
-	'debugDraw',
-	'_initialize',
-	'_initNFT',
-	'_copyImageToHeap',
-	'_debugMarker',
-	'createThreeScene',
-	'createThreeMarker',
-	'createThreeNFTMarker',
-	'createThreeMultiMarker',
-	'createThreeBarcodeMarker',
-	'setupThree'
-];
-for (var i = 0; i < ARProxy.methods.length; i++) {
-	var methodName = ARProxy.methods[i];
-	ARProxy.prototype[methodName] = (function(methodName) {
-		var callbackIndex = ARProxy.isCallbackMethod(methodName) ? ARController.prototype[methodName].length-2 : ARController.prototype[methodName].length;
-		var onErrorIndex = callbackIndex + 1;
-		return function() {
-			var callback = arguments[callbackIndex];
-			var onError = arguments[onErrorIndex];
-			var transferables = ARProxy.getTransferables(methodName, arguments);
-			this.worker.call(this.id, methodName, [].slice.call(arguments, 0, callbackIndex), transferables, callback.bind(this));
-		};
-	})(methodName);
-}
-
-ARProxy.prototype.process = function(image) {
-	if (this.processingDone) {
-		this.processingDone = false;
-		this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height);
-		var self = this;
-		var imageData = this.ctx.getImageData(0,0, this.canvas.width, this.canvas.height);
-		this.worker.call(this.id, 'process', [imageData], [imageData.data.buffer], function(ev) {
-			console.log('Processed frame');
-			self.processingDone = true;
-		});
-	}
-};
-
-
 
 	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', 
 	onSuccess: function(arScene, arController, arCamera) {
