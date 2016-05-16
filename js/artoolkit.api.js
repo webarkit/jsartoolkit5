@@ -145,6 +145,12 @@
 			o.inCurrent = false;
 		}
 
+		this.dispatchEvent({
+			name: 'markerNum',
+			target: this,
+			data: markerNum
+		});
+
 		for (var i=0; i<markerNum; i++) {
 			var markerInfo = this.getMarker(i);
 
