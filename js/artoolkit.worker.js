@@ -4,8 +4,6 @@
 
 importScripts("../build/artoolkit.min.js");
 
-console.log(typeof window, typeof globalScope, this)
-
 WorkerARControllers = {};
 WorkerARControllerID = 0;
 
