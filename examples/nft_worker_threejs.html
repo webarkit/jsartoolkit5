@@ -40,7 +40,7 @@ window.ARThreeOnLoad = function() {
 	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', 
 	onSuccess: function(arScene, arController, arCamera) {
 
-		var proxy = new ARProxy(arController.videoWidth, arController.videoHeight, '/examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', function() { console.log("got new", arguments); });
+		var proxy = new ARProxy(arController, '/examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', function() { console.log("got new", arguments); });
 
 		proxy.addEventListener('load', function(ev) {
 			console.log('ARController loaded', ev);
@@ -49,52 +49,11 @@ window.ARThreeOnLoad = function() {
 			this.loadNFTMarker('/examples/DataNFT/pinball', function(ev) {
 				console.log('Created NFT marker', ev.result[0]);
 
-				this.addEventListener('getNFTMarker', function(ev) {
-					arController.threeNFTMarkers[ev.data.index].keepVisible = true;
-					arController.dispatchEvent(ev);
-				});
-
-				var markerRoot = arController.createThreeNFTMarker(ev.result[0]);
+				var markerRoot = this.arController.createThreeNFTMarker(ev.result[0]);
 				markerRoot.add(sphere);
 				arScene.scene.add(markerRoot);
 				this.processingDone = true;
 			});
-		});
-
-		proxy.addEventListener('markerNum', function(event) {
-			var self = arController;
-			for (var i in self.threePatternMarkers) {
-				if (!self.threePatternMarkers[i].keepVisible) {
-					self.threePatternMarkers[i].visible = false;
-				}
-				self.threePatternMarkers[i].keepVisible = false;
-			}
-			for (var i in self.threeNFTMarkers) {
-				if (!self.threeNFTMarkers[i].keepVisible) {
-					self.threeNFTMarkers[i].visible = false;
-				}
-				self.threeNFTMarkers[i].keepVisible = false;
-			}
-			for (var i in self.threeBarcodeMarkers) {
-				if (!self.threeBarcodeMarkers[i].keepVisible) {
-					self.threeBarcodeMarkers[i].visible = false;
-				}
-				self.threeBarcodeMarkers[i].keepVisible = false;
-			}
-			for (var i in self.threeMultiMarkers) {
-				if (!self.threeMultiMarkers[i].keepVisible) {
-					self.threeMultiMarkers[i].visible = false;
-				}
-				self.threeMultiMarkers[i].keepVisible = false;
-				for (var j=0; j<self.threeMultiMarkers[i].markers.length; j++) {
-					if (self.threeMultiMarkers[i].markers[j]) {
-						if (!self.threeMultiMarkers[i].markers[j].keepVisible) {
-							self.threeMultiMarkers[i].markers[j].visible = false;
-						}
-						self.threeMultiMarkers[i].markers[j].keepVisible = false;
-					}
-				}
-			}
 		});
 
 		document.body.className = arController.orientation;
