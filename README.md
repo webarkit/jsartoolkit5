@@ -26,7 +26,9 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 3. Building
   1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
   2. Rename the `ARTOOLKIT5_ROOT/include/AR/config.h.in` file to `config.h`
-  3. Run `node tools/makem.js`
+  3. Run `node run build`
+  
+During developement, you can run ```node run watch```, it will rebuild the library everytime you change ```./js/``` directory.
 
 4. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
 
