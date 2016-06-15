@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>Box demo with Three.js</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<meta meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
 <style>
 html,body {
 	margin: 0;
@@ -28,9 +28,9 @@ html,body {
 
 <p>&larr; <a href="index.html">Back to examples</a></p>
 
-<script async src="../../build/artoolkit.min.js"></script>
-<script async src="../../examples/js/third_party/three.js/three.min.js"></script>
-<script async src="../../js/artoolkit.three.js"></script>
+<script async src="../build/artoolkit.min.js"></script>
+<script async src="js/third_party/three.js/three.min.js"></script>
+<script async src="../js/artoolkit.three.js"></script>
 
 <script>
 
@@ -160,7 +160,7 @@ var createBox = function() {
 
 window.ARThreeOnLoad = function() {
 
-	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: '../../examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', 
+	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
 	onSuccess: function(arScene, arController, arCamera) {
 
 		arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);

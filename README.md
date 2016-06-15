@@ -16,7 +16,7 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 1. Install build tools
   1. Install node.js (https://nodejs.org/en/)
   2. Install python2 (https://www.python.org/downloads/)
-  3. Install emscripten (http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html#platform-notes-installation-instructions-portable-sdk)
+  3. Install emscripten (http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html#download-and-install)
 
 2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
   - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`)
