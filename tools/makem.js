@@ -13,6 +13,7 @@ var
 var HAVE_NFT = 0;
 
 var EMSCRIPTEN_PATH = process.env.EMSCRIPTEN;
+var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || "../emscripten/artoolkit5";
 
 if (!EMSCRIPTEN_PATH) {
 	console.log("\nWarning: EMSCRIPTEN environment variable not found.")
@@ -59,7 +60,7 @@ var ar_sources = [
 	// ARMarkerNFT // trackingSub
 	// 'ARWrapper/ARPattern.cpp'
 ].map(function(src) {
-	return path.resolve(__dirname, '../emscripten/artoolkit5/lib/SRC/', src);
+	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/', src);
 });
 
 var ar2_sources = [
@@ -80,7 +81,7 @@ var ar2_sources = [
 	'coord.c',
 	'util.c',
 ].map(function(src) {
-	return path.resolve(__dirname, '../emscripten/artoolkit5/lib/SRC/AR2/', src);
+	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/AR2/', src);
 });
 
 var kpm_sources = [
@@ -104,7 +105,7 @@ var kpm_sources = [
 	'FreakMatcher/framework/logger.c*',
 	'FreakMatcher/framework/timers.c*',
 ].map(function(src) {
-	return path.resolve(__dirname, '../emscripten/artoolkit5/lib/SRC/KPM/', src);
+	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/', src);
 });
 
 if (HAVE_NFT) {
@@ -137,7 +138,7 @@ DEBUG_FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
 DEBUG_FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
 
 var INCLUDES = [
-	path.resolve(__dirname, '../emscripten/artoolkit5/include'),
+	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/include'),
 	OUTPUT_PATH,
 	SOURCE_PATH,
 	// 'lib/SRC/KPM/FreakMatcher',

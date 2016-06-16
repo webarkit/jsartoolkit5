@@ -17,6 +17,9 @@
 		If the camera argument is an URL, it is loaded into a new ARCameraParam, and the ARController dispatches
 		a 'load' event and calls the onload method if it is defined.
 
+	 	@exports ARController
+	 	@constructor
+
 		@param {number} width The width of the images to process.
 		@param {number} height The height of the images to process.
 		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
@@ -56,7 +59,7 @@
 			this.cameraParam = new ARCameraParam(camera, function() {
 				self._initialize();
 			}, function(err) {
-				console.log("ARController: Failed to load ARCameraParam", err);
+				console.error("ARController: Failed to load ARCameraParam", err);
 			});
 
 		} else {
@@ -1073,7 +1076,7 @@
 		var facing = configuration.facingMode || 'environment';
 
 		var onSuccess = configuration.onSuccess;
-		var onError = configuration.onError || function(err) { console.log("ARController.getUserMedia", err); };
+		var onError = configuration.onError || function(err) { console.error("ARController.getUserMedia", err); };
 
 		var video = document.createElement('video');
 
@@ -1265,7 +1268,7 @@
 				}
 				onSuccess(arController, arCameraParam);
 			}, function(err) {
-				console.log("ARController: Failed to load ARCameraParam", err);
+				console.error("ARController: Failed to load ARCameraParam", err);
 			});
 		};
 
@@ -1285,6 +1288,9 @@
 				console.log('failed to load camera', err);
 			});
 
+		@exports ARCameraParam
+		@constructor
+	 
 		@param {string} src URL to load camera parameters from.
 		@param {string} onload Onload callback to be called on successful parameter loading.
 		@param {string} onerror Error callback to called when things don't work out.
@@ -1335,6 +1341,7 @@
 
 	/**
 		Destroys the camera parameter and frees associated Emscripten resources.
+
 	*/
 	ARCameraParam.prototype.dispose = function() {
 		if (this.id !== -1) {
@@ -1534,7 +1541,7 @@
 
 	function writeByteArrayToFS(target, byteArray, callback) {
 		FS.writeFile(target, byteArray, { encoding: 'binary' });
-		console.log('FS written', target);
+		// console.log('FS written', target);
 
 		callback(byteArray);
 	}
@@ -1549,7 +1556,7 @@
 		oReq.responseType = 'arraybuffer'; // blob arraybuffer
 
 		oReq.onload = function(oEvent) {
-			console.log('ajax done for ', url);
+			// console.log('ajax done for ', url);
 			var arrayBuffer = oReq.response;
 			var byteArray = new Uint8Array(arrayBuffer);
 			writeByteArrayToFS(target, byteArray, callback);
