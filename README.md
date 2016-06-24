@@ -28,7 +28,7 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
   2. Rename the `ARTOOLKIT5_ROOT/include/AR/config.h.in` file to `config.h`
   3. Run `node run build`
   
-During developement, you can run ```node run watch```, it will rebuild the library everytime you change ```./js/``` directory.
+During development, you can run ```node run watch```, it will rebuild the library everytime you change ```./js/``` directory.
 
 4. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
 
