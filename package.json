@@ -1,6 +1,6 @@
 {
-  "name": "jsartoolkit",
-  "version": "0.0.0",
+  "name": "jsartoolkit5",
+  "version": "0.0.1",
   "description": "Emscripten port of ARToolKit to JavaScript",
   "keywords": [
     "ARToolKit",
@@ -28,5 +28,7 @@
     "build": "node tools/makem.js; echo Built at `date`",
     "watch": "./node_modules/.bin/watch 'npm run build' ./js/"
   },
+  "main": "js/artoolkit.api.js",
+  "typings": "js/artoolkit.api",  
   "license": "LGPL-3.0"
 }
