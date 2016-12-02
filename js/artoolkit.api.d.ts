@@ -3,17 +3,26 @@
 // Definitions by: Hakan Dilek <https://github.com/hakandilek>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped  
 
-export declare class ARController {
-    width: number;
-    height: number;
-    camera: ARCameraParam;
-    constructor(width: number, height: number, cameraData: string | ARCameraParam);
+declare module "jsartoolkit5" {
+    export class ARController {
+        width: number;
+        height: number;
+        camera: ARCameraParam;
 
-    onload(): void;
-    debugSetup(): void;
-    process(image: any): void;
-}
+        constructor(width: number, height: number, cameraData: string | ARCameraParam);
 
-export declare interface ARCameraParam {
+        onload(): void;
+        debugSetup(): void;
+        process(image: any): void;
+    }
+
+    interface ARControllerConstructor {
+        new (width: number, height: number, cameraData: string | ARCameraParam): ARController;
+    }
+
+
+    export interface ARCameraParam {
+
+    }
 
 }

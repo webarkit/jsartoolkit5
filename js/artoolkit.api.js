@@ -1581,6 +1581,15 @@
 	window.ARController = ARController;
 	window.ARCameraParam = ARCameraParam;
 
+	exports.artoolkit = artoolkit;
+	exports.ARController = ARController;
+	exports.ARCameraParam = ARCameraParam;
+
+	var toolkit = require('../build/artoolkit.debug');
+	var FS = toolkit.FS;
+	var Module = toolkit.Module;
+	window.Module = Module;
+
 	if (window.Module) {
 		runWhenLoaded();
 	} else {
