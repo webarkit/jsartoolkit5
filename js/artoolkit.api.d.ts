@@ -14,15 +14,22 @@ declare module "jsartoolkit5" {
         onload(): void;
         debugSetup(): void;
         process(image: any): void;
+        getCameraMatrix(): ArrayLike<number>;
+        detectMarker(videoNative): void;
+        debugDraw(): void;
+        getMarkerNum(): void;
+        getTransMatSquare(markerIndex: number, markerWidth: number, dst: Float64Array): void;
+        getTransMatSquareCont(markerIndex: number, markerWidth: number, previousMarkerTransform: Float64Array, dst: Float64Array): void;
+        transMatToGLMat(transMat: Float64Array, glMat: Float32Array | Float64Array, scale?: number): void;
     }
 
     interface ARControllerConstructor {
         new (width: number, height: number, cameraData: string | ARCameraParam): ARController;
     }
 
-
-    export interface ARCameraParam {
-
+    export class ARCameraParam {
+        onload(): void;
+        load(cameraData: string): void;
     }
 
 }
