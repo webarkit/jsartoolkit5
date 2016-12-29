@@ -18,7 +18,7 @@ declare module "jsartoolkit5" {
         detectMarker(videoNative): void;
         debugDraw(): void;
         getMarkerNum(): number;
-        getMarker(index: number): ARMarkerInfo[];
+        getMarker(index: number): ARMarkerInfo;
         getTransMatSquare(markerIndex: number, markerWidth: number, dst: Float64Array): void;
         getTransMatSquareCont(markerIndex: number, markerWidth: number, previousMarkerTransform: Float64Array, dst: Float64Array): void;
         transMatToGLMat(transMat: Float64Array, glMat: Float32Array | Float64Array, scale?: number): void;
