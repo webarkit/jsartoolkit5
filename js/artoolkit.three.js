@@ -306,8 +306,10 @@
 
 	};
 
-
 	var tick = function() {
+		var THREE = require('three');
+		window.THREE = THREE;
+
 		if (window.ARController && window.THREE) {
 			integrate();
 			if (window.ARThreeOnLoad) {
