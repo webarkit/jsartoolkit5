@@ -64,7 +64,7 @@ The first thing we’ll do is create the video source. For that, we’ll use the
 
 <pre class="prettyprint"><code>...
 
-var arController = new arController(video, 'Data/camera_para.dat');
+var arController = new ARController(video, 'Data/camera_para.dat');
 arController.onload = function() {
 	console.log('ARController ready for use', arController);
 };
@@ -78,7 +78,7 @@ arController.onload = function() {
 
 var camera = new ARCameraParam('Data/camera_para.dat');
 camera.onload = function() {
-	var arController = new arController(video.videoWidth, video.videoHeight, camera);
+	var arController = new ARController(video.videoWidth, video.videoHeight, camera);
 	console.log('ARController ready for use', arController);
 };
 
