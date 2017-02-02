@@ -1,4 +1,3 @@
 doc/reference
 node_modules
-build/*.bc
-emscripten/jpeg-6b/
+build/libar.bc
