@@ -1,0 +1,233 @@
+<html>
+<head>
+<title>Box demo with Three.js</title>
+<meta meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<style>
+html,body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	text-align: center;
+	overflow-x: hidden;
+}
+.portrait canvas {
+	transform-origin: 0 0;
+	transform: rotate(-90deg) translateX(-100%);
+}
+.desktop canvas {
+ 	transform: scale(-1, 1);
+}
+</style>
+</head>
+<body>
+
+<h1>Box demo with Three.js</h1>
+<p>On Chrome on Android, tap the screen to start playing video stream.</p>
+<p>Show <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/20.png">3x3 marker id 20</a> to camera to display a box on top of it. Tap the box to open it.
+
+
+<p>&larr; <a href="index.html">Back to examples</a></p>
+
+<script async src="../build/artoolkit.min.js"></script>
+<script async src="js/third_party/three.js/three.min.js"></script>
+<script async src="../js/artoolkit.three.js"></script>
+
+<script>
+
+var findObjectUnderEvent = function(ev, camera, objects) {
+
+	var style = getComputedStyle(ev.target);
+	var elementTransform = style.getPropertyValue('transform');
+	var elementTransformOrigin = style.getPropertyValue('transform-origin');
+
+	var xyz = elementTransformOrigin.replace(/px/g, '').split(" ");
+	xyz[0] = parseFloat(xyz[0]);
+	xyz[1] = parseFloat(xyz[1]);
+	xyz[2] = parseFloat(xyz[2] || 0);
+
+	var mat = new THREE.Matrix4();
+	mat.identity();
+	if (/^matrix\(/.test(elementTransform)) {
+		var elems = elementTransform.replace(/^matrix\(|\)$/g, '').split(' ');
+		mat.elements[0] = parseFloat(elems[0]);
+		mat.elements[1] = parseFloat(elems[1]);
+		mat.elements[4] = parseFloat(elems[2]);
+		mat.elements[5] = parseFloat(elems[3]);
+		mat.elements[12] = parseFloat(elems[4]);
+		mat.elements[13] = parseFloat(elems[5]);
+	} else if (/^matrix3d\(/i.test(elementTransform)) {
+		var elems = elementTransform.replace(/^matrix3d\(|\)$/ig, '').split(' ');
+		for (var i=0; i<16; i++) {
+			mat.elements[i] = parseFloat(elems[i]);
+		}
+	}
+
+	var mat2 = new THREE.Matrix4();
+	mat2.makeTranslation(xyz[0], xyz[1], xyz[2]);
+	mat2.multiply(mat);
+	mat.makeTranslation(-xyz[0], -xyz[1], -xyz[2]);
+	mat2.multiply(mat);
+
+	var vec = new THREE.Vector3(ev.layerX, ev.layerY, 0);
+	vec.applyMatrix4(mat2);
+
+	var width = parseFloat(style.getPropertyValue('width'));
+	var height = parseFloat(style.getPropertyValue('height'));
+
+	var mouse3D = new THREE.Vector3(
+		( vec.x / width ) * 2 - 1,
+		-( vec.y / height ) * 2 + 1,
+		0.5
+	);
+	mouse3D.unproject( camera );
+	mouse3D.sub( camera.position );
+	mouse3D.normalize();
+	var raycaster = new THREE.Raycaster( camera.position, mouse3D );
+	var intersects = raycaster.intersectObjects( objects );
+	if ( intersects.length > 0 ) {
+		var obj = intersects[ 0 ].object
+		return obj;
+	}
+};
+
+
+var createBox = function() {
+	// The AR scene.
+	//
+	// The box object is going to be placed on top of the marker in the video.
+	// I'm adding it to the markerRoot object and when the markerRoot moves,
+	// the box and its children move with it.
+	//
+	var box = new THREE.Object3D();
+	var boxWall = new THREE.Mesh(
+		new THREE.BoxGeometry(1, 1, 0.1, 1, 1, 1),
+		new THREE.MeshLambertMaterial({color: 0xffffff})
+	);
+	boxWall.position.z = -0.5;
+	box.add(boxWall);
+
+	boxWall = boxWall.clone();
+	boxWall.position.z = +0.5;
+	box.add(boxWall);
+
+	boxWall = boxWall.clone();
+	boxWall.position.z = 0;
+	boxWall.position.x = -0.5;
+	boxWall.rotation.y = Math.PI/2;
+	box.add(boxWall);
+
+	boxWall = boxWall.clone();
+	boxWall.position.x = +0.5;
+	box.add(boxWall);
+
+	boxWall = boxWall.clone();
+	boxWall.position.x = 0;
+	boxWall.position.y = -0.5;
+	boxWall.rotation.y = 0;
+	boxWall.rotation.x = Math.PI/2;
+	box.add(boxWall);
+
+	// Keep track of the box walls to test if the mouse clicks happen on top of them.
+	var walls = box.children.slice();
+
+	// Create a pivot for the lid of the box to make it rotate around its "hinge".
+	var pivot = new THREE.Object3D();
+	pivot.position.y = 0.5;
+	pivot.position.x = 0.5;
+
+	// The lid of the box is attached to the pivot and the pivot is attached to the box.
+	boxWall = boxWall.clone();
+	boxWall.position.y = 0;
+	boxWall.position.x = -0.5;
+	pivot.add(boxWall);
+	box.add(pivot);
+
+	walls.push(boxWall);
+
+	box.position.z = 0.5;
+	box.rotation.x = Math.PI/2;
+
+	box.open = false;
+
+	box.tick = function() {
+		// Animate the box lid to open rotation or closed rotation, depending on the value of the open variable.
+		pivot.rotation.z += ((box.open ? -Math.PI/1.5 : 0) - pivot.rotation.z) * 0.1;
+	};
+
+	return {box: box, walls: walls};
+};
+
+
+window.ARThreeOnLoad = function() {
+
+	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
+	onSuccess: function(arScene, arController, arCamera) {
+
+		arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
+
+		document.body.className = arController.orientation;
+
+		var renderer = new THREE.WebGLRenderer({antialias: true});
+		if (arController.orientation === 'portrait') {
+			var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
+			var h = window.innerWidth;
+			renderer.setSize(w, h);
+			renderer.domElement.style.paddingBottom = (w-h) + 'px';
+		} else {
+			if (/Android|mobile|iPad|iPhone/i.test(navigator.userAgent)) {
+				renderer.setSize(window.innerWidth, (window.innerWidth / arController.videoWidth) * arController.videoHeight);
+			} else {
+				renderer.setSize(arController.videoWidth, arController.videoHeight);
+				document.body.className += ' desktop';
+			}
+		}
+
+		document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+
+		// Create a couple of lights for our AR scene.
+		var light = new THREE.PointLight(0xffffff);
+		light.position.set(40, 40, 40);
+		arScene.scene.add(light);
+
+		var light = new THREE.PointLight(0xff8800);
+		light.position.set(-40, -20, -30);
+		arScene.scene.add(light);
+
+
+		var box = createBox();
+
+		renderer.domElement.addEventListener('click', function(ev) {
+			if (findObjectUnderEvent(ev, arScene.camera, box.walls)) {
+				box.box.open = !box.box.open;
+			}
+		}, false);
+
+		var markerRoot = arController.createThreeBarcodeMarker(20);
+		markerRoot.add(box.box);
+		arScene.scene.add(markerRoot);
+
+		var tick = function() {
+			arScene.process();
+
+			box.box.tick();
+
+			arScene.renderOn(renderer);
+			requestAnimationFrame(tick);
+		};
+
+		tick();
+
+	}});
+
+	delete window.ARThreeOnLoad;
+
+};
+
+if (window.ARController && ARController.getUserMediaThreeScene) {
+	ARThreeOnLoad();
+}
+</script>
+
+</body>
+</html>
