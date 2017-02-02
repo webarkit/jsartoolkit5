@@ -40,15 +40,23 @@
 			this.image = image;
 		}
 
+		this.width = w;
+		this.height = h;
+
+		this.nftMarkerCount = 0;
+
 		this.defaultMarkerWidth = 1;
 		this.patternMarkers = {};
 		this.barcodeMarkers = {};
+		this.nftMarkers = {};
 		this.transform_mat = new Float32Array(16);
 
-		this.canvas = document.createElement('canvas');
-		this.canvas.width = w;
-		this.canvas.height = h;
-		this.ctx = this.canvas.getContext('2d');
+		if (typeof document !== 'undefined') {
+			this.canvas = document.createElement('canvas');
+			this.canvas.width = w;
+			this.canvas.height = h;
+			this.ctx = this.canvas.getContext('2d');
+		}
 
 		this.videoWidth = w;
 		this.videoHeight = h;
@@ -131,6 +139,17 @@
 			o.inPrevious = o.inCurrent;
 			o.inCurrent = false;
 		}
+		for (k in this.nftMarkers) {
+			o = this.nftMarkers[k]
+			o.inPrevious = o.inCurrent;
+			o.inCurrent = false;
+		}
+
+		this.dispatchEvent({
+			name: 'markerNum',
+			target: this,
+			data: markerNum
+		});
 
 		for (var i=0; i<markerNum; i++) {
 			var markerInfo = this.getMarker(i);
@@ -173,6 +192,28 @@
 					matrix: this.transform_mat
 				}
 			});
+		}
+
+		var nftMarkerCount = this.nftMarkerCount;
+		artoolkit.detectNFTMarker(this.id);
+		for (var i=0; i<nftMarkerCount; i++) {
+			var markerInfo = this.getNFTMarker(i);
+
+			if (markerInfo.found) {
+				var visible = this.trackNFTMarkerId(i);
+				visible.matrix.set(markerInfo.pose);
+				visible.inCurrent = true;
+				this.transMatToGLMat(visible.matrix, this.transform_mat);
+				this.dispatchEvent({
+					name: 'getNFTMarker',
+					target: this,
+					data: {
+						index: i,
+						marker: markerInfo,
+						matrix: this.transform_mat
+					}
+				});
+			}
 		}
 
 		var multiMarkerCount = this.getMultiMarkerCount();
@@ -277,6 +318,34 @@
 	};
 
 	/**
+		Adds the given NFT marker ID to the index of tracked IDs.
+		Sets the markerWidth for the pattern marker to markerWidth.
+
+		Used by process() to implement continuous tracking, 
+		keeping track of the marker's transformation matrix
+		and customizable marker widths.
+
+		@param {number} id ID of the NFT marker to track.
+		@param {number} markerWidth The width of the marker to track.
+		@return {Object} The marker tracking object.
+	*/
+	ARController.prototype.trackNFTMarkerId = function(id, markerWidth) {
+		var obj = this.nftMarkers[id];
+		if (!obj) {
+			this.nftMarkers[id] = obj = {
+				inPrevious: false,
+				inCurrent: false,
+				matrix: new Float32Array(12),
+				markerWidth: markerWidth || this.defaultMarkerWidth
+			};
+		}
+		if (markerWidth) {
+			obj.markerWidth = markerWidth;
+		}
+		return obj;
+	};
+
+	/**
 		Returns the number of multimarkers registered on this ARController.
 
 		@return {number} Number of multimarkers registered.
@@ -366,6 +435,23 @@
 	*/
 	ARController.prototype.loadMarker = function(markerURL, onSuccess, onError) {
 		return artoolkit.addMarker(this.id, markerURL, onSuccess, onError);
+	};
+
+	/**
+		Loads an NFT marker from the given URL prefix and calls the onSuccess callback with the UID of the marker.
+
+		arController.loadNFTMarker(markerURL, onSuccess, onError);
+
+		@param {string} markerURL - The URL prefix of the NFT markers to load.
+		@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
+		@param {function} onError - The error callback. Called with the encountered error if the load fails.
+	*/
+	ARController.prototype.loadNFTMarker = function(markerURL, onSuccess, onError) {
+		var self = this;
+		return artoolkit.addNFTMarker(this.id, markerURL, function(id) {
+			self.nftMarkerCount = id + 1;
+			onSuccess(id);
+		}, onError);
 	};
 
 	/**
@@ -548,6 +634,12 @@
 	ARController.prototype.getMarker = function(markerIndex) {
 		if (0 === artoolkit.getMarker(this.id, markerIndex)) {
 			return artoolkit.markerInfo;
+		}
+	};
+
+	ARController.prototype.getNFTMarker = function(markerIndex) {
+		if (0 === artoolkit.getNFTMarker(this.id, markerIndex)) {
+			return artoolkit.NFTMarkerInfo;
 		}
 	};
 
@@ -949,7 +1041,9 @@
 	// private
 
 	ARController.prototype._initialize = function() {
-		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
+		this.id = artoolkit.setup(this.width, this.height, this.cameraParam.id);
+
+		this._initNFT();
 
 		var params = artoolkit.frameMalloc;
 		this.framepointer = params.framepointer;
@@ -975,24 +1069,35 @@
 		}, 1);
 	};
 
+	ARController.prototype._initNFT = function() {
+		artoolkit.setupAR2(this.id);
+	};
+
 	ARController.prototype._copyImageToHeap = function(image) {
 		if (!image) {
 			image = this.image;
 		}
+		if (image.data) {
+			
+			var imageData = image;
 
-		this.ctx.save();
-
-		if (this.orientation === 'portrait') {
-			this.ctx.translate(this.canvas.width, 0);
-			this.ctx.rotate(Math.PI/2);
-			this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
 		} else {
-			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
+
+			this.ctx.save();
+
+			if (this.orientation === 'portrait') {
+				this.ctx.translate(this.canvas.width, 0);
+				this.ctx.rotate(Math.PI/2);
+				this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
+			} else {
+				this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
+			}
+
+			this.ctx.restore();
+			var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+
 		}
 
-		this.ctx.restore();
-
-		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 		var data = imageData.data;
 
 		if (this.dataHeap) {
@@ -1365,13 +1470,16 @@
 		loadCamera: loadCamera,
 
 		addMarker: addMarker,
-		addMultiMarker: addMultiMarker
+		addMultiMarker: addMultiMarker,
+		addNFTMarker: addNFTMarker
 
 	};
 
 	var FUNCTIONS = [
 		'setup',
 		'teardown',
+
+		'setupAR2',
 
 		'setLogLevel',
 		'getLogLevel',
@@ -1396,8 +1504,11 @@
 		'detectMarker',
 		'getMarkerNum',
 
+		'detectNFTMarker',
+
 		'getMarker',
 		'getMultiEachMarker',
+		'getNFTMarker',
 
 		'setProjectionNearPlane',
 		'getProjectionNearPlane',
@@ -1444,6 +1555,22 @@
 		ajax(url, filename, function() {
 			var id = Module._addMarker(arId, filename);
 			if (callback) callback(id);
+		});
+	}
+
+	function addNFTMarker(arId, url, callback) {
+		var mId = marker_count++;
+		var prefix = '/markerNFT_' + mId;
+		var filename1 = prefix + '.fset';
+		var filename2 = prefix + '.iset';
+		var filename3 = prefix + '.fset3';
+		ajax(url + '.fset', filename1, function() {
+			ajax(url + '.iset', filename2, function() {
+				ajax(url + '.fset3', filename3, function() {
+					var id = Module._addNFTMarker(arId, prefix);
+					if (callback) callback(id);
+				});
+			});
 		});
 	}
 
@@ -1576,15 +1703,22 @@
 		}
 	}
 
-	/* Exports */
-	window.artoolkit = artoolkit;
-	window.ARController = ARController;
-	window.ARCameraParam = ARCameraParam;
+	var scope;
+	if (typeof window !== 'undefined') {
+		scope = window;
+	} else {
+		scope = self;
+	}
 
-	if (window.Module) {
+	/* Exports */
+	scope.artoolkit = artoolkit;
+	scope.ARController = ARController;
+	scope.ARCameraParam = ARCameraParam;
+
+	if (scope.Module) {
 		runWhenLoaded();
 	} else {
-		window.Module = {
+		scope.Module = {
 			onRuntimeInitialized: function() {
 				runWhenLoaded();
 			}

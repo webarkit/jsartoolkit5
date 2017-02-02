@@ -23,14 +23,17 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
   - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
   - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
 
-3. Building
+3. Copy libjpeg-6b to emscripten/jpeg-6b
+  - or, set the `LIBJPEG_ROOT` environment variable to point to your libjpeg source directory
+
+4. Building
   1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
   2. Rename the `ARTOOLKIT5_ROOT/include/AR/config.h.in` file to `config.h`
   3. Run `npm run build`
   
 During development, you can run ```npm run watch```, it will rebuild the library everytime you change ```./js/``` directory.
 
-4. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
+5. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
 
 # ARToolKit JS API
 
