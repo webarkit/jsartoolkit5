@@ -10,7 +10,7 @@ var
 	fs = require('fs'),
 	child;
 
-var HAVE_NFT = 0;
+var HAVE_NFT = 1;
 
 var EMSCRIPTEN_PATH = process.env.EMSCRIPTEN;
 var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || "../emscripten/artoolkit5";
@@ -95,11 +95,11 @@ var kpm_sources = [
 	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/', src);
 });
 
-// if (HAVE_NFT) {
+if (HAVE_NFT) {
 	ar_sources = ar_sources
 	.concat(ar2_sources)
 	.concat(kpm_sources);
-// }
+}
 
 var DEFINES = ' ';
 
