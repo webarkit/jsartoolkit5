@@ -1,6 +1,6 @@
 /* THREE.js ARToolKit integration */
 
-(function() {
+;(function() {
 	var integrate = function() {
 		/**
 			Helper for setting up a Three.js AR scene using the device camera as input.
