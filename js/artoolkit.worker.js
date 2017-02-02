@@ -41,7 +41,8 @@ onmessage = function(ev) {
 		var arController = WorkerARControllers[ev.data.id];
 		if (callbackMethods[ev.data.method]) {
 			ev.data.arguments.push(function() {
-				postMessage({method: ev.data.method, result: arguments, id: ev.data.id, callID: ev.data.callID});
+				var args = Array.prototype.slice.call(arguments)
+				postMessage({method: ev.data.method, result: args, id: ev.data.id, callID: ev.data.callID});
 			});
 			arController[ev.data.method].apply(arController, ev.data.arguments);
 		} else {
