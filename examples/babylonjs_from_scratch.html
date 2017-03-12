@@ -30,7 +30,6 @@
                 var scene = new BABYLON.Scene(engine);
                 scene.useRightHandedSystem = true;
 
-                // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
                 camera = new BABYLON.Camera('camera1', new BABYLON.Vector3(0, 0, 0), scene);
 
                 camera.attachControl(canvas, true);
@@ -46,9 +45,8 @@
 
                 // create a box
                 var box = BABYLON.Mesh.CreateBox('box1', 1, scene);
+                //set the marker object as box parent
                 box.parent = markerRoot;
-
-                console.log(box);
 
                 // return the created scene
                 return scene;
