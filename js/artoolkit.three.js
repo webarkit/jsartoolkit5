@@ -1,6 +1,6 @@
 /* THREE.js ARToolKit integration */
 
-(function() {
+;(function() {
 	var integrate = function() {
 		/**
 			Helper for setting up a Three.js AR scene using the device camera as input.
@@ -114,7 +114,7 @@
 			var scene = new THREE.Scene();
 			var camera = new THREE.Camera();
 			camera.matrixAutoUpdate = false;
-			camera.projectionMatrix.elements.set(this.getCameraMatrix());
+			camera.projectionMatrix.fromArray(this.getCameraMatrix());
 
 			scene.add(camera);
 
@@ -257,7 +257,7 @@
 
 				}
 				if (obj) {
-					obj.matrix.elements.set(ev.data.matrix);
+					obj.matrix.fromArray(ev.data.matrix);
 					obj.visible = true;
 				}
 			});
@@ -268,7 +268,7 @@
 			this.addEventListener('getMultiMarker', function(ev) {
 				var obj = this.threeMultiMarkers[ev.data.multiMarkerId];
 				if (obj) {
-					obj.matrix.elements.set(ev.data.matrix);
+					obj.matrix.fromArray(ev.data.matrix);
 					obj.visible = true;
 				}
 			});
@@ -283,7 +283,7 @@
 				var obj = this.threeMultiMarkers[marker];
 				if (obj && obj.markers && obj.markers[subMarkerID]) {
 					var sub = obj.markers[subMarkerID];
-					sub.matrix.elements.set(ev.data.matrix);
+					sub.matrix.fromArray(ev.data.matrix);
 					sub.visible = (subMarker.visible >= 0);
 				}
 			});
