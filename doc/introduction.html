@@ -278,8 +278,8 @@ camera.matrixAutoUpdate = false;
 
 // Set the camera matrix to the AR camera matrix.
 //
-camera.matrix.set(arController.getCameraMatrix());
 
+camera.projectionMatrix.fromArray(arController.getCameraMatrix());
 // On each frame, detect markers, update their positions and
 // render the frame on the renderer.
 //
