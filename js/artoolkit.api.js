@@ -1155,7 +1155,8 @@
 
 		var success = function(stream) {
 			video.addEventListener('loadedmetadata', initProgress, false);
-			video.src = window.URL.createObjectURL(stream);
+            video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to beein deprecated https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+            video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
 			readyToPlay = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
 		};
