@@ -11,7 +11,25 @@ Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaS
 - `js/` (compiled versions of ARToolKit.js with Three.js helper api)
 - `tools/` (build scripts for building ARToolKit.js)
 
+## Clone the repository
+
+1. Clone this repository
+2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
+  - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`) (Linux and macOS only)
+  - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
+  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
+
 ## Build Instructions
+
+### Build using Docker
+1. Install Docker (if you havn't already) [Docker](https://www.docker.com/) -> Get Docker
+2. Ensure we got a valid config file for ARToolKit5 
+    - `mv emscripten/artoolkit5/include/AR/config.h.in emscripten/artoolkit5/include/AR/config.h`
+3. From inside jsartoolkit5 directory run `docker run -dit --name emscripten -v $(pwd):/src trzeci/emscripten-slim:sdk-incoming-64bit bash`
+4. `docker exec emscripten npm run build`
+
+
+### Build with manual emscripten setup
 
 1. Install build tools
   1. Install node.js (https://nodejs.org/en/)
