@@ -22,9 +22,9 @@
 
 		@param {number} width The width of the images to process.
 		@param {number} height The height of the images to process.
-		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success.
+		@param {ARCameraParam | string} cameraPara The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
 	*/
-	var ARController = function(width, height, camera) {
+	var ARController = function(width, height, cameraPara) {
 		var w = width, h = height;
 
 		this.orientation = 'landscape';
@@ -33,7 +33,7 @@
 
 		if (typeof width !== 'number') {
 			var image = width;
-			camera = height;
+			cameraPara = height;
 			w = image.videoWidth || image.width;
 			h = image.videoHeight || image.height;
 			this.image = image;
@@ -52,10 +52,10 @@
 		this.videoWidth = w;
 		this.videoHeight = h;
 
-		if (typeof camera === 'string') {
+		if (typeof cameraPara === 'string') {
 
 			var self = this;
-			this.cameraParam = new ARCameraParam(camera, function() {
+			this.cameraParam = new ARCameraParam(cameraPara, function() {
 				self._initialize();
 			}, function(err) {
 				console.error("ARController: Failed to load ARCameraParam", err);
@@ -63,7 +63,7 @@
 
 		} else {
 
-			this.cameraParam = camera;
+			this.cameraParam = cameraPara;
 			this._initialize();
 
 		}
@@ -1155,7 +1155,8 @@
 
 		var success = function(stream) {
 			video.addEventListener('loadedmetadata', initProgress, false);
-			video.src = window.URL.createObjectURL(stream);
+            video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to beein deprecated https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+            video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
 			readyToPlay = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
 		};
