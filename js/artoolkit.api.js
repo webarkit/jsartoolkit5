@@ -20,8 +20,8 @@
 	 	@exports ARController
 	 	@constructor
 
-		@param {number} width The width of the images to process.
-		@param {number} height The height of the images to process.
+		@param {number | string} width The width of the images to process. If this is a string, the ARController treats it as an URL to an image and it tries to find a marker in that image
+		@param {number | string} height The height of the images to process. If width is a string height is treated as cameraPara. (See cameraPara for more info)
 		@param {ARCameraParam | string} cameraPara The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
 	*/
 	var ARController = function(width, height, cameraPara) {
@@ -163,7 +163,8 @@
 			}
 
 			visible.inCurrent = true;
-			this.transMatToGLMat(visible.matrix, this.transform_mat);
+            this.transMatToGLMat(visible.matrix, this.transform_mat);
+            this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
 			this.dispatchEvent({
 				name: 'getMarker',
 				target: this,
@@ -171,7 +172,8 @@
 					index: i,
 					type: markerType,
 					marker: markerInfo,
-					matrix: this.transform_mat
+                    matrix: this.transform_mat,
+                    matrixGL_RH: this.transformGL_RH
 				}
 			});
 		}
@@ -183,9 +185,11 @@
 
 			artoolkit.getTransMatMultiSquareRobust(this.id, i);
 			this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
-
+            this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+            
 			for (j=0; j<subMarkerCount; j++) {
-				multiEachMarkerInfo = this.getMultiEachMarker(i, j);
+                multiEachMarkerInfo = this.getMultiEachMarker(i, j);
+                
 				if (multiEachMarkerInfo.visible >= 0) {
 					visible = true;
 					this.dispatchEvent({
@@ -193,7 +197,8 @@
 						target: this,
 						data: {
 							multiMarkerId: i,
-							matrix: this.transform_mat
+                            matrix: this.transform_mat,
+                            matrixGL_RH: this.transformGL_RH
 						}
 					});
 					break;
@@ -202,7 +207,9 @@
 			if (visible) {
 				for (j=0; j<subMarkerCount; j++) {
 					multiEachMarkerInfo = this.getMultiEachMarker(i, j);
-					this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
+                    this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
+                    this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+                    
 					this.dispatchEvent({
 						name: 'getMultiMarkerSub',
 						target: this,
@@ -210,7 +217,8 @@
 							multiMarkerId: i,
 							markerIndex: j,
 							marker: multiEachMarkerInfo,
-							matrix: this.transform_mat
+                            matrix: this.transform_mat,
+                            matrixGL_RH: this.transformGL_RH
 						}
 					});
 				}
@@ -239,7 +247,8 @@
 			this.patternMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
-				matrix: new Float32Array(12),
+                matrix: new Float32Array(12),
+                matrixGL_RH: new Float32Array(12),
 				markerWidth: markerWidth || this.defaultMarkerWidth
 			};
 		}
@@ -267,7 +276,8 @@
 			this.barcodeMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
-				matrix: new Float32Array(12),
+                matrix: new Float32Array(12),
+                matrixGL_RH: new Float32Array(12),
 				markerWidth: markerWidth || this.defaultMarkerWidth
 			};
 		}
@@ -971,7 +981,11 @@
 		var marker_num = this.getMarkerNum();
 		for (var i=0; i<marker_num; i++) {
 			this._debugMarker(this.getMarker(i));
-		}
+        }
+        if(this.transform_mat && this.transformGL_RH){
+            console.log(`GL 4x4 Matrix: ${this.transform_mat}`);    
+            console.log(`GL_RH 4x4 Mat: ${this.transformGL_RH}`);
+        }
 	};
 
 
@@ -1637,6 +1651,34 @@
 				runWhenLoaded();
 			}
 		};
-	}
+    }
+    
+    function _arglCameraViewRHf(glMatrix)
+    {
+        let m_modelview = [];
+        // x
+        m_modelview[0] = glMatrix[0];
+        m_modelview[4] = glMatrix[4];
+        m_modelview[8] = glMatrix[8];
+        m_modelview[12] = glMatrix[12];
+        // y
+        m_modelview[1] = -glMatrix[1];
+        m_modelview[5] = -glMatrix[5];
+        m_modelview[9] = -glMatrix[9];
+        m_modelview[13] = -glMatrix[13];
+        // z
+        m_modelview[2] = -glMatrix[2];
+        m_modelview[6] = -glMatrix[6];
+        m_modelview[10] = -glMatrix[10];
+        m_modelview[14] = -glMatrix[14];    
+    
+        // 0 0 0 1
+        m_modelview[3] = 0;
+        m_modelview[7] = 0;
+        m_modelview[11] = 0;
+        m_modelview[15] = 1;
+        
+        return m_modelview;
+    }
 
 })();
