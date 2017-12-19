@@ -19,6 +19,7 @@
   "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.5",
+    "grunt-cli": "^1.2.0",
     "grunt-jsdoc": "^1.1.0",
     "ink-docstrap": "^1.1.4",
     "jsdoc": "^3.4.0",
@@ -26,7 +27,8 @@
   },
   "scripts": {
     "build": "node tools/makem.js; echo Built at `date`",
-    "watch": "./node_modules/.bin/watch 'npm run build' ./js/"
+    "watch": "./node_modules/.bin/watch 'npm run build' ./js/",
+    "create-doc": "grunt jsdoc"
   },
   "license": "LGPL-3.0"
 }
