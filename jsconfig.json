@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "checkJs": true
+    },
+    "include": [
+        "js/*",
+        "examples/*"
+    ]
+}

@@ -20,8 +20,8 @@
 	 	@exports ARController
 	 	@constructor
 
-		@param {number | string} width The width of the images to process. If this is a string, the ARController treats it as an URL to an image and it tries to find a marker in that image
-		@param {number | string} height The height of the images to process. If width is a string height is treated as cameraPara. (See cameraPara for more info)
+		@param {number | HTMLImageElement} width The width of the images to process. If this is a HTMLImageElement, the ARController treats it as an image and it tries to find a marker in that image
+		@param {number | string | ARCameraParam} height The height of the images to process. If width is a HTMLImageElement, height is treated as cameraPara. (See cameraPara for more info)
 		@param {ARCameraParam | string} cameraPara The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
 	*/
 	var ARController = function(width, height, cameraPara) {
@@ -54,12 +54,12 @@
 
 		if (typeof cameraPara === 'string') {
 
-			var self = this;
 			this.cameraParam = new ARCameraParam(cameraPara, function() {
-				self._initialize();
-			}, function(err) {
-				console.error("ARController: Failed to load ARCameraParam", err);
-			});
+				this._initialize();
+			}.bind(this), function(err) {
+                console.error("ARController: Failed to load ARCameraParam", err);
+                this.onload(err);
+			}.bind(this));
 
 		} else {
 
@@ -67,7 +67,7 @@
 			this._initialize();
 
 		}
-	};
+    };
 
 	/**
 		Destroys the ARController instance and frees all associated resources.
@@ -362,7 +362,7 @@
 	*/
 	ARController.prototype.debugSetup = function() {
 		document.body.appendChild(this.canvas);
-		this.setDebugMode(1);
+		this.setDebugMode(true);
 		this._bwpointer = this.getProcessingImage();
 	};
 
@@ -1011,16 +1011,15 @@
 		this.setProjectionNearPlane(0.1);
 		this.setProjectionFarPlane(1000);
 
-		var self = this;
 		setTimeout(function() {
-			if (self.onload) {
-				self.onload();
+			if (this.onload) {
+				this.onload();
 			}
-			self.dispatchEvent({
+			this.dispatchEvent({
 				name: 'load',
-				target: self
+				target: this
 			});
-		}, 1);
+		}.bind(this), 1);
 	};
 
 	/**
@@ -1121,8 +1120,8 @@
 				onSuccess : function(video),
 				onError : function(error),
 
-				width : number | {min: number, ideal: number, max: number},
-				height : number | {min: number, ideal: number, max: number},
+				width : number | {min: number, max: number},
+				height : number | {min: number, max: number},
 
 				facingMode : 'environment' | 'user' | 'left' | 'right' | { exact: 'environment' | ... }
 			}
@@ -1168,8 +1167,11 @@
 		});
 
 		var success = function(stream) {
-			video.addEventListener('loadedmetadata', initProgress, false);
-            video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to beein deprecated https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+            video.addEventListener('loadedmetadata', initProgress, false);
+            //DEPRECATED: don't use window.URL.createObjectURL(stream) any longer it might be removed soon. Only there to support old browsers src: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+            if(window.URL.createObjectURL)
+                video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to beein deprecated 
+            
             video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
 			readyToPlay = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
@@ -1184,7 +1186,7 @@
 					constraints.maxWidth = configuration.width.max;
 				}
 				if (configuration.width.min) {
-					constraints.minWidth = configuration.width.max;
+					constraints.minWidth = configuration.width.min;
 				}
 			} else {
 				constraints.maxWidth = configuration.width;
@@ -1198,7 +1200,7 @@
 					constraints.maxHeight = configuration.height.max;
 				}
 				if (configuration.height.min) {
-					constraints.minHeight = configuration.height.max;
+					constraints.minHeight = configuration.height.min;
 				}
 			} else {
 				constraints.maxHeight = configuration.height;
@@ -1207,7 +1209,8 @@
 
 		mediaDevicesConstraints.facingMode = facing;
 
-		navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+		// @ts-ignore: Ignored because it is needed to support older browsers
+        navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 		var hdConstraints = {
 			audio: false,
 			video: {
@@ -1357,12 +1360,31 @@
 		@param {Function} onload Onload callback to be called on successful parameter loading.
 		@param {Function} onerror Error callback to called when things don't work out.
 	*/
-	var ARCameraParam = function(src, onload, onerror) {
+	var ARCameraParam = function(src, onload, onerror, useDefault=true) {
 		this.id = -1;
 		this._src = '';
-		this.complete = false;
-		this.onload = onload;
-		this.onerror = onerror;
+        this.complete = false;
+        if(!onload) {
+            throw "onload callback needs to be defined";
+        } else {
+            this.onload = onload;
+        }
+        if(!onerror) {
+            throw "onerror callback needs to be defined";
+        } else {
+            this.onerror = onerror;
+        }
+
+        //Try to load calibration from camera calibration server 
+
+        
+        //If no src is set try and load the default calibration file as a default calibration is still better then no calibration.
+        if(useDefault && (src === undefined || src === '')){
+            src = 'https://github.com/artoolkitx/jsartoolkit5/raw/master/examples/Data/camera_para.dat';
+        } else if (!useDefault && (src === undefined || src === '')){
+
+        }
+
 		if (src) {
 			this.load(src);
 		}
@@ -1381,14 +1403,13 @@
 		}
 		this._src = src;
 		if (src) {
-			var self = this;
 			artoolkit.loadCamera(src, function(id) {
-				self.id = id;
-				self.complete = true;
-				self.onload();
-			}, function(err) {
-				self.onerror(err);
-			});
+				this.id = id;
+				this.complete = true;
+				this.onload();
+			}.bind(this), function(err) {
+				this.onerror(err);
+			}.bind(this));
 		}
 	};
 
@@ -1575,18 +1596,18 @@
 	}
 
 	var camera_count = 0;
-	function loadCamera(url, callback) {
+	function loadCamera(url, callback, errorCallback) {
 		var filename = '/camera_param_' + camera_count++;
-		var writeCallback = function() {
-			var id = Module._loadCamera(filename);
-			if (callback) callback(id);
+		var writeCallback = function(errorCode) {
+            var id = Module._loadCamera(filename);
+            if (callback) callback(id);
 		};
 		if (typeof url === 'object') { // Maybe it's a byte array
 			writeByteArrayToFS(filename, url, writeCallback);
 		} else if (url.indexOf("\n") > -1) { // Or a string with the camera param
 			writeStringToFS(filename, url, writeCallback);
 		} else {
-			ajax(url, filename, writeCallback);
+			ajax(url, filename, writeCallback, errorCallback);
 		}
 	}
 
@@ -1612,16 +1633,21 @@
 	//	ajax('../bin/Data2/markers.dat', '/Data2/markers.dat', callback);
 	//	ajax('../bin/Data/patt.hiro', '/patt.hiro', callback);
 
-	function ajax(url, target, callback) {
+	function ajax(url, target, callback, errorCallback) {
 		var oReq = new XMLHttpRequest();
 		oReq.open('GET', url, true);
 		oReq.responseType = 'arraybuffer'; // blob arraybuffer
 
 		oReq.onload = function() {
-			// console.log('ajax done for ', url);
-			var arrayBuffer = oReq.response;
-			var byteArray = new Uint8Array(arrayBuffer);
-			writeByteArrayToFS(target, byteArray, callback);
+            if(this.status == 200) {
+                // console.log('ajax done for ', url);
+                var arrayBuffer = oReq.response;
+                var byteArray = new Uint8Array(arrayBuffer);
+                writeByteArrayToFS(target, byteArray, callback);
+            }
+            else {
+                errorCallback(this.status);
+            }
 		};
 
 		oReq.send();
@@ -1680,5 +1706,33 @@
         
         return m_modelview;
     }
+    
+    ARController.CALIB_CAMERA_URL = 'http://localhost:9090/app/calib_camera/download.php';
 
+    function loadCalibration(device_id="samsung/GT-P3113/piranha", camera_width, camera_height, camera_index=0){
+          var fd = new FormData();
+          // These extra params are what we need
+          fd.append("device_id", device_id);
+          fd.append("focal_length", 0.0);
+          fd.append("camera_index", camera_index);
+          fd.append("camera_width", camera_width);
+          fd.append("camera_height", camera_height);
+          fd.append("ss", "058a4ba0dba33ba3a7e3f58dd3bf4940");
+          fd.append("version", 1);
+        
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', ARController.CALIB_CAMERA_URL, true);
+        
+          //TOOD return promise
+          xhr.onload = function() {
+            if (this.status == 200) {
+              var resp = JSON.parse(this.response);
+              console.log('Server got:', resp);
+              var image = document.createElement('img');
+              image.src = resp.dataUrl;
+              document.body.appendChild(image);
+            };
+          };
+          xhr.send(fd);
+        }
 })();
