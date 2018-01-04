@@ -1,10 +1,11 @@
 {
     "compilerOptions": {
-        "target": "ES6",
+        "target": "ES5",
         "checkJs": true
     },
     "include": [
         "js/*",
-        "examples/*"
+        "examples/*",
+        "tests/*"
     ]
 }

@@ -20,7 +20,7 @@
 	 	@exports ARController
 	 	@constructor
 
-		@param {number | HTMLImageElement} width The width of the images to process. If this is a HTMLImageElement, the ARController treats it as an image and it tries to find a marker in that image
+		@param {number | HTMLImageElement | HTMLVideoElement} width The width of the images to process. If this is a HTMLImageElement, the ARController treats it as an image and it tries to find a marker in that image
 		@param {number | string | ARCameraParam} height The height of the images to process. If width is a HTMLImageElement, height is treated as cameraPara. (See cameraPara for more info)
 		@param {ARCameraParam | string} cameraPara The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
 	*/
@@ -622,7 +622,7 @@
 
 		Unique to each ARController.
 
-		@return {Float64Array} The 16-element WebGL transformation matrix used by the ARController.
+		@return {Float32Array} The 16-element WebGL transformation matrix used by the ARController.
 	*/
 	ARController.prototype.getTransformationMatrix = function() {
 		return this.transform_mat;
@@ -1169,8 +1169,15 @@
 		var success = function(stream) {
             video.addEventListener('loadedmetadata', initProgress, false);
             //DEPRECATED: don't use window.URL.createObjectURL(stream) any longer it might be removed soon. Only there to support old browsers src: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
-            if(window.URL.createObjectURL)
-                video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to beein deprecated 
+            if(window.URL.createObjectURL) {
+                //Need to add try-catch because iOS 11 fails to createObjectURL from stream. As this is deprecated  we should remove this soon
+                try {
+                    video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to being deprecated 
+                }
+                catch (ex) {
+                    // Nothing todo, the purpose of this is to remove an error from the console on iOS 11
+                }
+            }
             
             video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
 			readyToPlay = true;
@@ -1218,15 +1225,16 @@
 		  	}
 		};
 
-		if ( false ) {
-		// if ( navigator.mediaDevices || window.MediaStreamTrack) {
+		// @ts-ignore: ignored because it is needed to support older browsers
+        if ( navigator.mediaDevices || window.MediaStreamTrack) {
 			if (navigator.mediaDevices) {
 				navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: mediaDevicesConstraints
 				}).then(success, onError);
 			} else {
-				MediaStreamTrack.getSources(function(sources) {
+		        // @ts-ignore: ignored because it is needed to support older browsers
+                MediaStreamTrack.getSources(function(sources) {
 					var facingDir = mediaDevicesConstraints.facingMode;
 					if (facing && facing.exact) {
 						facingDir = facing.exact;
