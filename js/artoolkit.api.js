@@ -1223,18 +1223,19 @@
 			video: {
 				mandatory: constraints
 		  	}
-		};
-
+        };
+        
 		// @ts-ignore: ignored because it is needed to support older browsers
-        if ( navigator.mediaDevices || window.MediaStreamTrack) {
+        if ( navigator.mediaDevices || window.MediaStreamTrack.getSources) {
 			if (navigator.mediaDevices) {
 				navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: mediaDevicesConstraints
 				}).then(success, onError);
 			} else {
+                // This function of accessing the media device is deprecated and outdated and shouldn't be used anymore. 
 		        // @ts-ignore: ignored because it is needed to support older browsers
-                MediaStreamTrack.getSources(function(sources) {
+                window.MediaStreamTrack.getSources(function(sources) {
 					var facingDir = mediaDevicesConstraints.facingMode;
 					if (facing && facing.exact) {
 						facingDir = facing.exact;

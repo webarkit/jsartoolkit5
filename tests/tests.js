@@ -154,8 +154,6 @@ QUnit.module("ARController.getUserMedia", {
     beforeEach : assert => {
         this.success = (video) => {
             assert.ok(video,"Successfully created video element");
-            assert.deepEqual(video.videoWidth, this.width , "Check video width to be correct");
-            assert.deepEqual(video.videoHeight, this.height, "Check video height to be correct");
             assert.ok(video.srcObject, "Check the source object");
             assert.deepEqual(video.srcObject.getTracks().length,1, "Ensure we only get one Track back ... ");
             assert.deepEqual(video.srcObject.getVideoTracks().length,1, ".. and that that track is of type 'video'");
@@ -176,7 +174,7 @@ QUnit.module("ARController.getUserMedia", {
             this.done();
         }
         this.error = err => {
-            assert.ok(err);
+            assert.notOk(err);
             this.done();
         }
         this.width = 640;
