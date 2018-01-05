@@ -26,6 +26,7 @@
 	*/
 	var ARController = function(width, height, cameraPara) {
 		var w = width, h = height;
+        this.id = undefined;
 
 		this.orientation = 'landscape';
 
@@ -76,8 +77,10 @@
 		Calling this avoids leaking Emscripten memory, which may be important if you're using multiple ARControllers.
 	*/
 	ARController.prototype.dispose = function() {
-		artoolkit.teardown(this.id);
-
+        // It is possible to call dispose on an ARController that was never initialized. But if it was never initialized the id is undefined.
+        if(this.id) {
+		    artoolkit.teardown(this.id);
+        }
 		for (var t in this) {
 			this[t] = null;
 		}
@@ -1140,8 +1143,13 @@
 
 		var video = document.createElement('video');
 
-		var initProgress = function() {
-			if (this.videoWidth !== 0) {
+		var initProgress = function(event) {
+            let trackEnded = false;
+            if(event.target.srcObject) {
+                const track = event.target.srcObject.getTracks()[0];
+                trackEnded = track.readyState === "ended";
+            }
+			if (this.videoWidth !== 0 && !trackEnded) {
 				onSuccess(video);
 			}
 		};

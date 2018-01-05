@@ -77,12 +77,24 @@ QUnit.module("ARController", {
             assert.ok(arController.canvas, "Check the default values: canvas");
             assert.ok(arController.ctx, "Check the default values: ctx");
         }
+    },
+    afterEach : assert => {
+        this.arController.dispose();
     }
 });
 QUnit.test("Create ARController default", assert => {
     const videoWidth = 640, videoHeight = 480;
+    const done = assert.async();
     const arController = new ARController(videoWidth, videoHeight, this.cameraPara);
     this.checkDefault(arController);
+
+    arController.onload = (err) => {
+        assert.notOk(err, "no error");
+        assert.ok(true, "successfully loaded");
+        this.arController = arController;
+        done();
+    };
+
 
     assert.deepEqual(arController.cameraParam, this.cameraPara, "Check the default values: cameraPara");
     assert.deepEqual(arController.videoWidth, videoWidth, "Check the default values: videoWidth");
@@ -94,8 +106,16 @@ QUnit.test("Create ARController default", assert => {
 
 });
 QUnit.test("Create ARController track image", assert => {
+    const done = assert.async();
     const arController = new ARController(v1, this.cameraPara);
     this.checkDefault(arController);
+
+    arController.onload = (err) => {
+        assert.notOk(err, "no error");
+        assert.ok(true, "successfully loaded");
+        this.arController = arController;
+        done();
+    };
 
     assert.deepEqual(arController.cameraParam, this.cameraPara, "Check the default values: cameraPara");
     assert.deepEqual(arController.image, v1, "Check the default values: image");
@@ -112,9 +132,11 @@ QUnit.test("Create ARController default, CameraPara as string", assert => {
     //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms 
     const done = assert.async();
     const arController = new ARController(videoWidth, videoHeight, cameraParaUrl);
+
     arController.onload = (err) => {
         assert.notOk(err, "no error");
         assert.ok(true, "successfully loaded");
+        this.arController = arController;
         done();
     };
     this.checkDefault(arController);
@@ -133,8 +155,10 @@ QUnit.test("Create ARController default, CameraPara as invalid string", assert =
     //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms 
     const done = assert.async();
     const arController = new ARController(videoWidth, videoHeight, cameraParaUrl);
+
     arController.onload = (err) => {
         assert.deepEqual(err, 404, "error while loading");
+        this.arController = arController;
         done();
     };
 });
@@ -151,51 +175,160 @@ QUnit.test("Create ARController default, CameraPara as invalid string", assert =
 
 /* #### ARController.getUserMedia module #### */ 
 QUnit.module("ARController.getUserMedia", {
-    beforeEach : assert => {
-        this.success = (video) => {
-            assert.ok(video,"Successfully created video element");
-            assert.ok(video.srcObject, "Check the source object");
-            assert.deepEqual(video.srcObject.getTracks().length,1, "Ensure we only get one Track back ... ");
-            assert.deepEqual(video.srcObject.getVideoTracks().length,1, ".. and that that track is of type 'video'");
-            const videoTrack = video.srcObject.getVideoTracks()[0];
-            console.log("videoTrack.label: " + videoTrack.label);
-
-            assert.ok(videoTrack.getConstraints(), "Check if the video track has constraints available");
-            const videoTrackConstraints = videoTrack.getConstraints();
-            assert.deepEqual(videoTrackConstraints.width, this.width, "Video width from constraints");
-            assert.deepEqual(videoTrackConstraints.height, this.height, "Video height from constraints");
-            
-            const supported = navigator.mediaDevices.getSupportedConstraints();
-            if(supported["facingMode"])
-                assert.deepEqual(videoTrackConstraints.facingMode, this.facingMode, "Video facing mode from constraints");
-
-            // Don't check video.src anymore because it should not be available in modern browsers
-            //assert.ok(video.src);
-            this.done();
+    afterEach : assert => {
+        if(this.video.srcObject) {
+            const track = this.video.srcObject.getTracks()[0];
+            track.stop();
+            this.video.srcObject = null;
         }
-        this.error = err => {
-            assert.notOk(err);
-            this.done();
-        }
-        this.width = 640;
-        this.height = 480;
-        this.facingMode = 'environment';
-
-
+        this.video.src = null;
     }
 });
 QUnit.test("getUserMedia", assert => {
+    const width = 640;
+    const height = 480;
+    const facingMode = 'environment';
+    const success = (video) => {
+        assert.ok(video,"Successfully created video element");
+        assert.ok(video.srcObject, "Check the source object");
+        assert.deepEqual(video.srcObject.getTracks().length,1, "Ensure we only get one Track back ... ");
+        assert.deepEqual(video.srcObject.getVideoTracks().length,1, ".. and that that track is of type 'video'");
+        const videoTrack = video.srcObject.getVideoTracks()[0];
+        console.log("videoTrack.label: " + videoTrack.label);
+
+        assert.ok(videoTrack.getSettings(), "Check if the video track has settings available");
+        const videoTrackSettings = videoTrack.getSettings();
+        assert.deepEqual(videoTrackSettings.width, width, "Video width from constraints");
+        assert.deepEqual(videoTrackSettings.height, height, "Video height from constraints");
+        
+        const supported = navigator.mediaDevices.getSupportedConstraints();
+        // Mobile supports facingMode to be set. Desktop states that facingMode is supported but doesn't list the facing mode inside the settings and hence it will fail
+        if(supported["facingMode"] && videoTrackSettings.facingMode)
+            assert.deepEqual(videoTrackSettings.facingMode, facingMode, "Video facing mode from constraints");
+
+        // Don't check video.src anymore because it should not be available in modern browsers
+        //assert.ok(video.src);
+        this.video = video;
+        done();
+    }
+    const error = err => {
+        assert.notOk(err);
+        done();
+    }
+
     const configuration = {
-        onSuccess : this.success,
-        onError : this.error,
-        width : this.width,
-        height : this.height,
-        facingMode : this.facingMode
+        onSuccess : success,
+        onError : error,
+        width : width,
+        height : height,
+        facingMode : facingMode
 
     };
     assert.timeout(10000);
-    this.done = assert.async();
+    const done = assert.async();
     const video = ARController.getUserMedia(configuration);
     // The video element is lazy loading better to check it inside the success function
     assert.ok(video, "The created video element");
-})
+    // Add the video element to html
+    document.body.appendChild(video);
+});
+QUnit.test("getUserMedia with max/min constraints", assert => {
+    const width = {min: 320, max: 640};
+    const height = {min: 240, max: 480};
+    const facingMode = {ideal: 'environment'};
+    const success = (video) => {
+        this.video = video;
+        const videoTrack = video.srcObject.getVideoTracks()[0];
+        const videoTrackSettings = videoTrack.getSettings();
+        assert.deepEqual(videoTrackSettings.width, width.max, "Video width from constraints");
+        assert.deepEqual(videoTrackSettings.height, height.max, "Video height from constraints");
+
+        done();
+    }
+    const error = err => {
+        assert.notOk(err);
+        done();
+    }
+
+    const configuration = {
+        onSuccess : success,
+        onError : error,
+        width : width,
+        height : height,
+        facingMode : facingMode
+
+    };
+    assert.timeout(10000);
+    const done = assert.async();
+    const video = ARController.getUserMedia(configuration);
+    // The video element is lazy loading better to check it inside the success function
+    assert.ok(video, "The created video element");
+    // Add the video element to html
+    document.body.appendChild(video);
+});
+QUnit.test("getUserMedia with ideal constraints", assert => {
+    const width = {min: 320, ideal: 640};
+    const height = {min: 240, ideal: 480};
+    const facingMode = {ideal: 'environment'};
+    const success = (video) => {
+        this.video = video;
+        const videoTrack = video.srcObject.getVideoTracks()[0];
+        const videoTrackSettings = videoTrack.getSettings();
+        assert.deepEqual(videoTrackSettings.width, width.ideal, "Video width from constraints");
+        assert.deepEqual(videoTrackSettings.height, height.ideal, "Video height from constraints");
+        done();
+    }
+    const error = err => {
+        assert.notOk(err);
+        done();
+    }
+
+    const configuration = {
+        onSuccess : success,
+        onError : error,
+        width : width,
+        height : height,
+        facingMode : facingMode
+
+    };
+    assert.timeout(10000);
+    const done = assert.async();
+    const video = ARController.getUserMedia(configuration);
+    // The video element is lazy loading better to check it inside the success function
+    assert.ok(video, "The created video element");
+    // Add the video element to html
+    document.body.appendChild(video);
+});
+
+QUnit.test("getUserMedia facing user", assert => {
+    const facingMode = {ideal: 'user'};
+    const success = (video) => {
+        this.video = video;
+        const videoTrack = video.srcObject.getVideoTracks()[0];
+        const videoTrackSettings = videoTrack.getSettings();
+
+        const supported = navigator.mediaDevices.getSupportedConstraints();
+        // Mobile supports facingMode to be set. Desktop states that facingMode is supported but doesn't list the facing mode inside the settings and hence it will fail
+        if(supported["facingMode"] && videoTrackSettings.facingMode)
+            assert.deepEqual(videoTrackSettings.facingMode, facingMode.ideal, "Video facing mode from constraints");
+        done();
+    }
+    const error = err => {
+        assert.notOk(err);
+        done();
+    }
+
+    const configuration = {
+        onSuccess : success,
+        onError : error,
+        facingMode : facingMode
+
+    };
+    assert.timeout(10000);
+    const done = assert.async();
+    const video = ARController.getUserMedia(configuration);
+    // The video element is lazy loading better to check it inside the success function
+    assert.ok(video, "The created video element");
+    // Add the video element to html
+    document.body.appendChild(video);
+});
