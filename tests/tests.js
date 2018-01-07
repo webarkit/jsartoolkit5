@@ -332,3 +332,72 @@ QUnit.test("getUserMedia facing user", assert => {
     // Add the video element to html
     document.body.appendChild(video);
 });
+
+/* #### ARController.getUserMediaARController module #### */ 
+QUnit.module("ARController.getUserMediaARController", { 
+    afterEach : assert => {
+        if(this.arController)
+            this.arController.dispose();
+    }
+});
+QUnit.test("getUserMediaARController default", assert => {
+    const done = assert.async();
+    const success = (arController, arCameraParam) => {
+        assert.ok(arController, "ARController created");
+        assert.ok(arController.id>=0, "ARController id created");
+        assert.ok(arCameraParam, "ARCameraPara created");
+        this.arController = arController;
+        done();
+    };
+
+    const error = error => {
+        assert.notOk(error);
+        done();
+    }
+
+    const config = {
+        onSuccess : success,
+        onError : error,
+
+        cameraParam: './camera_para.dat', // URL to camera parameters definition file.
+        maxARVideoSize: 640, // Maximum max(width, height) for the AR processing canvas.
+
+        width : 640,
+        height : 480,
+
+        facingMode : 'environment'
+    }
+    const video = ARController.getUserMediaARController(config);
+    assert.ok(video, "Video created");                                                  
+    document.body.appendChild(video);
+});
+QUnit.test("getUserMediaARController wrong calib-url", assert => {
+    const done = assert.async();
+    const success = (arController, arCameraParam) => {
+        assert.notOk(arController, "ARController created");
+        this.arController = arController;
+        done();
+    };
+
+    const error = error => {
+        assert.ok(error);
+        assert.notOk(video.srcObject);
+        done();
+    }
+
+    const config = {
+        onSuccess : success,
+        onError : error,
+
+        cameraParam: './camera_para_error.dat', // URL to camera parameters definition file.
+        maxARVideoSize: 640, // Maximum max(width, height) for the AR processing canvas.
+
+        width : 640,
+        height : 480,
+
+        facingMode : 'environment'
+    }
+    const video = ARController.getUserMediaARController(config);
+    assert.ok(video, "Video created");                                                  
+    document.body.appendChild(video);
+});

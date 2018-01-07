@@ -4,6 +4,7 @@
         "checkJs": true
     },
     "include": [
+        "build/*",
         "js/*",
         "examples/*",
         "tests/*"

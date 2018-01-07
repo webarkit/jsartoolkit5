@@ -78,9 +78,14 @@
 	*/
 	ARController.prototype.dispose = function() {
         // It is possible to call dispose on an ARController that was never initialized. But if it was never initialized the id is undefined.
-        if(this.id) {
+        if(this.id > -1) {
 		    artoolkit.teardown(this.id);
         }
+
+        if(this.image && this.image.srcObject) {
+            ARController._teardownVideo(this.image);
+        }
+
 		for (var t in this) {
 			this[t] = null;
 		}
@@ -1143,17 +1148,6 @@
 
 		var video = document.createElement('video');
 
-		var initProgress = function(event) {
-            let trackEnded = false;
-            if(event.target.srcObject) {
-                const track = event.target.srcObject.getTracks()[0];
-                trackEnded = track.readyState === "ended";
-            }
-			if (this.videoWidth !== 0 && !trackEnded) {
-				onSuccess(video);
-			}
-		};
-
 		var readyToPlay = false;
 		var eventNames = [
 			'touchstart', 'touchend', 'touchmove', 'touchcancel',
@@ -1162,7 +1156,12 @@
 		];
 		var play = function() {
 			if (readyToPlay) {
-				video.play();
+				video.play().then(() => {
+                    onSuccess(video);
+                }).catch(error => {
+                    onError(error);
+                    ARController._teardownVideo(video);
+                });
 				if (!video.paused) {
 					eventNames.forEach(function(eventName) {
 						window.removeEventListener(eventName, play, true);
@@ -1175,7 +1174,6 @@
 		});
 
 		var success = function(stream) {
-            video.addEventListener('loadedmetadata', initProgress, false);
             //DEPRECATED: don't use window.URL.createObjectURL(stream) any longer it might be removed soon. Only there to support old browsers src: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
             if(window.URL.createObjectURL) {
                 //Need to add try-catch because iOS 11 fails to createObjectURL from stream. As this is deprecated  we should remove this soon
@@ -1323,9 +1321,12 @@
 			obj[i] = configuration[i];
 		}
 		var onSuccess = configuration.onSuccess;
-		var cameraParamURL = configuration.cameraParam;
+        var cameraParamURL = configuration.cameraParam;
+        const onError = configuration.onError || function (err) {
+            console.error("ARController: Failed to load ARCameraParam", err);
+        }
 
-		obj.onSuccess = function() {
+		obj.onSuccess = function(video) {
 			new ARCameraParam(cameraParamURL, function() {
 				var arCameraParam = this;
 				var maxSize = configuration.maxARVideoSize || Math.max(video.videoWidth, video.videoHeight);
@@ -1350,14 +1351,24 @@
 				}
 				onSuccess(arController, arCameraParam);
 			}, function(err) {
-				console.error("ARController: Failed to load ARCameraParam", err);
+                ARController._teardownVideo(video);
+                onError(err);
 			});
 		};
 
-		var video = this.getUserMedia(obj);
+		var video = ARController.getUserMedia(obj);
 		return video;
 	};
 
+    /**
+     * Properly end the video stream
+     * @param {HTMLMediaElement} video The video to stop
+     */
+    ARController._teardownVideo = function(video) {
+        video.srcObject.getVideoTracks()[0].stop();
+        video.srcObject = null;
+        video.src = null;
+    }
 
 	/**
 		ARCameraParam is used for loading AR camera parameters for use with ARController.
@@ -1446,9 +1457,9 @@
 	ARCameraParam.prototype.dispose = function() {
 		if (this.id !== -1) {
 			artoolkit.deleteCamera(this.id);
-		}
+        }
 		this.id = -1;
-		this._src = '';
+        this._src = '';
 		this.complete = false;
 	};
 
