@@ -341,6 +341,7 @@ QUnit.module("ARController.getUserMediaARController", {
     }
 });
 QUnit.test("getUserMediaARController default", assert => {
+    this.arController = null;
     const done = assert.async();
     const success = (arController, arCameraParam) => {
         assert.ok(arController, "ARController created");
@@ -372,10 +373,10 @@ QUnit.test("getUserMediaARController default", assert => {
     document.body.appendChild(video);
 });
 QUnit.test("getUserMediaARController wrong calib-url", assert => {
+    this.arController = null;
     const done = assert.async();
     const success = (arController, arCameraParam) => {
         assert.notOk(arController, "ARController created");
-        this.arController = arController;
         done();
     };
 
