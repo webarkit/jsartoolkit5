@@ -20,12 +20,13 @@
 	 	@exports ARController
 	 	@constructor
 
-		@param {number | string} width The width of the images to process. If this is a string, the ARController treats it as an URL to an image and it tries to find a marker in that image
-		@param {number | string} height The height of the images to process. If width is a string height is treated as cameraPara. (See cameraPara for more info)
+		@param {number | HTMLImageElement | HTMLVideoElement} width The width of the images to process. If this is a HTMLImageElement, the ARController treats it as an image and it tries to find a marker in that image
+		@param {number | string | ARCameraParam} height The height of the images to process. If width is a HTMLImageElement, height is treated as cameraPara. (See cameraPara for more info)
 		@param {ARCameraParam | string} cameraPara The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
 	*/
 	var ARController = function(width, height, cameraPara) {
 		var w = width, h = height;
+        this.id = undefined;
 
 		this.orientation = 'landscape';
 
@@ -54,12 +55,12 @@
 
 		if (typeof cameraPara === 'string') {
 
-			var self = this;
 			this.cameraParam = new ARCameraParam(cameraPara, function() {
-				self._initialize();
-			}, function(err) {
-				console.error("ARController: Failed to load ARCameraParam", err);
-			});
+				this._initialize();
+			}.bind(this), function(err) {
+                console.error("ARController: Failed to load ARCameraParam", err);
+                this.onload(err);
+			}.bind(this));
 
 		} else {
 
@@ -67,7 +68,7 @@
 			this._initialize();
 
 		}
-	};
+    };
 
 	/**
 		Destroys the ARController instance and frees all associated resources.
@@ -76,7 +77,14 @@
 		Calling this avoids leaking Emscripten memory, which may be important if you're using multiple ARControllers.
 	*/
 	ARController.prototype.dispose = function() {
-		artoolkit.teardown(this.id);
+        // It is possible to call dispose on an ARController that was never initialized. But if it was never initialized the id is undefined.
+        if(this.id > -1) {
+		    artoolkit.teardown(this.id);
+        }
+
+        if(this.image && this.image.srcObject) {
+            ARController._teardownVideo(this.image);
+        }
 
 		for (var t in this) {
 			this[t] = null;
@@ -362,7 +370,7 @@
 	*/
 	ARController.prototype.debugSetup = function() {
 		document.body.appendChild(this.canvas);
-		this.setDebugMode(1);
+		this.setDebugMode(true);
 		this._bwpointer = this.getProcessingImage();
 	};
 
@@ -622,7 +630,7 @@
 
 		Unique to each ARController.
 
-		@return {Float64Array} The 16-element WebGL transformation matrix used by the ARController.
+		@return {Float32Array} The 16-element WebGL transformation matrix used by the ARController.
 	*/
 	ARController.prototype.getTransformationMatrix = function() {
 		return this.transform_mat;
@@ -1011,16 +1019,15 @@
 		this.setProjectionNearPlane(0.1);
 		this.setProjectionFarPlane(1000);
 
-		var self = this;
 		setTimeout(function() {
-			if (self.onload) {
-				self.onload();
+			if (this.onload) {
+				this.onload();
 			}
-			self.dispatchEvent({
+			this.dispatchEvent({
 				name: 'load',
-				target: self
+				target: this
 			});
-		}, 1);
+		}.bind(this), 1);
 	};
 
 	/**
@@ -1121,10 +1128,11 @@
 				onSuccess : function(video),
 				onError : function(error),
 
-				width : number | {min: number, ideal: number, max: number},
-				height : number | {min: number, ideal: number, max: number},
+				width : number | {min: number, max: number},
+				height : number | {min: number, max: number},
 
-				facingMode : 'environment' | 'user' | 'left' | 'right' | { exact: 'environment' | ... }
+                facingMode : 'environment' | 'user' | 'left' | 'right' | { exact: 'environment' | ... }
+                deviceId : string | {exact: 'string'}
 			}
 
 		See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia for more information about the
@@ -1141,12 +1149,6 @@
 
 		var video = document.createElement('video');
 
-		var initProgress = function() {
-			if (this.videoWidth !== 0) {
-				onSuccess(video);
-			}
-		};
-
 		var readyToPlay = false;
 		var eventNames = [
 			'touchstart', 'touchend', 'touchmove', 'touchcancel',
@@ -1155,7 +1157,12 @@
 		];
 		var play = function() {
 			if (readyToPlay) {
-				video.play();
+				video.play().then(() => {
+                    onSuccess(video);
+                }).catch(error => {
+                    onError(error);
+                    ARController._teardownVideo(video);
+                });
 				if (!video.paused) {
 					eventNames.forEach(function(eventName) {
 						window.removeEventListener(eventName, play, true);
@@ -1168,8 +1175,17 @@
 		});
 
 		var success = function(stream) {
-			video.addEventListener('loadedmetadata', initProgress, false);
-            video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to beein deprecated https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+            //DEPRECATED: don't use window.URL.createObjectURL(stream) any longer it might be removed soon. Only there to support old browsers src: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+            if(window.URL.createObjectURL) {
+                //Need to add try-catch because iOS 11 fails to createObjectURL from stream. As this is deprecated  we should remove this soon
+                try {
+                    video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to being deprecated 
+                }
+                catch (ex) {
+                    // Nothing todo, the purpose of this is to remove an error from the console on iOS 11
+                }
+            }
+            
             video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
 			readyToPlay = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
@@ -1184,7 +1200,7 @@
 					constraints.maxWidth = configuration.width.max;
 				}
 				if (configuration.width.min) {
-					constraints.minWidth = configuration.width.max;
+					constraints.minWidth = configuration.width.min;
 				}
 			} else {
 				constraints.maxWidth = configuration.width;
@@ -1198,32 +1214,37 @@
 					constraints.maxHeight = configuration.height.max;
 				}
 				if (configuration.height.min) {
-					constraints.minHeight = configuration.height.max;
+					constraints.minHeight = configuration.height.min;
 				}
 			} else {
 				constraints.maxHeight = configuration.height;
 			}
 		}
 
-		mediaDevicesConstraints.facingMode = facing;
+        mediaDevicesConstraints.facingMode = facing;
+        mediaDevicesConstraints.deviceId = configuration.deviceId;
 
-		navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+		// @ts-ignore: Ignored because it is needed to support older browsers
+        navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 		var hdConstraints = {
 			audio: false,
 			video: {
 				mandatory: constraints
 		  	}
-		};
-
-		if ( false ) {
-		// if ( navigator.mediaDevices || window.MediaStreamTrack) {
+        };
+        
+		// @ts-ignore: ignored because it is needed to support older browsers
+        if ( navigator.mediaDevices || window.MediaStreamTrack.getSources) {
 			if (navigator.mediaDevices) {
 				navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: mediaDevicesConstraints
 				}).then(success, onError);
 			} else {
-				MediaStreamTrack.getSources(function(sources) {
+                // This function of accessing the media device is deprecated and outdated and shouldn't be used anymore. 
+		        // @ts-ignore: ignored because it is needed to support older browsers
+                window.MediaStreamTrack.getSources(function(sources) {
 					var facingDir = mediaDevicesConstraints.facingMode;
 					if (facing && facing.exact) {
 						facingDir = facing.exact;
@@ -1303,9 +1324,12 @@
 			obj[i] = configuration[i];
 		}
 		var onSuccess = configuration.onSuccess;
-		var cameraParamURL = configuration.cameraParam;
+        var cameraParamURL = configuration.cameraParam;
+        const onError = configuration.onError || function (err) {
+            console.error("ARController: Failed to load ARCameraParam", err);
+        }
 
-		obj.onSuccess = function() {
+		obj.onSuccess = function(video) {
 			new ARCameraParam(cameraParamURL, function() {
 				var arCameraParam = this;
 				var maxSize = configuration.maxARVideoSize || Math.max(video.videoWidth, video.videoHeight);
@@ -1330,14 +1354,24 @@
 				}
 				onSuccess(arController, arCameraParam);
 			}, function(err) {
-				console.error("ARController: Failed to load ARCameraParam", err);
+                ARController._teardownVideo(video);
+                onError(err);
 			});
 		};
 
-		var video = this.getUserMedia(obj);
+		var video = ARController.getUserMedia(obj);
 		return video;
 	};
 
+    /**
+     * Properly end the video stream
+     * @param {HTMLMediaElement} video The video to stop
+     */
+    ARController._teardownVideo = function(video) {
+        video.srcObject.getVideoTracks()[0].stop();
+        video.srcObject = null;
+        video.src = null;
+    }
 
 	/**
 		ARCameraParam is used for loading AR camera parameters for use with ARController.
@@ -1357,12 +1391,31 @@
 		@param {Function} onload Onload callback to be called on successful parameter loading.
 		@param {Function} onerror Error callback to called when things don't work out.
 	*/
-	var ARCameraParam = function(src, onload, onerror) {
+	var ARCameraParam = function(src, onload, onerror, useDefault=true) {
 		this.id = -1;
 		this._src = '';
-		this.complete = false;
-		this.onload = onload;
-		this.onerror = onerror;
+        this.complete = false;
+        if(!onload) {
+            throw "onload callback needs to be defined";
+        } else {
+            this.onload = onload;
+        }
+        if(!onerror) {
+            throw "onerror callback needs to be defined";
+        } else {
+            this.onerror = onerror;
+        }
+
+        //Try to load calibration from camera calibration server 
+
+        
+        //If no src is set try and load the default calibration file as a default calibration is still better then no calibration.
+        if(useDefault && (src === undefined || src === '')){
+            src = 'https://github.com/artoolkitx/jsartoolkit5/raw/master/examples/Data/camera_para.dat';
+        } else if (!useDefault && (src === undefined || src === '')){
+
+        }
+
 		if (src) {
 			this.load(src);
 		}
@@ -1381,14 +1434,13 @@
 		}
 		this._src = src;
 		if (src) {
-			var self = this;
 			artoolkit.loadCamera(src, function(id) {
-				self.id = id;
-				self.complete = true;
-				self.onload();
-			}, function(err) {
-				self.onerror(err);
-			});
+				this.id = id;
+				this.complete = true;
+				this.onload();
+			}.bind(this), function(err) {
+				this.onerror(err);
+			}.bind(this));
 		}
 	};
 
@@ -1408,9 +1460,9 @@
 	ARCameraParam.prototype.dispose = function() {
 		if (this.id !== -1) {
 			artoolkit.deleteCamera(this.id);
-		}
+        }
 		this.id = -1;
-		this._src = '';
+        this._src = '';
 		this.complete = false;
 	};
 
@@ -1575,18 +1627,18 @@
 	}
 
 	var camera_count = 0;
-	function loadCamera(url, callback) {
+	function loadCamera(url, callback, errorCallback) {
 		var filename = '/camera_param_' + camera_count++;
-		var writeCallback = function() {
-			var id = Module._loadCamera(filename);
-			if (callback) callback(id);
+		var writeCallback = function(errorCode) {
+            var id = Module._loadCamera(filename);
+            if (callback) callback(id);
 		};
 		if (typeof url === 'object') { // Maybe it's a byte array
 			writeByteArrayToFS(filename, url, writeCallback);
 		} else if (url.indexOf("\n") > -1) { // Or a string with the camera param
 			writeStringToFS(filename, url, writeCallback);
 		} else {
-			ajax(url, filename, writeCallback);
+			ajax(url, filename, writeCallback, errorCallback);
 		}
 	}
 
@@ -1612,16 +1664,21 @@
 	//	ajax('../bin/Data2/markers.dat', '/Data2/markers.dat', callback);
 	//	ajax('../bin/Data/patt.hiro', '/patt.hiro', callback);
 
-	function ajax(url, target, callback) {
+	function ajax(url, target, callback, errorCallback) {
 		var oReq = new XMLHttpRequest();
 		oReq.open('GET', url, true);
 		oReq.responseType = 'arraybuffer'; // blob arraybuffer
 
 		oReq.onload = function() {
-			// console.log('ajax done for ', url);
-			var arrayBuffer = oReq.response;
-			var byteArray = new Uint8Array(arrayBuffer);
-			writeByteArrayToFS(target, byteArray, callback);
+            if(this.status == 200) {
+                // console.log('ajax done for ', url);
+                var arrayBuffer = oReq.response;
+                var byteArray = new Uint8Array(arrayBuffer);
+                writeByteArrayToFS(target, byteArray, callback);
+            }
+            else {
+                errorCallback(this.status);
+            }
 		};
 
 		oReq.send();
@@ -1680,5 +1737,33 @@
         
         return m_modelview;
     }
+    
+    ARController.CALIB_CAMERA_URL = 'http://localhost:9090/app/calib_camera/download.php';
 
+    function loadCalibration(device_id="samsung/GT-P3113/piranha", camera_width, camera_height, camera_index=0){
+          var fd = new FormData();
+          // These extra params are what we need
+          fd.append("device_id", device_id);
+          fd.append("focal_length", 0.0);
+          fd.append("camera_index", camera_index);
+          fd.append("camera_width", camera_width);
+          fd.append("camera_height", camera_height);
+          fd.append("ss", "058a4ba0dba33ba3a7e3f58dd3bf4940");
+          fd.append("version", 1);
+        
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', ARController.CALIB_CAMERA_URL, true);
+        
+          //TOOD return promise
+          xhr.onload = function() {
+            if (this.status == 200) {
+              var resp = JSON.parse(this.response);
+              console.log('Server got:', resp);
+              var image = document.createElement('img');
+              image.src = resp.dataUrl;
+              document.body.appendChild(image);
+            };
+          };
+          xhr.send(fd);
+        }
 })();
