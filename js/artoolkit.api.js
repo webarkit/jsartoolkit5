@@ -1131,7 +1131,8 @@
 				width : number | {min: number, max: number},
 				height : number | {min: number, max: number},
 
-				facingMode : 'environment' | 'user' | 'left' | 'right' | { exact: 'environment' | ... }
+                facingMode : 'environment' | 'user' | 'left' | 'right' | { exact: 'environment' | ... }
+                deviceId : string | {exact: 'string'}
 			}
 
 		See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia for more information about the
@@ -1220,7 +1221,9 @@
 			}
 		}
 
-		mediaDevicesConstraints.facingMode = facing;
+        mediaDevicesConstraints.facingMode = facing;
+        mediaDevicesConstraints.deviceId = configuration.deviceId;
+
 
 		// @ts-ignore: Ignored because it is needed to support older browsers
         navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
