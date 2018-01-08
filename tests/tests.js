@@ -402,3 +402,5 @@ QUnit.test("getUserMediaARController wrong calib-url", assert => {
     assert.ok(video, "Video created");                                                  
     document.body.appendChild(video);
 });
+
+//TODO write test for external Video stream creation
