@@ -2,6 +2,10 @@
 
 Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaScript.
 
+**NOTE: **
+
+When writing JavaScript and making changes be aware that the emscripten uglifier does not support the ES6 syntax.
+
 ## Project Structure
 
 - `build/` (compiled debug and minified versions of ARToolKit.js)
