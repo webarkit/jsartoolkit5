@@ -991,8 +991,8 @@
 			this._debugMarker(this.getMarker(i));
         }
         if(this.transform_mat && this.transformGL_RH){
-            console.log(`GL 4x4 Matrix: ${this.transform_mat}`);    
-            console.log(`GL_RH 4x4 Mat: ${this.transformGL_RH}`);
+            console.log("GL 4x4 Matrix: " + this.transform_mat);    
+            console.log("GL_RH 4x4 Mat: " + this.transformGL_RH);
         }
 	};
 
@@ -1157,9 +1157,9 @@
 		];
 		var play = function() {
 			if (readyToPlay) {
-				video.play().then(() => {
+				video.play().then(function() {
                     onSuccess(video);
-                }).catch(error => {
+                }).catch(function(error) {
                     onError(error);
                     ARController._teardownVideo(video);
                 });
@@ -1325,7 +1325,7 @@
 		}
 		var onSuccess = configuration.onSuccess;
         var cameraParamURL = configuration.cameraParam;
-        const onError = configuration.onError || function (err) {
+        var onError = configuration.onError || function (err) {
             console.error("ARController: Failed to load ARCameraParam", err);
         }
 
@@ -1391,7 +1391,7 @@
 		@param {Function} onload Onload callback to be called on successful parameter loading.
 		@param {Function} onerror Error callback to called when things don't work out.
 	*/
-	var ARCameraParam = function(src, onload, onerror, useDefault=true) {
+	var ARCameraParam = function(src, onload, onerror) {
 		this.id = -1;
 		this._src = '';
         this.complete = false;
@@ -1404,16 +1404,6 @@
             throw "onerror callback needs to be defined";
         } else {
             this.onerror = onerror;
-        }
-
-        //Try to load calibration from camera calibration server 
-
-        
-        //If no src is set try and load the default calibration file as a default calibration is still better then no calibration.
-        if(useDefault && (src === undefined || src === '')){
-            src = 'https://github.com/artoolkitx/jsartoolkit5/raw/master/examples/Data/camera_para.dat';
-        } else if (!useDefault && (src === undefined || src === '')){
-
         }
 
 		if (src) {
@@ -1712,7 +1702,7 @@
     
     function _arglCameraViewRHf(glMatrix)
     {
-        let m_modelview = [];
+        var m_modelview = [];
         // x
         m_modelview[0] = glMatrix[0];
         m_modelview[4] = glMatrix[4];
@@ -1737,33 +1727,4 @@
         
         return m_modelview;
     }
-    
-    ARController.CALIB_CAMERA_URL = 'http://localhost:9090/app/calib_camera/download.php';
-
-    function loadCalibration(device_id="samsung/GT-P3113/piranha", camera_width, camera_height, camera_index=0){
-          var fd = new FormData();
-          // These extra params are what we need
-          fd.append("device_id", device_id);
-          fd.append("focal_length", 0.0);
-          fd.append("camera_index", camera_index);
-          fd.append("camera_width", camera_width);
-          fd.append("camera_height", camera_height);
-          fd.append("ss", "058a4ba0dba33ba3a7e3f58dd3bf4940");
-          fd.append("version", 1);
-        
-          var xhr = new XMLHttpRequest();
-          xhr.open('POST', ARController.CALIB_CAMERA_URL, true);
-        
-          //TOOD return promise
-          xhr.onload = function() {
-            if (this.status == 200) {
-              var resp = JSON.parse(this.response);
-              console.log('Server got:', resp);
-              var image = document.createElement('img');
-              image.src = resp.dataUrl;
-              document.body.appendChild(image);
-            };
-          };
-          xhr.send(fd);
-        }
 })();

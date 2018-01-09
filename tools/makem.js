@@ -227,9 +227,10 @@ var compile_all = format(EMCC + ' ' + INCLUDES + ' '
 
 function onExec(error, stdout, stderr) {
 	if (stdout) console.log('stdout: ' + stdout);
-	if (stderr) console.log('stderr: ' + stderr);
+	if (stderr) {console.log('stderr: ' + stderr);}
 	if (error !== null) {
-		console.log('exec error: ' + error);
+        console.log('exec error: ' + error.code);
+        process.exit(error.code);
 	} else {
 		runJob();
 	}
