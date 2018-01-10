@@ -1008,7 +1008,7 @@
 		this.ctx.putImageData(id, 0, 0);
 
         //Debug Luma
-        var lumaBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize/4);
+        var lumaBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize);
         var lumaImageData = new ImageData(lumaBuffer, this.canvas.width, this.canvas.height);
         this.lumaCtx.putImageData(lumaImageData,0,0);
 
