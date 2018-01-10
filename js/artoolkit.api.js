@@ -52,6 +52,17 @@
 
 		this.videoWidth = w;
 		this.videoHeight = h;
+        
+        //Set during _initialize
+        this.framepointer = null;
+		this.framesize = null;
+        this.params = null;
+		this.dataHeap = null;
+        this.videoLuma = null;
+		this.camera_mat = null;
+		this.marker_transform_mat = null;
+        this.videoLumaPointer = null;
+
 
 		if (typeof cameraPara === 'string') {
 
@@ -124,7 +135,10 @@
 		@param {HTMLImageElement|HTMLVideoElement} [image] The image to process [optional].
 	*/
 	ARController.prototype.process = function(image) {
-		this.detectMarker(image);
+        var result = this.detectMarker(image);
+		if(result != 0 ){
+            console.error("detectMarker error: " + result);
+        }
 
 		var markerNum = this.getMarkerNum();
 		var k,o;
@@ -370,6 +384,13 @@
 	*/
 	ARController.prototype.debugSetup = function() {
 		document.body.appendChild(this.canvas);
+
+        var lumaCanvas = document.createElement('canvas');
+		lumaCanvas.width = this.canvas.width/4;
+		lumaCanvas.height = this.canvas.height/4;
+	    this.lumaCtx = lumaCanvas.getContext('2d');
+        document.body.appendChild(lumaCanvas);
+
 		this.setDebugMode(true);
 		this._bwpointer = this.getProcessingImage();
 	};
@@ -986,6 +1007,11 @@
 		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height);
 		this.ctx.putImageData(id, 0, 0);
 
+        //Debug Luma
+        var lumaBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize/4);
+        var lumaImageData = new ImageData(lumaBuffer, this.canvas.width, this.canvas.height);
+        this.lumaCtx.putImageData(lumaImageData,0,0);
+
 		var marker_num = this.getMarkerNum();
 		for (var i=0; i<marker_num; i++) {
 			this._debugMarker(this.getMarker(i));
@@ -1007,11 +1033,14 @@
 	ARController.prototype._initialize = function() {
 		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
 
+        //See ARToolKitJS.cpp L:818 on how cpp and JS is linked and http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-call-javascript-from-native
 		var params = artoolkit.frameMalloc;
 		this.framepointer = params.framepointer;
 		this.framesize = params.framesize;
+        this.videoLumaPointer = params.videoLumaPointer;
 
 		this.dataHeap = new Uint8Array(Module.HEAPU8.buffer, this.framepointer, this.framesize);
+        this.videoLuma = new Uint8Array(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize / 4);
 
 		this.camera_mat = new Float64Array(Module.HEAPU8.buffer, params.camera, 16);
 		this.marker_transform_mat = new Float64Array(Module.HEAPU8.buffer, params.transform, 12);
@@ -1055,7 +1084,20 @@
 		this.ctx.restore();
 
 		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-		var data = imageData.data;
+		var data = imageData.data;  // this is of type Uint8ClampedArray: The Uint8ClampedArray typed array represents an array of 8-bit unsigned integers clamped to 0-255 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)
+
+        //Here we have access to the unmodified video image. We now need to add the videoLuma chanel to be able to serve the underlying ARTK API
+        if(this.videoLuma) {
+            var q = 0;
+            //Create luma from video data assuming Pixelformat AR_PIXEL_FORMAT_RGBA (ARToolKitJS.cpp L: 43)
+            var videoLuma = new Uint8ClampedArray(data.length/4);
+            for(var p=0; p < data.length; p++){
+                var r = data[q+0], g = data[q+1], b = data[q+2];
+                videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
+                q += 4;
+            }
+            this.videoLuma.set(videoLuma);
+        }
 
 		if (this.dataHeap) {
 			this.dataHeap.set( data );

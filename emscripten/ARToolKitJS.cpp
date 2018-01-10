@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <AR/config.h>
 #include <AR/paramGL.h>
-#include <AR/video.h>
 
 struct multi_marker {
 	int id;
@@ -22,6 +21,7 @@ struct arController {
 
 	ARUint8 *videoFrame = NULL;
 	int videoFrameSize;
+    ARUint8 *videoLuma = NULL;
 
 	int width = 0;
 	int height = 0;
@@ -39,7 +39,6 @@ struct arController {
 	int patt_id = 0; // Running pattern marker id
 
 	ARdouble cameraLens[16];
-    ARVideoLumaInfo *lumaInfo = NULL;
     AR_PIXEL_FORMAT pixFormat = AR_PIXEL_FORMAT_RGBA;
 };
 
@@ -100,7 +99,10 @@ extern "C" {
 		arController *arc = &(arControllers[id]);
 
         // Cleanup luma.
-        arVideoLumaFinal(&(arc->lumaInfo));
+        if(arc->videoLuma) {
+            free(arc->videoLuma);
+            arc->videoLuma = NULL;
+        }
 
 		if (arc->videoFrame) {
 			free(arc->videoFrame);
@@ -621,19 +623,7 @@ extern "C" {
         AR2VideoBufferT buff = {0};
         buff.buff = arc->videoFrame;
         buff.fillFlag = 1;
-
-        if (arc->pixFormat == AR_PIXEL_FORMAT_MONO) {
-            buff.buffLuma = buff.buff;
-        } else {
-            if (!arc->lumaInfo) {
-                arc->lumaInfo = arVideoLumaInit(arc->width, arc->height, arc->pixFormat);
-                if (!arc->lumaInfo) {
-                    ARLOGe("Error: unable to initialise luma conversion.\n");
-                    exit(-1);
-                }
-            }
-            buff.buffLuma = arVideoLuma(arc->lumaInfo, buff.buff);
-        }
+        buff.buffLuma = arc->videoLuma;
 
 		return arDetectMarker( arc->arhandle, &buff);
 	}
@@ -806,6 +796,7 @@ extern "C" {
 
 		arc->videoFrameSize = width * height * 4 * sizeof(ARUint8);
 		arc->videoFrame = (ARUint8*) malloc(arc->videoFrameSize);
+        arc->videoLuma = (ARUint8*) malloc(arc->videoFrameSize / 4);
 
 		if ((arc->arPattHandle = arPattCreateHandle()) == NULL) {
 			ARLOGe("setup(): Error: arPattCreateHandle.\n");
@@ -824,12 +815,14 @@ extern "C" {
 			frameMalloc["framesize"] = $2;
 			frameMalloc["camera"] = $3;
 			frameMalloc["transform"] = $4;
+            frameMalloc["videoLumaPointer"] = $5;
 		},
 			arc->id,
-			arc->videoFrame,
-			arc->videoFrameSize,
-			arc->cameraLens,
-			gTransform
+			arc->videoFrame,        //$1
+			arc->videoFrameSize,    //$2
+			arc->cameraLens,        //$3
+			gTransform,             //$4
+            arc->videoLuma          //$5
 		);
 
 
