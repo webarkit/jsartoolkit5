@@ -1091,9 +1091,11 @@
             var q = 0;
             //Create luma from video data assuming Pixelformat AR_PIXEL_FORMAT_RGBA (ARToolKitJS.cpp L: 43)
             var videoLuma = new Uint8ClampedArray(data.length/4);
+            
             for(var p=0; p < data.length; p++){
                 var r = data[q+0], g = data[q+1], b = data[q+2];
-                videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
+                // videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
+                videoLuma[p] = (r+r+r+b+g+g+g+g)>>3;
                 q += 4;
             }
             this.videoLuma.set(videoLuma);
