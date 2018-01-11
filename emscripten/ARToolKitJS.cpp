@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <AR/config.h>
 #include <AR/paramGL.h>
+#include <AR/video.h>
 
 struct multi_marker {
 	int id;
@@ -98,11 +99,11 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
 
-        // Cleanup luma.
-        if(arc->videoLuma) {
-            free(arc->videoLuma);
-            arc->videoLuma = NULL;
-        }
+        //TODO: Fix Cleanup luma.
+        // if(arc->videoLuma) {
+        //     free(arc->videoLuma);
+        //     arc->videoLuma = NULL;
+        // }
 
 		if (arc->videoFrame) {
 			free(arc->videoFrame);
@@ -623,8 +624,9 @@ extern "C" {
         AR2VideoBufferT buff = {0};
         buff.buff = arc->videoFrame;
         buff.fillFlag = 1;
-        buff.buffLuma = arc->videoLuma;
 
+        buff.buffLuma = arc->videoLuma;
+        
 		return arDetectMarker( arc->arhandle, &buff);
 	}
     

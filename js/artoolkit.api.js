@@ -52,6 +52,7 @@
 
 		this.videoWidth = w;
 		this.videoHeight = h;
+        this.videoSize = this.videoWidth * this.videoHeight;
         
         //Set during _initialize
         this.framepointer = null;
@@ -386,8 +387,8 @@
 		document.body.appendChild(this.canvas);
 
         var lumaCanvas = document.createElement('canvas');
-		lumaCanvas.width = this.canvas.width/4;
-		lumaCanvas.height = this.canvas.height/4;
+		lumaCanvas.width = this.canvas.width;
+		lumaCanvas.height = this.canvas.height;
 	    this.lumaCtx = lumaCanvas.getContext('2d');
         document.body.appendChild(lumaCanvas);
 
@@ -1004,12 +1005,13 @@
 	*/
 	ARController.prototype.debugDraw = function() {
 		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
-		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height);
+		var id = new ImageData(debugBuffer, this.videoWidth, this.videoHeight);
 		this.ctx.putImageData(id, 0, 0);
 
         //Debug Luma
-        var lumaBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize);
-        var lumaImageData = new ImageData(lumaBuffer, this.canvas.width, this.canvas.height);
+        var lumaBuffer = new Uint8ClampedArray(this.framesize);
+        lumaBuffer.set(this.videoLuma);
+        var lumaImageData = new ImageData(lumaBuffer, this.videoWidth, this.videoHeight);
         this.lumaCtx.putImageData(lumaImageData,0,0);
 
 		var marker_num = this.getMarkerNum();
@@ -1040,7 +1042,7 @@
         this.videoLumaPointer = params.videoLumaPointer;
 
 		this.dataHeap = new Uint8Array(Module.HEAPU8.buffer, this.framepointer, this.framesize);
-        this.videoLuma = new Uint8Array(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize / 4);
+        this.videoLuma = new Uint8Array(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize/4);
 
 		this.camera_mat = new Float64Array(Module.HEAPU8.buffer, params.camera, 16);
 		this.marker_transform_mat = new Float64Array(Module.HEAPU8.buffer, params.transform, 12);
@@ -1090,15 +1092,13 @@
         if(this.videoLuma) {
             var q = 0;
             //Create luma from video data assuming Pixelformat AR_PIXEL_FORMAT_RGBA (ARToolKitJS.cpp L: 43)
-            var videoLuma = new Uint8ClampedArray(data.length/4);
             
-            for(var p=0; p < data.length; p++){
+            for(var p=0; p < this.videoSize; p++){
                 var r = data[q+0], g = data[q+1], b = data[q+2];
                 // videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
-                videoLuma[p] = (r+r+r+b+g+g+g+g)>>3;
+                this.videoLuma[p] = (r+r+r+b+g+g+g+g)>>3;
                 q += 4;
             }
-            this.videoLuma.set(videoLuma);
         }
 
 		if (this.dataHeap) {
