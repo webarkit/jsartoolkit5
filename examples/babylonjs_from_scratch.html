@@ -79,7 +79,7 @@
                         mesh.isVisible = true
                     });
 
-                    arController.transMatToGLMat(markerRoot.markerMatrix, markerRoot._worldMatrix.m);
+                    arController.arglCameraViewRHf(arController.transMatToGLMat(markerRoot.markerMatrix), markerRoot._worldMatrix.m);
                 } else {
                     markerRoot.isVisible = false;
                     markerRoot.getChildMeshes().forEach(function (mesh) {

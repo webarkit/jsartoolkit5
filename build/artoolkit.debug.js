@@ -39057,51 +39057,6 @@ function _addMultiMarker($0, $1) {
  return $$1 | 0;
 }
 
-function _teardown($0) {
- $0 = $0 | 0;
- var $$0 = 0, $$019 = 0, $1 = 0, $14 = 0, $15 = 0, $17 = 0, $4 = 0, $5 = 0, $6 = 0, $8 = 0, $9 = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16 | 0;
- if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(16);
- $1 = sp;
- HEAP32[$1 >> 2] = $0;
- if (!(__ZNSt3__212__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(17376, $1) | 0)) $$019 = -1; else {
-  $4 = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(17376, $1) | 0;
-  $5 = $4 + 204 | 0;
-  $6 = HEAP32[$5 >> 2] | 0;
-  if ($6 | 0) {
-   _free($6);
-   HEAP32[$5 >> 2] = 0;
-  }
-  $8 = $4 + 196 | 0;
-  $9 = HEAP32[$8 >> 2] | 0;
-  if ($9 | 0) {
-   _free($9);
-   HEAP32[$8 >> 2] = 0;
-   HEAP32[$4 + 200 >> 2] = 0;
-  }
-  _deleteHandle($4);
-  _arPattDeleteHandle(HEAP32[$4 + 220 >> 2] | 0) | 0;
-  __ZNSt3__212__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE14__erase_uniqueIiEEjRKT_(17376, $1) | 0;
-  $14 = $4 + 248 | 0;
-  $15 = $4 + 252 | 0;
-  $$0 = 0;
-  while (1) {
-   $17 = HEAP32[$14 >> 2] | 0;
-   if ($$0 >>> 0 >= (HEAP32[$15 >> 2] | 0) - $17 >> 3 >>> 0) break;
-   _arMultiFreeConfig(HEAP32[$17 + ($$0 << 3) + 4 >> 2] | 0) | 0;
-   $$0 = $$0 + 1 | 0;
-  }
-  __ZNSt3__213__vector_baseI12multi_markerNS_9allocatorIS1_EEED2Ev($14);
-  __ZdlPv($14);
-  __ZN12arControllerD2Ev($4);
-  __ZdlPv($4);
-  $$019 = 0;
- }
- STACKTOP = sp;
- return $$019 | 0;
-}
-
 function ___mo_lookup($0, $1, $2) {
  $0 = $0 | 0;
  $1 = $1 | 0;
@@ -39566,6 +39521,45 @@ function _confidenceCutoff($0) {
   }
  } while (0);
  return;
+}
+
+function _teardown($0) {
+ $0 = $0 | 0;
+ var $$0 = 0, $$016 = 0, $1 = 0, $11 = 0, $12 = 0, $14 = 0, $4 = 0, $5 = 0, $6 = 0, sp = 0;
+ sp = STACKTOP;
+ STACKTOP = STACKTOP + 16 | 0;
+ if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(16);
+ $1 = sp;
+ HEAP32[$1 >> 2] = $0;
+ if (!(__ZNSt3__212__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(17376, $1) | 0)) $$016 = -1; else {
+  $4 = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(17376, $1) | 0;
+  $5 = $4 + 196 | 0;
+  $6 = HEAP32[$5 >> 2] | 0;
+  if ($6 | 0) {
+   _free($6);
+   HEAP32[$5 >> 2] = 0;
+   HEAP32[$4 + 200 >> 2] = 0;
+  }
+  _deleteHandle($4);
+  _arPattDeleteHandle(HEAP32[$4 + 220 >> 2] | 0) | 0;
+  __ZNSt3__212__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE14__erase_uniqueIiEEjRKT_(17376, $1) | 0;
+  $11 = $4 + 248 | 0;
+  $12 = $4 + 252 | 0;
+  $$0 = 0;
+  while (1) {
+   $14 = HEAP32[$11 >> 2] | 0;
+   if ($$0 >>> 0 >= (HEAP32[$12 >> 2] | 0) - $14 >> 3 >>> 0) break;
+   _arMultiFreeConfig(HEAP32[$14 + ($$0 << 3) + 4 >> 2] | 0) | 0;
+   $$0 = $$0 + 1 | 0;
+  }
+  __ZNSt3__213__vector_baseI12multi_markerNS_9allocatorIS1_EEED2Ev($11);
+  __ZdlPv($11);
+  __ZN12arControllerD2Ev($4);
+  __ZdlPv($4);
+  $$016 = 0;
+ }
+ STACKTOP = sp;
+ return $$016 | 0;
 }
 
 function __ZNSt3__2plIcNS_11char_traitsIcEEN10__cxxabiv112_GLOBAL__N_112malloc_allocIcEEEENS_12basic_stringIT_T0_T1_EERKSB_PKS8_($0, $1, $2) {
