@@ -187,7 +187,7 @@
 
 			visible.inCurrent = true;
             this.transMatToGLMat(visible.matrix, this.transform_mat);
-            this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+            this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
 			this.dispatchEvent({
 				name: 'getMarker',
 				target: this,
@@ -208,7 +208,7 @@
 
 			artoolkit.getTransMatMultiSquareRobust(this.id, i);
 			this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
-            this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+            this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
             
 			for (j=0; j<subMarkerCount; j++) {
                 multiEachMarkerInfo = this.getMultiEachMarker(i, j);
@@ -231,7 +231,7 @@
 				for (j=0; j<subMarkerCount; j++) {
 					multiEachMarkerInfo = this.getMultiEachMarker(i, j);
                     this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
-                    this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+                    this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
                     
 					this.dispatchEvent({
 						name: 'getMultiMarkerSub',
@@ -495,6 +495,9 @@
 		@param {number} [scale] The scale for the transform.
 	*/
 	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
+        if(glMat == undefined){
+            glMat = new Float64Array(16);
+        }
 		glMat[0 + 0*4] = transMat[0]; // R1C1
 		glMat[0 + 1*4] = transMat[1]; // R1C2
 		glMat[0 + 2*4] = transMat[2];
@@ -517,7 +520,58 @@
 			glMat[14] *= scale;
 		}
 		return glMat;
-	};
+    };
+
+    /**
+		Converts the given 4x4 openGL matrix in the 16-element transMat array
+		into a 4x4 OpenGL Right-Hand-View matrix and writes the result into the 16-element glMat array.
+
+		If scale parameter is given, scales the transform of the glMat by the scale parameter.
+
+		@param {Float64Array} glMatrix The 4x4 marker transformation matrix.
+		@param {Float64Array} glRhMatrix The 4x4 GL right hand transformation matrix.
+		@param {number} [scale] The scale for the transform.
+	*/
+    ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
+    {
+        var m_modelview;
+        if(glRhMatrix == undefined)
+            m_modelview = new Float64Array(16);
+        else    
+            m_modelview = glRhMatrix;
+
+        // x
+        m_modelview[0] = glMatrix[0];
+        m_modelview[4] = glMatrix[4];
+        m_modelview[8] = glMatrix[8];
+        m_modelview[12] = glMatrix[12];
+        // y
+        m_modelview[1] = -glMatrix[1];
+        m_modelview[5] = -glMatrix[5];
+        m_modelview[9] = -glMatrix[9];
+        m_modelview[13] = -glMatrix[13];
+        // z
+        m_modelview[2] = -glMatrix[2];
+        m_modelview[6] = -glMatrix[6];
+        m_modelview[10] = -glMatrix[10];
+        m_modelview[14] = -glMatrix[14];    
+    
+        // 0 0 0 1
+        m_modelview[3] = 0;
+        m_modelview[7] = 0;
+        m_modelview[11] = 0;
+        m_modelview[15] = 1;
+
+        if (scale != undefined && scale !== 0.0) {
+			m_modelview[12] *= scale;
+			m_modelview[13] *= scale;
+			m_modelview[14] *= scale;
+		}
+        
+        glRhMatrix = m_modelview;
+
+        return glRhMatrix;
+    }
 
 	/**
 		This is the core ARToolKit marker detection function. It calls through to a set of
@@ -1744,33 +1798,5 @@
 				runWhenLoaded();
 			}
 		};
-    }
-    
-    function _arglCameraViewRHf(glMatrix)
-    {
-        var m_modelview = [];
-        // x
-        m_modelview[0] = glMatrix[0];
-        m_modelview[4] = glMatrix[4];
-        m_modelview[8] = glMatrix[8];
-        m_modelview[12] = glMatrix[12];
-        // y
-        m_modelview[1] = -glMatrix[1];
-        m_modelview[5] = -glMatrix[5];
-        m_modelview[9] = -glMatrix[9];
-        m_modelview[13] = -glMatrix[13];
-        // z
-        m_modelview[2] = -glMatrix[2];
-        m_modelview[6] = -glMatrix[6];
-        m_modelview[10] = -glMatrix[10];
-        m_modelview[14] = -glMatrix[14];    
-    
-        // 0 0 0 1
-        m_modelview[3] = 0;
-        m_modelview[7] = 0;
-        m_modelview[11] = 0;
-        m_modelview[15] = 1;
-        
-        return m_modelview;
     }
 })();
