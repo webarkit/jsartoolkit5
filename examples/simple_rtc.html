@@ -10,11 +10,13 @@ canvas {
 }
 </style>
 
-<script src="../build/artoolkit.min.js"></script>
+<script src="../build/artoolkit.debug.js"></script>
 <script src="../js/artoolkit.api.js"></script>
 
 <script>
 var video = document.createElement('video');
+video.playsInline = true;
+video.autoplay = true;
 
 document.body.appendChild(video);
 
@@ -46,7 +48,7 @@ function errorCallback(e) {
 
 function success(stream) {
 	console.log('success', stream);
-	video.src = window.URL.createObjectURL(stream);
+	video.srcObject = stream;
 	video.onclick = function() { video.play(); };
 	video.play();
 

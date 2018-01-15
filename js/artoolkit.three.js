@@ -257,7 +257,7 @@
 
 				}
 				if (obj) {
-					obj.matrix.fromArray(ev.data.matrix);
+					obj.matrix.fromArray(ev.data.matrixGL_RH);
 					obj.visible = true;
 				}
 			});
@@ -268,7 +268,7 @@
 			this.addEventListener('getMultiMarker', function(ev) {
 				var obj = this.threeMultiMarkers[ev.data.multiMarkerId];
 				if (obj) {
-					obj.matrix.fromArray(ev.data.matrix);
+					obj.matrix.fromArray(ev.data.matrixGL_RH);
 					obj.visible = true;
 				}
 			});

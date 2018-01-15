@@ -52,6 +52,18 @@
 
 		this.videoWidth = w;
 		this.videoHeight = h;
+        this.videoSize = this.videoWidth * this.videoHeight;
+        
+        //Set during _initialize
+        this.framepointer = null;
+		this.framesize = null;
+        this.params = null;
+		this.dataHeap = null;
+        this.videoLuma = null;
+		this.camera_mat = null;
+		this.marker_transform_mat = null;
+        this.videoLumaPointer = null;
+
 
 		if (typeof cameraPara === 'string') {
 
@@ -124,7 +136,10 @@
 		@param {HTMLImageElement|HTMLVideoElement} [image] The image to process [optional].
 	*/
 	ARController.prototype.process = function(image) {
-		this.detectMarker(image);
+        var result = this.detectMarker(image);
+		if(result != 0 ){
+            console.error("detectMarker error: " + result);
+        }
 
 		var markerNum = this.getMarkerNum();
 		var k,o;
@@ -172,7 +187,7 @@
 
 			visible.inCurrent = true;
             this.transMatToGLMat(visible.matrix, this.transform_mat);
-            this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+            this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
 			this.dispatchEvent({
 				name: 'getMarker',
 				target: this,
@@ -193,7 +208,7 @@
 
 			artoolkit.getTransMatMultiSquareRobust(this.id, i);
 			this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
-            this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+            this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
             
 			for (j=0; j<subMarkerCount; j++) {
                 multiEachMarkerInfo = this.getMultiEachMarker(i, j);
@@ -216,7 +231,7 @@
 				for (j=0; j<subMarkerCount; j++) {
 					multiEachMarkerInfo = this.getMultiEachMarker(i, j);
                     this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
-                    this.transformGL_RH = _arglCameraViewRHf(this.transform_mat);
+                    this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
                     
 					this.dispatchEvent({
 						name: 'getMultiMarkerSub',
@@ -370,6 +385,13 @@
 	*/
 	ARController.prototype.debugSetup = function() {
 		document.body.appendChild(this.canvas);
+
+        var lumaCanvas = document.createElement('canvas');
+		lumaCanvas.width = this.canvas.width;
+		lumaCanvas.height = this.canvas.height;
+	    this.lumaCtx = lumaCanvas.getContext('2d');
+        document.body.appendChild(lumaCanvas);
+
 		this.setDebugMode(true);
 		this._bwpointer = this.getProcessingImage();
 	};
@@ -473,6 +495,9 @@
 		@param {number} [scale] The scale for the transform.
 	*/
 	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
+        if(glMat == undefined){
+            glMat = new Float64Array(16);
+        }
 		glMat[0 + 0*4] = transMat[0]; // R1C1
 		glMat[0 + 1*4] = transMat[1]; // R1C2
 		glMat[0 + 2*4] = transMat[2];
@@ -495,7 +520,58 @@
 			glMat[14] *= scale;
 		}
 		return glMat;
-	};
+    };
+
+    /**
+		Converts the given 4x4 openGL matrix in the 16-element transMat array
+		into a 4x4 OpenGL Right-Hand-View matrix and writes the result into the 16-element glMat array.
+
+		If scale parameter is given, scales the transform of the glMat by the scale parameter.
+
+		@param {Float64Array} glMatrix The 4x4 marker transformation matrix.
+		@param {Float64Array} glRhMatrix The 4x4 GL right hand transformation matrix.
+		@param {number} [scale] The scale for the transform.
+	*/
+    ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
+    {
+        var m_modelview;
+        if(glRhMatrix == undefined)
+            m_modelview = new Float64Array(16);
+        else    
+            m_modelview = glRhMatrix;
+
+        // x
+        m_modelview[0] = glMatrix[0];
+        m_modelview[4] = glMatrix[4];
+        m_modelview[8] = glMatrix[8];
+        m_modelview[12] = glMatrix[12];
+        // y
+        m_modelview[1] = -glMatrix[1];
+        m_modelview[5] = -glMatrix[5];
+        m_modelview[9] = -glMatrix[9];
+        m_modelview[13] = -glMatrix[13];
+        // z
+        m_modelview[2] = -glMatrix[2];
+        m_modelview[6] = -glMatrix[6];
+        m_modelview[10] = -glMatrix[10];
+        m_modelview[14] = -glMatrix[14];    
+    
+        // 0 0 0 1
+        m_modelview[3] = 0;
+        m_modelview[7] = 0;
+        m_modelview[11] = 0;
+        m_modelview[15] = 1;
+
+        if (scale != undefined && scale !== 0.0) {
+			m_modelview[12] *= scale;
+			m_modelview[13] *= scale;
+			m_modelview[14] *= scale;
+		}
+        
+        glRhMatrix = m_modelview;
+
+        return glRhMatrix;
+    }
 
 	/**
 		This is the core ARToolKit marker detection function. It calls through to a set of
@@ -983,8 +1059,14 @@
 	*/
 	ARController.prototype.debugDraw = function() {
 		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
-		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height);
+		var id = new ImageData(debugBuffer, this.videoWidth, this.videoHeight);
 		this.ctx.putImageData(id, 0, 0);
+
+        //Debug Luma
+        var lumaBuffer = new Uint8ClampedArray(this.framesize);
+        lumaBuffer.set(this.videoLuma);
+        var lumaImageData = new ImageData(lumaBuffer, this.videoWidth, this.videoHeight);
+        this.lumaCtx.putImageData(lumaImageData,0,0);
 
 		var marker_num = this.getMarkerNum();
 		for (var i=0; i<marker_num; i++) {
@@ -1007,11 +1089,14 @@
 	ARController.prototype._initialize = function() {
 		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
 
+        //See ARToolKitJS.cpp L:818 on how cpp and JS is linked and http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-call-javascript-from-native
 		var params = artoolkit.frameMalloc;
 		this.framepointer = params.framepointer;
 		this.framesize = params.framesize;
+        this.videoLumaPointer = params.videoLumaPointer;
 
 		this.dataHeap = new Uint8Array(Module.HEAPU8.buffer, this.framepointer, this.framesize);
+        this.videoLuma = new Uint8Array(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize/4);
 
 		this.camera_mat = new Float64Array(Module.HEAPU8.buffer, params.camera, 16);
 		this.marker_transform_mat = new Float64Array(Module.HEAPU8.buffer, params.transform, 12);
@@ -1055,7 +1140,20 @@
 		this.ctx.restore();
 
 		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-		var data = imageData.data;
+		var data = imageData.data;  // this is of type Uint8ClampedArray: The Uint8ClampedArray typed array represents an array of 8-bit unsigned integers clamped to 0-255 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)
+
+        //Here we have access to the unmodified video image. We now need to add the videoLuma chanel to be able to serve the underlying ARTK API
+        if(this.videoLuma) {
+            var q = 0;
+            //Create luma from video data assuming Pixelformat AR_PIXEL_FORMAT_RGBA (ARToolKitJS.cpp L: 43)
+            
+            for(var p=0; p < this.videoSize; p++){
+                var r = data[q+0], g = data[q+1], b = data[q+2];
+                // videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
+                this.videoLuma[p] = (r+r+r+b+g+g+g+g)>>3;
+                q += 4;
+            }
+        }
 
 		if (this.dataHeap) {
 			this.dataHeap.set( data );
@@ -1187,7 +1285,9 @@
             }
             
             video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
-			readyToPlay = true;
+            readyToPlay = true;
+            video.autoplay = true;
+            video.playsInline = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
 		};
 
@@ -1700,33 +1800,5 @@
 				runWhenLoaded();
 			}
 		};
-    }
-    
-    function _arglCameraViewRHf(glMatrix)
-    {
-        var m_modelview = [];
-        // x
-        m_modelview[0] = glMatrix[0];
-        m_modelview[4] = glMatrix[4];
-        m_modelview[8] = glMatrix[8];
-        m_modelview[12] = glMatrix[12];
-        // y
-        m_modelview[1] = -glMatrix[1];
-        m_modelview[5] = -glMatrix[5];
-        m_modelview[9] = -glMatrix[9];
-        m_modelview[13] = -glMatrix[13];
-        // z
-        m_modelview[2] = -glMatrix[2];
-        m_modelview[6] = -glMatrix[6];
-        m_modelview[10] = -glMatrix[10];
-        m_modelview[14] = -glMatrix[14];    
-    
-        // 0 0 0 1
-        m_modelview[3] = 0;
-        m_modelview[7] = 0;
-        m_modelview[11] = 0;
-        m_modelview[15] = 1;
-        
-        return m_modelview;
     }
 })();

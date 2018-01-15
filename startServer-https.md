@@ -4,7 +4,7 @@
 Create a certificate as described here:
 https://support.apple.com/kb/PH20131?locale=en_US&viewlocale=en_US
 
-** Note: **
+**Note:**
 
 The name of the certificate needs to be the name of your machine. 
 - In Terminal type `hostname` (without the .lan)

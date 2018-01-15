@@ -26,12 +26,6 @@ QUnit.test( "Create object and fail to load camera parameter", function( assert 
     }
     const cameraPara = new ARCameraParam(cParaUrl, success, error, false);
 });
-QUnit.test("Test that missing callbacks create errors", assert => {
-    const cParaUrl = './camera_para_error.dat';
-    const onload = () => {};
-    assert.throws(() => {new ARCameraParam(cParaUrl)}, "missing onload callback throws error");
-    assert.throws(() => {new ARCameraParam(cParaUrl,onload)}, "missing onerror callback throws error");
-});
 QUnit.test("Try to load twice", assert => {
     const cParaUrl = './camera_para_error.dat';
     const success = function() {
@@ -60,12 +54,9 @@ QUnit.test("Try to load twice but empty existing ARCameraPara before loading", a
 /* #### ARController Module #### */
 QUnit.module("ARController", {
     beforeEach : assert => {
-        const cParaUrl = './camera_para.dat';
-        const success = function() {
-        }
-        const error = function () {
-        }
-        this.cameraPara = new ARCameraParam(cParaUrl, success, error);
+        this.timeout = 5000;
+        this.cleanUpTimeout = 500;
+        this.cParaUrl = './camera_para.dat';
         this.checkDefault = (arController) => {
             assert.ok(arController);
             assert.deepEqual(arController.orientation, "landscape", "Check the default values: landscape");
@@ -77,101 +68,139 @@ QUnit.module("ARController", {
             assert.ok(arController.canvas, "Check the default values: canvas");
             assert.ok(arController.ctx, "Check the default values: ctx");
         }
-    },
-    afterEach : assert => {
-        this.arController.dispose();
     }
 });
 QUnit.test("Create ARController default", assert => {
     const videoWidth = 640, videoHeight = 480;
     const done = assert.async();
-    const arController = new ARController(videoWidth, videoHeight, this.cameraPara);
-    this.checkDefault(arController);
-
-    arController.onload = (err) => {
-        assert.notOk(err, "no error");
-        assert.ok(true, "successfully loaded");
-        this.arController = arController;
-        done();
-    };
-
-
-    assert.deepEqual(arController.cameraParam, this.cameraPara, "Check the default values: cameraPara");
-    assert.deepEqual(arController.videoWidth, videoWidth, "Check the default values: videoWidth");
-    assert.deepEqual(arController.videoHeight, videoHeight, "Check the default values: videoHeight");
-    assert.notOk(arController.image, "Check the default values: image === undefined");
-
-    assert.deepEqual(arController.canvas.width, videoWidth,"Check the default values: canvas.width");
-    assert.deepEqual(arController.canvas.height, videoHeight, "Check the default values: canvas.height");
+    assert.timeout(this.timeout);
+    const success = () => {
+        const arController = new ARController(videoWidth, videoHeight, cameraPara);
+        this.checkDefault(arController);
+    
+        arController.onload = (err) => {
+            assert.notOk(err, "no error");
+            assert.ok(true, "successfully loaded");
+    
+            assert.deepEqual(arController.cameraParam, cameraPara, "Check the default values: cameraPara");
+            assert.deepEqual(arController.videoWidth, videoWidth, "Check the default values: videoWidth");
+            assert.deepEqual(arController.videoHeight, videoHeight, "Check the default values: videoHeight");
+            assert.notOk(arController.image, "Check the default values: image === undefined");
+        
+            assert.deepEqual(arController.canvas.width, videoWidth,"Check the default values: canvas.width");
+            assert.deepEqual(arController.canvas.height, videoHeight, "Check the default values: canvas.height");
+            setTimeout(() => {
+                arController.dispose();
+                done();
+            }
+            ,this.cleanUpTimeout);
+        };
+    }
+    const error = function () {
+        assert.ok(false);
+    }
+    const cameraPara = new ARCameraParam(this.cParaUrl, success, error);
 
 });
 QUnit.test("Create ARController track image", assert => {
     const done = assert.async();
-    const arController = new ARController(v1, this.cameraPara);
-    this.checkDefault(arController);
+    assert.timeout(this.timeout);
+    const success = () => {
+        const arController = new ARController(v1, cameraPara);
+        arController.debugSetup();
+        this.checkDefault(arController);
+    
+        arController.onload = (err) => {
+            assert.notOk(err, "no error");
+            assert.ok(true, "successfully loaded");
+            assert.deepEqual(arController.cameraParam, cameraPara, "Check the default values: cameraPara");
+            assert.deepEqual(arController.image, v1, "Check the default values: image");
+            assert.deepEqual(arController.videoWidth, v1.width, "Check the default values: image.width");
+            assert.deepEqual(arController.videoHeight, v1.height, "Check the default values: image.height");
+        
+            assert.deepEqual(arController.canvas.width, v1.width,"Check the default values: canvas.width");
+            assert.deepEqual(arController.canvas.height, v1.height, "Check the default values: canvas.height");
+            const t0 = performance.now();
+            const detectMarkerResult = arController.detectMarker()
+            const t1 = performance.now();
 
-    arController.onload = (err) => {
-        assert.notOk(err, "no error");
-        assert.ok(true, "successfully loaded");
-        this.arController = arController;
+            assert.ok( detectMarkerResult == 0, "Detected marker in image");
+            assert.ok( t1 - t0 < 700, "Detect marker returns within expected time < 100ms actual: " + (t1 - t0));
+
+            arController.debugDraw();
+            setTimeout(() => {
+                arController.dispose();
+                done();
+            }
+            ,this.cleanUpTimeout);
+        };
+    }
+    const error = () => {
+        assert.ok(false);
         done();
-    };
-
-    assert.deepEqual(arController.cameraParam, this.cameraPara, "Check the default values: cameraPara");
-    assert.deepEqual(arController.image, v1, "Check the default values: image");
-    assert.deepEqual(arController.videoWidth, v1.width, "Check the default values: image.width");
-    assert.deepEqual(arController.videoHeight, v1.height, "Check the default values: image.height");
-
-    assert.deepEqual(arController.canvas.width, v1.width,"Check the default values: canvas.width");
-    assert.deepEqual(arController.canvas.height, v1.height, "Check the default values: canvas.height");
+    }
+    const cameraPara = new ARCameraParam(this.cParaUrl, success, error);
 });
 QUnit.test("Create ARController default, CameraPara as string", assert => {
     const videoWidth = 640, videoHeight = 480;
     const cameraParaUrl = './camera_para.dat';
-    assert.timeout(5000);
-    //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms 
     const done = assert.async();
-    const arController = new ARController(videoWidth, videoHeight, cameraParaUrl);
+    assert.timeout(this.timeout);
+    //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms 
 
-    arController.onload = (err) => {
-        assert.notOk(err, "no error");
-        assert.ok(true, "successfully loaded");
-        this.arController = arController;
+    const error = function () {
+        assert.ok(false);
         done();
-    };
-    this.checkDefault(arController);
+    }
+    const success = () => {
+        const arController = new ARController(videoWidth, videoHeight, cameraParaUrl);
 
-    assert.deepEqual(arController.videoWidth, videoWidth, "Check the default values: videoWidth");
-    assert.deepEqual(arController.videoHeight, videoHeight, "Check the default values: videoHeight");
-    assert.notOk(arController.image, "Check the default values: image === undefined");
+        arController.onload = (err) => {
+            assert.notOk(err, "no error");
+            assert.ok(true, "successfully loaded");
+            this.checkDefault(arController);
+    
+            assert.deepEqual(arController.videoWidth, videoWidth, "Check the default values: videoWidth");
+            assert.deepEqual(arController.videoHeight, videoHeight, "Check the default values: videoHeight");
+            assert.notOk(arController.image, "Check the default values: image === undefined");
+        
+            assert.deepEqual(arController.canvas.width, videoWidth,"Check the default values: canvas.width");
+            assert.deepEqual(arController.canvas.height, videoHeight, "Check the default values: canvas.height");
 
-    assert.deepEqual(arController.canvas.width, videoWidth,"Check the default values: canvas.width");
-    assert.deepEqual(arController.canvas.height, videoHeight, "Check the default values: canvas.height");
+            setTimeout(() => {
+                arController.dispose();
+                done();
+            }
+            ,this.cleanUpTimeout);
+        };
+    }
+    const cameraPara = new ARCameraParam(this.cParaUrl, success, error);
 });
 QUnit.test("Create ARController default, CameraPara as invalid string", assert => {
     const videoWidth = 640, videoHeight = 480;
     const cameraParaUrl = './camera_para_error.dat';
-    assert.timeout(5000);
+    assert.timeout(this.timeout);
     //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms 
     const done = assert.async();
-    const arController = new ARController(videoWidth, videoHeight, cameraParaUrl);
 
-    arController.onload = (err) => {
-        assert.deepEqual(err, 404, "error while loading");
-        this.arController = arController;
-        done();
-    };
+    const error = function () {
+        assert.ok(false);
+    }
+    const success = () => {
+        const arController = new ARController(videoWidth, videoHeight, cameraParaUrl);
+
+        arController.onload = (err) => {
+            assert.deepEqual(err, 404, "error while loading");
+            setTimeout(() => {
+                arController.dispose();
+                done();
+            }
+            ,this.cleanUpTimeout);
+        };
+    }
+    const cameraPara = new ARCameraParam(this.cParaUrl, success, error);
+
 });
-// QUnit.test("Create ARController empty", assert => {
-//     assert.timeout(500);
-//     const done = assert.async();
-//     const arController = new ARController();
-//     arController.onload = (err) => {
-//         assert.deepEqual(err, 404, "error while loading");
-//         done();
-//     };
-//     assert.ok(false,"TODO");
-// });
 
 /* #### ARController.getUserMedia module #### */ 
 QUnit.module("ARController.getUserMedia", {
@@ -335,20 +364,22 @@ QUnit.test("getUserMedia facing user", assert => {
 
 /* #### ARController.getUserMediaARController module #### */ 
 QUnit.module("ARController.getUserMediaARController", { 
-    afterEach : assert => {
-        if(this.arController)
-            this.arController.dispose();
+    beforeEach : assert => {
+        this.timeout = 5000;
+        this.cleanUpTimeout = 500;
     }
 });
 QUnit.test("getUserMediaARController default", assert => {
-    this.arController = null;
     const done = assert.async();
+    assert.timeout(this.timeout);
     const success = (arController, arCameraParam) => {
         assert.ok(arController, "ARController created");
         assert.ok(arController.id>=0, "ARController id created");
         assert.ok(arCameraParam, "ARCameraPara created");
-        this.arController = arController;
-        done();
+        setTimeout( ()=> {
+            arController.dispose();
+            done();
+        }, this.cleanUpTimeout);
     };
 
     const error = error => {
@@ -373,8 +404,8 @@ QUnit.test("getUserMediaARController default", assert => {
     document.body.appendChild(video);
 });
 QUnit.test("getUserMediaARController wrong calib-url", assert => {
-    this.arController = null;
     const done = assert.async();
+    assert.timeout(5000);
     const success = (arController, arCameraParam) => {
         assert.notOk(arController, "ARController created");
         done();

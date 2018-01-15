@@ -6,7 +6,7 @@
         <script src="../js/artoolkit.api.js"></script>
 
         <canvas id="renderCanvas"></canvas>
-        <video id="v" src="Data/output_4.ogg" width="320" height="240" loop="" controls="" autoplay
+        <video id="v" src="Data/output_4.mp4" width="320" height="240" loop="" controls="" autoplay
                webkit-playsinline></video>
 
         <script>
@@ -79,7 +79,7 @@
                         mesh.isVisible = true
                     });
 
-                    arController.transMatToGLMat(markerRoot.markerMatrix, markerRoot._worldMatrix.m);
+                    arController.arglCameraViewRHf(arController.transMatToGLMat(markerRoot.markerMatrix), markerRoot._worldMatrix.m);
                 } else {
                     markerRoot.isVisible = false;
                     markerRoot.getChildMeshes().forEach(function (mesh) {
