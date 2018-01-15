@@ -1285,7 +1285,9 @@
             }
             
             video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
-			readyToPlay = true;
+            readyToPlay = true;
+            video.autoplay = true;
+            video.playsInline = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
 		};
 
