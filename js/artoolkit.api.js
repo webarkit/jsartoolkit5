@@ -43,7 +43,8 @@
 		this.defaultMarkerWidth = 1;
 		this.patternMarkers = {};
 		this.barcodeMarkers = {};
-		this.transform_mat = new Float32Array(16);
+        this.transform_mat = new Float64Array(16);
+        this.transformGL_RH = new Float64Array(16);
 
 		this.canvas = document.createElement('canvas');
 		this.canvas.width = w;
@@ -57,13 +58,15 @@
         //Set during _initialize
         this.framepointer = null;
 		this.framesize = null;
-        this.params = null;
 		this.dataHeap = null;
         this.videoLuma = null;
 		this.camera_mat = null;
 		this.marker_transform_mat = null;
         this.videoLumaPointer = null;
 
+        //debugging
+        this._bwpointer = undefined;
+        this._lumaCtx = undefined;
 
 		if (typeof cameraPara === 'string') {
 
@@ -270,8 +273,8 @@
 			this.patternMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
-                matrix: new Float32Array(12),
-                matrixGL_RH: new Float32Array(12),
+                matrix: new Float64Array(12),
+                matrixGL_RH: new Float64Array(12),
 				markerWidth: markerWidth || this.defaultMarkerWidth
 			};
 		}
@@ -299,8 +302,8 @@
 			this.barcodeMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
-                matrix: new Float32Array(12),
-                matrixGL_RH: new Float32Array(12),
+                matrix: new Float64Array(12),
+                matrixGL_RH: new Float64Array(12),
 				markerWidth: markerWidth || this.defaultMarkerWidth
 			};
 		}
@@ -389,7 +392,7 @@
         var lumaCanvas = document.createElement('canvas');
 		lumaCanvas.width = this.canvas.width;
 		lumaCanvas.height = this.canvas.height;
-	    this.lumaCtx = lumaCanvas.getContext('2d');
+	    this._lumaCtx = lumaCanvas.getContext('2d');
         document.body.appendChild(lumaCanvas);
 
 		this.setDebugMode(true);
@@ -529,7 +532,7 @@
 		If scale parameter is given, scales the transform of the glMat by the scale parameter.
 
 		@param {Float64Array} glMatrix The 4x4 marker transformation matrix.
-		@param {Float64Array} glRhMatrix The 4x4 GL right hand transformation matrix.
+		@param {Float64Array} [glRhMatrix] The 4x4 GL right hand transformation matrix.
 		@param {number} [scale] The scale for the transform.
 	*/
     ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
@@ -706,7 +709,7 @@
 
 		Unique to each ARController.
 
-		@return {Float32Array} The 16-element WebGL transformation matrix used by the ARController.
+		@return {Float64Array} The 16-element WebGL transformation matrix used by the ARController.
 	*/
 	ARController.prototype.getTransformationMatrix = function() {
 		return this.transform_mat;
@@ -1066,7 +1069,7 @@
         var lumaBuffer = new Uint8ClampedArray(this.framesize);
         lumaBuffer.set(this.videoLuma);
         var lumaImageData = new ImageData(lumaBuffer, this.videoWidth, this.videoHeight);
-        this.lumaCtx.putImageData(lumaImageData,0,0);
+        this._lumaCtx.putImageData(lumaImageData,0,0);
 
 		var marker_num = this.getMarkerNum();
 		for (var i=0; i<marker_num; i++) {
@@ -1329,9 +1332,7 @@
         navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 		var hdConstraints = {
 			audio: false,
-			video: {
-				mandatory: constraints
-		  	}
+			video: constraints
         };
         
 		// @ts-ignore: ignored because it is needed to support older browsers
@@ -1465,7 +1466,7 @@
 
     /**
      * Properly end the video stream
-     * @param {HTMLMediaElement} video The video to stop
+     * @param {HTMLVideoElement} video The video to stop
      */
     ARController._teardownVideo = function(video) {
         video.srcObject.getVideoTracks()[0].stop();
@@ -1645,12 +1646,12 @@
 	}
 
 	var marker_count = 0;
-	function addMarker(arId, url, callback) {
+	function addMarker(arId, url, callback, onError) {
 		var filename = '/marker_' + marker_count++;
 		ajax(url, filename, function() {
 			var id = Module._addMarker(arId, filename);
 			if (callback) callback(id);
-		});
+		}, function(errorNumber) {if(onError) onError(errorNumber)});
 	}
 
 	function bytesToString(array) {
@@ -1696,7 +1697,7 @@
 
 	var multi_marker_count = 0;
 
-	function addMultiMarker(arId, url, callback) {
+	function addMultiMarker(arId, url, callback, onError) {
 		var filename = '/multi_marker_' + multi_marker_count++;
 		ajax(url, filename, function(bytes) {
 			var files = parseMultiFile(bytes);
@@ -1715,7 +1716,7 @@
 			});
 
 			ajaxDependencies(files, ok);
-		});
+		}, function(error) { if(onError) onError(error)});
 	}
 
 	var camera_count = 0;

@@ -1,3 +1,14 @@
+/*
+    ** From: ar.h L:94 **
+    #ifdef ARDOUBLE_IS_FLOAT
+    typedef float             ARdouble;
+    #else
+    typedef double            ARdouble;
+    #endif
+
+    ** According to config.h ARDOUBLE_IS_FLOAT is false when compiling with emscripten. This means we are dealing with 64bit float
+*/
+
 #include <stdio.h>
 #include <AR/ar.h>
 #include <AR/arMulti.h>

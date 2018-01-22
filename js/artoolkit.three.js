@@ -306,7 +306,6 @@
 
 	};
 
-
 	var tick = function() {
 		if (window.ARController && window.THREE) {
 			integrate();

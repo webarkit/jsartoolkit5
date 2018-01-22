@@ -64,7 +64,7 @@ QUnit.module("ARController", {
             assert.deepEqual(arController.defaultMarkerWidth, 1, "Check the default values: defaultMarkerWidth");
             assert.deepEqual(arController.patternMarkers,{},"Check the default values: patternMarkers==={}");
             assert.deepEqual(arController.barcodeMarkers,{},"Check the default values: barcodeMarkers==={}");
-            assert.deepEqual(arController.transform_mat,new Float32Array(16),"Check the default values: transform_mat");
+            assert.deepEqual(arController.transform_mat,new Float64Array(16),"Check the default values: transform_mat");
             assert.ok(arController.canvas, "Check the default values: canvas");
             assert.ok(arController.ctx, "Check the default values: ctx");
         }
@@ -292,8 +292,6 @@ QUnit.test("getUserMedia with max/min constraints", assert => {
     const video = ARController.getUserMedia(configuration);
     // The video element is lazy loading better to check it inside the success function
     assert.ok(video, "The created video element");
-    // Add the video element to html
-    document.body.appendChild(video);
 });
 QUnit.test("getUserMedia with ideal constraints", assert => {
     const width = {min: 320, ideal: 640};
@@ -325,8 +323,6 @@ QUnit.test("getUserMedia with ideal constraints", assert => {
     const video = ARController.getUserMedia(configuration);
     // The video element is lazy loading better to check it inside the success function
     assert.ok(video, "The created video element");
-    // Add the video element to html
-    document.body.appendChild(video);
 });
 
 QUnit.test("getUserMedia facing user", assert => {
