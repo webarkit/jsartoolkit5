@@ -61,6 +61,13 @@ export interface ARController {
     getTransMatSquare(markerIndex: number, markerWidth: number, dst: Float64Array): void;
     getTransMatSquareCont(markerIndex: number, markerWidth: number, previousMarkerTransform: Float64Array, dst: Float64Array): void;
     transMatToGLMat(transMat: Float64Array, glMat?: Float64Array | Float64Array, scale?: number): Float64Array;
+
+    /**
+     * Override the default marker width (which is 1) with the given value. This means we can only use one size of markers for now. TODO: Need to fix that later
+     * @param {number} markerWidth
+     */
+    setDefaultMarkerWidth(markerWidth: number);
+
     /**
     Converts the given 4x4 openGL matrix in the 16-element transMat array
     into a 4x4 OpenGL Right-Hand-View matrix and writes the result into the 16-element glMat array.
