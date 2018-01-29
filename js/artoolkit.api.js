@@ -85,6 +85,14 @@
 		}
     };
 
+    /**
+     * Override the default marker width (which is 1) with the given value. This means we can only use one size of markers for now. TODO: Need to fix that later
+     * @param {number} markerWidth
+     */
+    ARController.prototype.setDefaultMarkerWidth = function(markerWidth) {
+        this.defaultMarkerWidth = markerWidth;
+    }
+
 	/**
 		Destroys the ARController instance and frees all associated resources.
 		After calling dispose, the ARController can't be used any longer. Make a new one if you need one.
