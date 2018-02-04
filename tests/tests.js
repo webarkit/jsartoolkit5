@@ -1,3 +1,5 @@
+import { ARController } from "../js/index";
+
 QUnit.module("ARCameraPara");
 QUnit.test( "Create object and load camera parameter", function( assert ) {
     const cParaUrl = './camera_para.dat';
@@ -429,5 +431,26 @@ QUnit.test("getUserMediaARController wrong calib-url", assert => {
     assert.ok(video, "Video created");                                                  
     document.body.appendChild(video);
 });
+QUnit.module("Test trackable registration",{});
+QUnit.test("Register valid trackable", assert => {
+
+    const successCallback = (arController, arCameraParam) => {
+        // add marker string
+        arController.loadMarker();
+    };
+
+    const config = {
+        onSuccess : successCallback,
+        cameraParam: '',
+        maxARVideoSize: 640,
+        width: 640,
+        height: 480,
+        facingMode: 'environment', 
+    };
+
+    ARController.getUserMediaARController(config);
+    
+});
+
 
 //TODO write test for external Video stream creation

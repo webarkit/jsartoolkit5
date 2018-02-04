@@ -4,7 +4,7 @@
 // and Thorsten Bux <https://github.com/thorstenbuxk>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped  
 
-export declare class artoolkit {
+export declare interface artoolkit {
     public static readonly AR_TEMPLATE_MATCHING_COLOR;
     public static readonly AR_TEMPLATE_MATCHING_MONO;
     public static readonly AR_MATRIX_CODE_DETECTION;
@@ -13,7 +13,7 @@ export declare class artoolkit {
     public readonly frameMalloc: FrameMalloc;
 }
 
-export interface ARController {
+export class ARController {
     width: number;
     height: number;
     camera: ARCameraParam;
@@ -104,6 +104,35 @@ export interface ARController {
 
 }
 
+export class ARControllerStatic {
+    getUserMedia(config: GetUserMediaConfig): HTMLVideoElement;
+    getUserMediaARController(config: GetUserMediaARControllerConfig): HTMLVideoElement;
+  }
+  
+declare interface GetUserMediaConfig {
+        onSuccess : (video: HTMLVideoElement) => void;
+        onError : (error: any) => void;
+
+        width : number | {min: number, max: number};
+        height : number | {min: number, max: number};
+
+        facingMode : string | object;
+        deviceId : string | object
+}
+
+declare interface GetUserMediaARControllerConfig{
+    onSuccess : (arController: ARController, arCameraParam: ARCameraParam) => void;
+    onError? : (error: any) => void;
+
+    cameraParam: string; // URL to camera parameters definition file.
+    maxARVideoSize: number; // Maximum max(width, height) for the AR processing canvas.
+
+    width : number | {min: number, max: number};
+    height : number | {min: number, max: number};
+
+    facingMode : string | object;
+}
+
 export declare interface FrameMalloc {
     framepointer: number;
     framesize: number;
@@ -119,7 +148,7 @@ export declare class ARCameraParam {
     load(cameraData: string): void;
 }
 
-export declare class ARMarkerInfo {
+export declare interface ARMarkerInfo {
     /**
      * 2D position (in camera image coordinates, origin at top-left) of the centre of the marker.
      */

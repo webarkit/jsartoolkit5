@@ -5,13 +5,14 @@
 
 import { Scene, Renderer } from 'three';
 import { ARCameraParam } from 'jsartoolkit5';
-import { ARControllerStatic} from 'jsartoolkit5';
+import { ARControllerStatic as ARTK_APIStatic} from './artoolkit.api';
 
-export interface ARControllerStatic {
+
+export class ARControllerStatic extends ARTK_APIStatic{
   getUserMediaThreeScene(config: GetUserMediaThreeSceneConfig): HTMLVideoElement;
 }
 
-declare class GetUserMediaThreeSceneConfig {
+declare interface GetUserMediaThreeSceneConfig {
   width?: number; height?: number;
   maxARVideoSize?: number;
   cameraParam: string | ARCameraParam;
@@ -20,7 +21,7 @@ declare class GetUserMediaThreeSceneConfig {
 
 type GetUserMediaThreeSceneConfigSuccessHandler = (arScene, arController, arCamera) => void;
 
-export interface ARThreeScene {
+export class ARThreeScene {
   scene: Scene;
   process(): void;
   renderOn (renderer: Renderer);
