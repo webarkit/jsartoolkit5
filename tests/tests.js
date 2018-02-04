@@ -1,4 +1,4 @@
-import { ARController } from "../js/index";
+// import { ARController } from "../js/index";
 
 QUnit.module("ARCameraPara");
 QUnit.test( "Create object and load camera parameter", function( assert ) {
@@ -431,26 +431,132 @@ QUnit.test("getUserMediaARController wrong calib-url", assert => {
     assert.ok(video, "Video created");                                                  
     document.body.appendChild(video);
 });
-QUnit.module("Test trackable registration",{});
+QUnit.module("ARController.Test trackable registration",{
+    afterEach : assert => {
+        if(this.video.srcObject) {
+            const track = this.video.srcObject.getTracks()[0];
+            track.stop();
+            this.video.srcObject = null;
+        }
+        this.video.src = null;
+    }
+});
 QUnit.test("Register valid trackable", assert => {
+
+    const done = assert.async();
+    assert.timeout(5000);
+
+    const loadMarkerSuccess = (markerId) => {
+        assert.ok(markerId >= 0);
+        done();
+    }
+    const loadMarkerError = error => {
+        assert.notOk(error);
+        done();
+    }
+
 
     const successCallback = (arController, arCameraParam) => {
         // add marker string
-        arController.loadMarker();
+        arController.loadMarker('../examples/Data/patt.hiro', loadMarkerSuccess, loadMarkerError);
+
     };
+
+    const errorCallback = (error) => {
+        console.log("ERROR" + error);
+        assert.notOk(error, "Error while calling `getUserMediaARController`");
+        done();
+    }
 
     const config = {
         onSuccess : successCallback,
-        cameraParam: '',
+        onError: errorCallback,
+        cameraParam: './camera_para.dat',
         maxARVideoSize: 640,
         width: 640,
         height: 480,
         facingMode: 'environment', 
     };
 
-    ARController.getUserMediaARController(config);
+    this.video = ARController.getUserMediaARController(config);
     
 });
+QUnit.test("Register invalid trackable", assert => {
 
+    const done = assert.async();
+    assert.timeout(5000);
+
+    const loadMarkerSuccess = (markerId) => {
+        assert.ok(markerId >= 0);
+        done();
+    };
+    const loadMarkerError = error => {
+        assert.ok(error=404, 'Test with invalid pattern-URL');
+        done();
+    };
+
+    const successCallback = (arController, arCameraParam) => {
+        // add marker string
+        arController.loadMarker('../examples/Data/patt_error.hiro', loadMarkerSuccess, loadMarkerError);
+    };
+
+    const errorCallback = (error) => {
+        console.log("ERROR" + error);
+        assert.notOk(error, "Error while calling `getUserMediaARController`");
+        done();
+    };
+
+    const config = {
+        onSuccess : successCallback,
+        onError: errorCallback,
+        cameraParam: './camera_para.dat',
+        maxARVideoSize: 640,
+        width: 640,
+        height: 480,
+        facingMode: 'environment', 
+    };
+
+    this.video = ARController.getUserMediaARController(config);
+    
+});
+QUnit.test("Register empty URL trackable", assert => {
+
+    const done = assert.async();
+    assert.timeout(5000);
+
+    const loadMarkerSuccess = (markerId) => {
+        assert.ok(markerId >= 0, 'MarkerId is greater or equals 0');
+        done();
+    };
+    const loadMarkerError = error => {
+        console.log(error);
+        assert.ok(error, 'Test with invalid pattern-URL');
+        done();
+    };
+
+    const successCallback = (arController, arCameraParam) => {
+        // add marker string
+        arController.loadMarker("", loadMarkerSuccess, loadMarkerError);
+    };
+
+    const errorCallback = (error) => {
+        console.log("ERROR" + error);
+        assert.notOk(error, "Error while calling `getUserMediaARController`");
+        done();
+    };
+
+    const config = {
+        onSuccess : successCallback,
+        onError: errorCallback,
+        cameraParam: './camera_para.dat',
+        maxARVideoSize: 640,
+        width: 640,
+        height: 480,
+        facingMode: 'environment', 
+    };
+
+    this.video = ARController.getUserMediaARController(config);
+    
+});
 
 //TODO write test for external Video stream creation

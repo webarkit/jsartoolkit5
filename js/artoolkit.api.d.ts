@@ -102,6 +102,17 @@ export class ARController {
     */
     setPatternDetectionMode(mode: number): void;
 
+    /**
+		Loads a pattern marker from the given URL and calls the onSuccess callback with the UID of the marker.
+
+		arController.loadMarker(markerURL, onSuccess, onError);
+
+		@param {string} markerURL - The URL of the marker pattern file to load.
+		@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
+		@param {function} onError - The error callback. Called with the encountered error if the load fails.
+	*/
+	loadMarker(markerURL: string, onSuccess: (id: number) => void, onError: (error:any) => void);
+
 }
 
 export class ARControllerStatic {
