@@ -27,7 +27,7 @@ When writing JavaScript and making changes be aware that the emscripten uglifier
 
 ### Build using Docker
 1. Install Docker (if you havn't already) [Docker](https://www.docker.com/) -> Get Docker
-3. From inside jsartoolkit5 directory run `docker run -dit --name emscripten -v $(pwd):/src trzeci/emscripten-slim:sdk-incoming-64bit bash`
+3. From inside jsartoolkit5 directory run `docker run -dit --name emscripten -v $(pwd):/src trzeci/emscripten-slim:sdk-tag-1.37.34-64bit bash`
 4. `docker exec emscripten npm run build`
 
 
