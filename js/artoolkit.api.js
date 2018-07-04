@@ -1531,7 +1531,7 @@
 			this.load(src);
         }
         else {
-            console.warn("No camera parameter file defined! It should be defined in constructor in ARCameraParam.load(url)");
+            console.warn("No camera parameter file defined! It should be defined in constructor or in ARCameraParam.load(url)");
         }
 	};
 
@@ -1814,13 +1814,11 @@
 	window.ARController = ARController;
 	window.ARCameraParam = ARCameraParam;
 
-	if (window.Module) {
-		runWhenLoaded();
-	} else {
-		window.Module = {
-			onRuntimeInitialized: function() {
-				runWhenLoaded();
-			}
-		};
-    }
+
+    window.Module = {
+        onRuntimeInitialized: function() {
+            runWhenLoaded();
+        }
+    };
+
 })();
