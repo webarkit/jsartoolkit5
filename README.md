@@ -2,9 +2,12 @@
 
 Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaScript.
 
-**NOTE: **
+---
+**NOTE:**
 
 When writing JavaScript and making changes be aware that the emscripten uglifier does not support the ES6 syntax.
+
+---
 
 ## Project Structure
 
@@ -14,6 +17,24 @@ When writing JavaScript and making changes be aware that the emscripten uglifier
 - `examples/` (demos and examples using ARToolKit.js)
 - `js/` (compiled versions of ARToolKit.js with Three.js helper api)
 - `tools/` (build scripts for building ARToolKit.js)
+
+## WebAssembly
+JSARToolKit5 supports WebAssembly. The libary builds two WebAssembly artefacts during the build process. These are ```build/artoolkit_wasm.js``` and ```build/artoolkit_wasm.wasm```. To use those include the artoolkit_wasm.js into your html page and define ```var artoolkit_wasm_url = '<<PATH TO>>/artoolkit_wasm.wasm';``` prior to loading the artoolkit_wasm.js file, like so:
+
+```js
+<script type='text/javascript'>
+      var artoolkit_wasm_url = '../build/artoolkit_wasm.wasm';
+</script>
+<script src="../build/artoolkit_wasm.js"></script>
+```
+As loading the WebAssembly artefact is done asynchronous there is a callback that is called once everything is ready. 
+
+```js
+window.addEventListener('artoolkit-loaded', () => {  
+    //do artoolkit stuff here
+});
+```
+See examples/simple_image_wasm.html for details.
 
 ## Clone the repository
 

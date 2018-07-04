@@ -23,6 +23,7 @@ if (!EMSCRIPTEN_PATH) {
 var EMCC = EMSCRIPTEN_PATH ? path.resolve(EMSCRIPTEN_PATH, 'emcc') : 'emcc';
 var EMPP = EMSCRIPTEN_PATH ? path.resolve(EMSCRIPTEN_PATH, 'em++') : 'em++';
 var OPTIMIZE_FLAGS = ' -Oz '; // -Oz for smallest size
+// var OPTIMIZE_FLAGS = ' ';
 var MEM = 256 * 1024 * 1024; // 64MB
 
 
@@ -230,7 +231,7 @@ var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
 
 var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
 + ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
-+ FLAGS + ' -s ASSERTIONS=1 ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
++ FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
 OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
 
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '
