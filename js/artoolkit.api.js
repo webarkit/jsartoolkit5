@@ -1814,11 +1814,18 @@
 	window.ARController = ARController;
 	window.ARCameraParam = ARCameraParam;
 
-
-    window.Module = {
-        onRuntimeInitialized: function() {
+	if (window.Module) {
+		window.Module.onRuntimeInitialized = function() {
             runWhenLoaded();
+            var event = new Event('artoolkit-loaded');
+            window.dispatchEvent(event);
         }
-    };
+	} else {
+        window.Module = {
+            onRuntimeInitialized: function() {
+                runWhenLoaded();
+            }
+        };
+    }
 
 })();
