@@ -1531,7 +1531,7 @@
 			this.load(src);
         }
         else {
-            onerror("No camera parameter file defined!");
+            console.warn("No camera parameter file defined! It should be defined in constructor in ARCameraParam.load(url)");
         }
 	};
 

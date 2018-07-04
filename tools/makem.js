@@ -124,6 +124,7 @@ var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -Wno-warn-absolute-paths ';
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 FLAGS += ' -s USE_ZLIB=1';
+FLAGS += ' -s WASM=0';
 // FLAGS += ' -s FULL_ES2=1 '
 // FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
@@ -146,6 +147,7 @@ DEBUG_FLAGS += ' -s ASSERTIONS=1 '
 // DEBUG_FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
 DEBUG_FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
 DEBUG_FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
+
 
 var INCLUDES = [
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/include'),
