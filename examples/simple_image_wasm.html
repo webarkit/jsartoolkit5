@@ -21,7 +21,7 @@
         });
       }
 
-    //   var wasm = downloadWasm('../build/artoolkit.wasm.wasm');
+      var wasm = downloadWasm('../build/artoolkit_wasm.wasm');
 
       // Module.instantiateWasm is a user-implemented callback which the Emscripten runtime calls to perform
       // the WebAssembly instantiation action. The callback function will be called with two parameters, imports
@@ -31,32 +31,23 @@
       // The instantiation can be performed either synchronously or asynchronously. The return value of this function
       // should contain the exports object of the instantiated Module, or an empty dictionary object {} if the
       // instantiation is performed asynchronously, or false if instantiation failed.
-      Module.instantiateWasm = async function(imports, successCallback) {
+      Module.instantiateWasm = function(imports, successCallback) {
         console.log('instantiateWasm: instantiating synchronously');
-        var wasmBinary = await downloadWasm('../build/artoolkit_wasm.wasm');
-        console.log('wasm download finished, begin instantiating');
-        try {
-            var wasmInstantiate = await WebAssembly.instantiate(new Uint8Array(wasmBinary), imports);
+        wasm.then(function(wasmBinary) {
+            console.log('wasm download finished, begin instantiating');
+            var wasmInstantiate = WebAssembly.instantiate(new Uint8Array(wasmBinary), imports).then(function(output) {
             console.log('wasm instantiation succeeded');
-            Module.testWasmInstantiationSucceeded = 1;
-            successCallback(wasmInstantiate.instance);
-        } catch(e) {
+            successCallback(output.instance);
+          }).catch(function(e) {
             console.log('wasm instantiation failed! ' + e);
-            return false;
-        }
-        return {}; // Module has no exports.
+          });
+        });
+        return {}; // Compiling asynchronously, no exports.
       }
-      if(!window.Module) {
-          window.Module = Module;
-      }
-    //   var script = document.createElement('script');
-    //   script.src = "../build/artoolkit.wasm.js";
-    //   document.body.appendChild(script);
 </script>
 <script src="../build/artoolkit_wasm.js"></script>
 
 <script>
-
     window.addEventListener('artoolkit-loaded', () => {
         var cameraParam = new ARCameraParam();
 
