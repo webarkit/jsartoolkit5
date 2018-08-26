@@ -55,7 +55,7 @@ window.addEventListener('artoolkit-loaded', () => {
     });
 
     /* #### ARController Module #### */
-    QUnit.module("ARController", {
+    QUnit.module.only("ARController", {
         beforeEach : assert => {
             this.timeout = 5000;
             this.cleanUpTimeout = 500;
@@ -559,6 +559,140 @@ window.addEventListener('artoolkit-loaded', () => {
         this.video = ARController.getUserMediaARController(config);
         
     });
-});
 
+    /* #### Full setup test #### */ 
+    QUnit.module("Performance test",{
+        beforeEach : assert => {
+            this.timeout = 10000;
+            this.cleanUpTimeout = 500;
+        },
+        afterEach : assert => {
+            if(this.video.srcObject) {
+                const track = this.video.srcObject.getTracks()[0];
+                track.stop();
+                this.video.srcObject = null;
+            }
+            this.video.src = null;
+        }
+    });
+    QUnit.only("PTV: performance test video", assert => {
+
+        const t0 = performance.now();
+        const testDone = assert.async();
+
+        performance.mark('start video measure');
+        const done = () => {
+            performance.mark('cleanup-done');
+            performance.measure('Cleanup time', 'cleanup', 'cleanup-done');
+            performance.measure('Test time', 'start video measure', 'cleanup-done');
+            const measures = performance.getEntriesByType('measure');
+            const csv = Papa.unparse(JSON.stringify(measures));
+            console.log(csv);
+
+            testDone();
+        };
+        assert.timeout(this.timeout);
+        assert.expect(0);
+        const success = (arController, arCameraParam) => {
+            performance.mark('getUserMediaARController-success');
+            performance.measure('Start videostream','start video measure', 'getUserMediaARController-success');
+
+            arController.loadMarker('./patt.hiro',(markerId) => { 
+                performance.mark('loadMarker-success');
+                performance.measure('Load marker','getUserMediaARController-success', 'loadMarker-success');
+
+
+                let t1 = performance.now();
+                //Process the open video stream
+                for(var i = 0; i <= 100; i++) {
+                    performance.mark('process-' + i + ' start');
+                    t1 = performance.now();
+                    arController.process(this.video);
+                    performance.mark('process-' + i + ' done');
+                    performance.measure('process video','process-' + i + ' start', 'process-' + i + ' done');
+                }
+
+                performance.mark('cleanup');
+                arController.dispose();
+                done();
+            });
+        };
+
+        const error = error => {
+            done();
+        }
+
+        const config = {
+            onSuccess : success,
+            onError : error,
+
+            cameraParam: './camera_para.dat', // URL to camera parameters definition file.
+            maxARVideoSize: 640, // Maximum max(width, height) for the AR processing canvas.
+
+            width : 640,
+            height : 480,
+
+            facingMode : 'environment'
+        }
+        this.video = ARController.getUserMediaARController(config);
+        document.body.appendChild(this.video);
+    });
+    QUnit.module("Performance test image",{
+        beforeEach : assert => {
+            this.timeout = 10000;
+            this.cleanUpTimeout = 500;
+        }
+    });
+    QUnit.test("performance test image", assert => {
+
+        const testDone = assert.async();
+        const cParaUrl = './camera_para.dat';
+
+        performance.mark('start image measure');
+        const done = () => {
+            performance.mark('cleanup-done');
+            performance.measure('Cleanup time', 'cleanup', 'cleanup-done');
+            performance.measure('Test time', 'start image measure', 'cleanup-done');
+            const measures = performance.getEntriesByType('measure');
+            const csv = Papa.unparse(JSON.stringify(measures));
+            console.log(csv);
+
+            testDone();
+        };
+        assert.timeout(this.timeout);
+        assert.expect(0);
+
+        const success = () => {
+            const arController = new ARController(v1, cameraPara);
+            arController.onload = () => {
+                performance.mark('ARController.onload()');
+                performance.measure('Start ARController','start image measure', 'ARController.onload()');
+        
+                arController.loadMarker('./patt.hiro',(markerId) => { 
+                    performance.mark('loadMarker-success');
+                    performance.measure('Load marker','ARController.onload()', 'loadMarker-success');
+        
+                    for(var i = 0; i <= 100; i++) {
+                        //Process an image
+                        performance.mark('process-' + i + ' start');
+                        arController.process(v1);
+                        performance.mark('process-' + i + ' done');
+                        performance.measure('process image','process-' + i + ' start', 'process-' + i + ' done');
+                    }
+        
+                    performance.mark('cleanup');
+                    arController.dispose();
+                    done();
+                });
+            };
+        };
+
+        const error = error => {
+            assert.notOk(error);
+            testDone();
+        }
+
+        const cameraPara = new ARCameraParam(cParaUrl, success, error);
+    });
+});
 //TODO write test for external Video stream creation

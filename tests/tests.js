@@ -1,5 +1,3 @@
-// import { ARController } from "../js/index";
-
 QUnit.module("ARCameraPara");
 QUnit.test( "Create object and load camera parameter", function( assert ) {
     const cParaUrl = './camera_para.dat';
@@ -102,7 +100,6 @@ QUnit.test("Create ARController default", assert => {
         assert.ok(false);
     }
     const cameraPara = new ARCameraParam(this.cParaUrl, success, error);
-
 });
 QUnit.test("Create ARController track image", assert => {
     const done = assert.async();
@@ -110,11 +107,12 @@ QUnit.test("Create ARController track image", assert => {
     const success = () => {
         const arController = new ARController(v1, cameraPara);
         arController.debugSetup();
-        this.checkDefault(arController);
+        arController.addEventListener('getMarker', (trackableInfo) => {
+            assert.ok(true, "Marker found");
+            assert.deepEqual(trackableInfo.data.marker.idMatrix,0);
+        });
     
         arController.onload = (err) => {
-            assert.notOk(err, "no error");
-            assert.ok(true, "successfully loaded");
             assert.deepEqual(arController.cameraParam, cameraPara, "Check the default values: cameraPara");
             assert.deepEqual(arController.image, v1, "Check the default values: image");
             assert.deepEqual(arController.videoWidth, v1.width, "Check the default values: image.width");
@@ -122,19 +120,27 @@ QUnit.test("Create ARController track image", assert => {
         
             assert.deepEqual(arController.canvas.width, v1.width,"Check the default values: canvas.width");
             assert.deepEqual(arController.canvas.height, v1.height, "Check the default values: canvas.height");
-            const t0 = performance.now();
-            const detectMarkerResult = arController.detectMarker()
-            const t1 = performance.now();
+            assert.notOk(err, "no error");
+            assert.ok(true, "successfully loaded");
 
-            assert.ok( detectMarkerResult == 0, "Detected marker in image");
-            assert.ok( t1 - t0 < 700, "Detect marker returns within expected time < 100ms actual: " + (t1 - t0));
+            arController.loadMarker('./patt.hiro',(markerId) => {
+                assert.ok(markerId >= 0, "Marker loaded");
+                arController.trackPatternMarkerId(markerId);
+                const t0 = performance.now();
+                arController.process(v1);
+                // const detectMarkerResult = arController.detectMarker()
+                const t1 = performance.now();
+    
+                // assert.ok( detectMarkerResult == 0, "Detect marker ran successfull");
+                assert.ok( t1 - t0 < 700, "Process returns within expected time < 100ms actual: " + (t1 - t0));
 
-            arController.debugDraw();
-            setTimeout(() => {
-                arController.dispose();
-                done();
-            }
-            ,this.cleanUpTimeout);
+                arController.debugDraw();
+                setTimeout(() => {
+                    arController.dispose();
+                    done();
+                }
+                ,this.cleanUpTimeout);
+            });
         };
     }
     const error = () => {
@@ -558,5 +564,134 @@ QUnit.test("Register empty URL trackable", assert => {
     this.video = ARController.getUserMediaARController(config);
     
 });
+/* #### Full setup test #### */ 
+QUnit.module("Performance test video",{
+    beforeEach : assert => {
+        this.timeout = 10000;
+        this.cleanUpTimeout = 500;
+    },
+    afterEach : assert => {
+        if(this.video.srcObject) {
+            const track = this.video.srcObject.getTracks()[0];
+            track.stop();
+            this.video.srcObject = null;
+        }
+        this.video.src = null;
+    }
+});
+QUnit.test("PTV: performance test video", assert => {
 
+    const testDone = assert.async();
+
+    performance.mark('start video measure');
+    const done = () => {
+        performance.mark('cleanup-done');
+        performance.measure('Cleanup time', 'cleanup', 'cleanup-done');
+        performance.measure('Test time', 'start video measure', 'cleanup-done');
+        const measures = performance.getEntriesByType('measure');
+        const csv = Papa.unparse(JSON.stringify(measures));
+        console.log(csv);
+
+        testDone();
+    };
+    assert.timeout(this.timeout);
+    assert.expect(0);
+    const success = (arController, arCameraParam) => {
+        performance.mark('getUserMediaARController-success');
+        performance.measure('Start videostream','start video measure', 'getUserMediaARController-success');
+
+        arController.loadMarker('./patt.hiro',(markerId) => { 
+            performance.mark('loadMarker-success');
+            performance.measure('Load marker','getUserMediaARController-success', 'loadMarker-success');
+
+            //Process the open video stream
+            for(var i = 0; i <= 100; i++) {
+                performance.mark('process-' + i + ' start');
+                arController.process(this.video);
+                performance.mark('process-' + i + ' done');
+                performance.measure('process video','process-' + i + ' start', 'process-' + i + ' done');
+            }
+
+            performance.mark('cleanup');
+            arController.dispose();
+            done();
+        });
+    };
+
+    const error = error => {
+        done();
+    }
+
+    const config = {
+        onSuccess : success,
+        onError : error,
+
+        cameraParam: './camera_para.dat', // URL to camera parameters definition file.
+        maxARVideoSize: 640, // Maximum max(width, height) for the AR processing canvas.
+
+        width : 640,
+        height : 480,
+
+        facingMode : 'environment'
+    }
+    this.video = ARController.getUserMediaARController(config);
+    document.body.appendChild(this.video);
+});
+QUnit.module("Performance test image",{
+    beforeEach : assert => {
+        this.timeout = 10000;
+        this.cleanUpTimeout = 500;
+    }
+});
+QUnit.test("performance test image", assert => {
+
+    const testDone = assert.async();
+    const cParaUrl = './camera_para.dat';
+
+    performance.mark('start image measure');
+    const done = () => {
+        performance.mark('cleanup-done');
+        performance.measure('Cleanup time', 'cleanup', 'cleanup-done');
+        performance.measure('Test time', 'start image measure', 'cleanup-done');
+        const measures = performance.getEntriesByType('measure');
+        const csv = Papa.unparse(JSON.stringify(measures));
+        console.log(csv);
+
+        testDone();
+    };
+    assert.timeout(this.timeout);
+    assert.expect(0);
+
+    const success = () => {
+        const arController = new ARController(v1, cameraPara);
+        arController.onload = () => {
+            performance.mark('ARController.onload()');
+            performance.measure('Start ARController','start image measure', 'ARController.onload()');
+    
+            arController.loadMarker('./patt.hiro',(markerId) => { 
+                performance.mark('loadMarker-success');
+                performance.measure('Load marker','ARController.onload()', 'loadMarker-success');
+    
+                for(var i = 0; i <= 100; i++) {
+                    //Process an image
+                    performance.mark('process-' + i + ' start');
+                    arController.process(v1);
+                    performance.mark('process-' + i + ' done');
+                    performance.measure('process image','process-' + i + ' start', 'process-' + i + ' done');
+                }
+     
+                performance.mark('cleanup');
+                arController.dispose();
+                done();
+            });
+        };
+    };
+
+    const error = error => {
+        assert.notOk(error);
+        testDone();
+    }
+
+    const cameraPara = new ARCameraParam(cParaUrl, success, error);
+});
 //TODO write test for external Video stream creation
