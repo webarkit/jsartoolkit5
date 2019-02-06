@@ -5,8 +5,8 @@
 		The ARController is the main object for doing AR marker detection with JSARToolKit.
 
 		To use an ARController, you need to tell it the dimensions to use for the AR processing canvas and
-		pass it an ARCameraParam to define the camera parameters to use when processing images. 
-		The ARCameraParam defines the lens distortion and aspect ratio of the camera used. 
+		pass it an ARCameraParam to define the camera parameters to use when processing images.
+		The ARCameraParam defines the lens distortion and aspect ratio of the camera used.
 		See https://www.artoolworks.com/support/library/Calibrating_your_camera for more information about AR camera parameteters and how to make and use them.
 
 		If you pass an image as the first argument, the ARController uses that as the image to process,
@@ -22,7 +22,7 @@
 
 		@param {number} width The width of the images to process.
 		@param {number} height The height of the images to process.
-		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success. 
+		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success.
 	*/
 	var ARController = function(width, height, camera) {
 		var id;
@@ -99,7 +99,7 @@
 		markers were found in the image. Next, a getMarker event is dispatched for each found marker square.
 		Finally, getMultiMarker is dispatched for every found multimarker, followed by getMultiMarkerSub events
 		dispatched for each of the markers in the multimarker.
-			
+
 			arController.addEventListener('markerNum', function(ev) {
 				console.log("Detected " + ev.data + " markers.")
 			});
@@ -114,15 +114,15 @@
 			arController.addEventListener('getMultiMarkerSub', function(ev) {
 				console.log("Submarker for " + ev.data.multiMarkerId, ev.data.markerIndex, ev.data.marker);
 			});
-			
-			arController.process(image);	
+
+			arController.process(image);
 
 
 		If no image is given, defaults to this.image.
 
 		If the debugSetup has been called, draws debug markers on the debug canvas.
 
-		@param {ImageElement | VideoElement} image The image to process [optional]. 
+		@param {ImageElement | VideoElement} image The image to process [optional].
 	*/
 	ARController.prototype.process = function(image) {
 		this.detectMarker(image);
@@ -265,7 +265,7 @@
 		Adds the given pattern marker ID to the index of tracked IDs.
 		Sets the markerWidth for the pattern marker to markerWidth.
 
-		Used by process() to implement continuous tracking, 
+		Used by process() to implement continuous tracking,
 		keeping track of the marker's transformation matrix
 		and customizable marker widths.
 
@@ -293,7 +293,7 @@
 		Adds the given barcode marker ID to the index of tracked IDs.
 		Sets the markerWidth for the pattern marker to markerWidth.
 
-		Used by process() to implement continuous tracking, 
+		Used by process() to implement continuous tracking,
 		keeping track of the marker's transformation matrix
 		and customizable marker widths.
 
@@ -321,7 +321,7 @@
 		Adds the given NFT marker ID to the index of tracked IDs.
 		Sets the markerWidth for the pattern marker to markerWidth.
 
-		Used by process() to implement continuous tracking, 
+		Used by process() to implement continuous tracking,
 		keeping track of the marker's transformation matrix
 		and customizable marker widths.
 
@@ -368,7 +368,7 @@
 		Add an event listener on this ARController for the named event, calling the callback function
 		whenever that event is dispatched.
 
-		Possible events are: 
+		Possible events are:
 		  * getMarker - dispatched whenever process() finds a square marker
 		  * getMultiMarker - dispatched whenever process() finds a visible registered multimarker
 		  * getMultiMarkerSub - dispatched by process() for each marker in a visible multimarker
@@ -468,8 +468,8 @@
 	};
 
 	/**
-	 * Populates the provided float array with the current transformation for the specified marker. After 
-	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * Populates the provided float array with the current transformation for the specified marker. After
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be
 	 * checked.
 	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
 	 * @param {number} markerWidth	The width of the marker
@@ -483,9 +483,9 @@
 	};
 
 	/**
-	 * Populates the provided float array with the current transformation for the specified marker, using 
-	 * previousMarkerTransform as the previously detected transformation. After 
-	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * Populates the provided float array with the current transformation for the specified marker, using
+	 * previousMarkerTransform as the previously detected transformation. After
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be
 	 * checked.
 	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
 	 * @param {number} markerWidth	The width of the marker
@@ -501,8 +501,8 @@
 	};
 
 	/**
-	 * Populates the provided float array with the current transformation for the specified multimarker. After 
-	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * Populates the provided float array with the current transformation for the specified multimarker. After
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be
 	 * checked.
 	 *
 	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
@@ -517,8 +517,8 @@
 	};
 
 	/**
-	 * Populates the provided float array with the current robust transformation for the specified multimarker. After 
-	 * a call to detectMarker, all marker information will be current. Marker transformations can then be 
+	 * Populates the provided float array with the current robust transformation for the specified multimarker. After
+	 * a call to detectMarker, all marker information will be current. Marker transformations can then be
 	 * checked.
 	 * @param {number} markerUID	The unique identifier (UID) of the marker to query
 	 * @param {number} markerWidth	The width of the marker
@@ -540,7 +540,7 @@
 		@param {Float64Array} transMat The 3x4 marker transformation matrix.
 		@param {Float64Array} glMat The 4x4 GL transformation matrix.
 		@param {number} scale The scale for the transform.
-	*/ 
+	*/
 	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
 		glMat[0 + 0*4] = transMat[0]; // R1C1
 		glMat[0 + 1*4] = transMat[1]; // R1C2
@@ -570,7 +570,7 @@
 		This is the core ARToolKit marker detection function. It calls through to a set of
 		internal functions to perform the key marker detection steps of binarization and
 		labelling, contour extraction, and template matching and/or matrix code extraction.
-        
+
         Typically, the resulting set of detected markers is retrieved by calling arGetMarkerNum
         to get the number of markers detected and arGetMarker to get an array of ARMarkerInfo
         structures with information on each detected marker, followed by a step in which
@@ -590,7 +590,7 @@
 
 	/**
 		Get the number of markers detected in a video frame.
-  
+
 	    @return {number}     The number of detected markers in the most recent image passed to arDetectMarker.
     	    Note that this is actually a count, not an index. A better name for this function would be
         	arGetDetectedMarkerCount, but the current name lives on for historical reasons.
@@ -699,7 +699,7 @@
 
 
 	/**
-		Returns the 16-element WebGL transformation matrix used by ARController.process to 
+		Returns the 16-element WebGL transformation matrix used by ARController.process to
 		pass marker WebGL matrices to event listeners.
 
 		Unique to each ARController.
@@ -764,7 +764,7 @@
 	/**
 		Sets the logging level to use by ARToolKit.
 
-		@param 
+		@param
 	*/
 	ARController.prototype.setLogLevel = function(mode) {
 		return artoolkit.setLogLevel(mode);
@@ -823,14 +823,14 @@
 
         This function forces sets the threshold value.
         The default value is AR_DEFAULT_LABELING_THRESH which is 100.
-        
+
         The current threshold mode is not affected by this call.
         Typically, this function is used when labeling threshold mode
         is AR_LABELING_THRESH_MODE_MANUAL.
- 
+
         The threshold value is not relevant if threshold mode is
         AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE.
- 
+
         Background: The labeling threshold is the value which
 		the AR library uses to differentiate between black and white
 		portions of an ARToolKit marker. Since the actual brightness,
@@ -934,7 +934,7 @@
 
 	/**
 		Select between detection of black markers and white markers.
-	
+
 		ARToolKit's labelling algorithm can work with both black-bordered
 		markers on a white background (AR_LABELING_BLACK_REGION) or
 		white-bordered markers on a black background (AR_LABELING_WHITE_REGION).
@@ -954,7 +954,7 @@
 
 	/**
 		Enquire whether detection is looking for black markers or white markers.
-	    
+
 	    See discussion for setLabelingMode.
 
 	    @result {number} The current labeling mode.
@@ -1078,7 +1078,7 @@
 			image = this.image;
 		}
 		if (image.data) {
-			
+
 			var imageData = image;
 
 		} else {
@@ -1213,7 +1213,8 @@
 
 		var success = function(stream) {
 			video.addEventListener('loadedmetadata', initProgress, false);
-			video.src = window.URL.createObjectURL(stream);
+			//video.src = window.URL.createObjectURL(stream);
+			video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
 			readyToPlay = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
 		};
@@ -1264,7 +1265,7 @@
 				navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: mediaDevicesConstraints
-				}).then(success, onError); 
+				}).then(success, onError);
 			} else {
 				MediaStreamTrack.getSources(function(sources) {
 					var facingDir = mediaDevicesConstraints.facingMode;
@@ -1300,7 +1301,7 @@
 	};
 
 	/**
-		ARController.getUserMediaARController gets an ARController for the device camera video feed and calls the 
+		ARController.getUserMediaARController gets an ARController for the device camera video feed and calls the
 		given onSuccess callback with it.
 
 		To use ARController.getUserMediaARController, call it with an object with the cameraParam attribute set to
@@ -1382,7 +1383,7 @@
 	};
 
 
-	/** 
+	/**
 		ARCameraParam is used for loading AR camera parameters for use with ARController.
 		Use by passing in an URL and a callback function.
 
@@ -1395,7 +1396,7 @@
 
 		@exports ARCameraParam
 		@constructor
-	 
+
 		@param {string} src URL to load camera parameters from.
 		@param {string} onload Onload callback to be called on successful parameter loading.
 		@param {string} onerror Error callback to called when things don't work out.
@@ -1411,10 +1412,10 @@
 		}
 	};
 
-	/** 
+	/**
 		Loads the given URL as camera parameters definition file into this ARCameraParam.
 
-		Can only be called on an unloaded ARCameraParam instance. 
+		Can only be called on an unloaded ARCameraParam instance.
 
 		@param {string} src URL to load.
 	*/
