@@ -204,7 +204,7 @@ extern "C" {
 
 	KpmHandle *createKpmHandle(ARParamLT *cparamLT) {
 		KpmHandle *kpmHandle;
-	    kpmHandle = kpmCreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA);
+	    kpmHandle = kpmCreateHandle(cparamLT, AR_PIXEL_FORMAT_MONO);
 		return kpmHandle;
 	}
 
@@ -780,7 +780,7 @@ extern "C" {
 		ARMarkerInfo* marker = markerIndex < 0 ? &gMarkerInfo : &((arc->arhandle)->markerInfo[markerIndex]);
 
 		marker->dir = dir;
-		
+
 		return 0;
 	}
 
