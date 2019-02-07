@@ -113,6 +113,10 @@ FLAGS += ' --memory-init-file 0 '; // for memless file
 var PRE_FLAGS = ' --pre-js ' + path.resolve(__dirname, '../js/artoolkit.api.js') +' ';
 
 FLAGS += ' --bind ';
+FLAGS += ' -msse';
+FLAGS += ' -msse2';
+FLAGS += ' -msse3';
+FLAGS += ' -mssse3';
 
 /* DEBUG FLAGS */
 var DEBUG_FLAGS = ' -g ';
