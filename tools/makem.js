@@ -238,7 +238,8 @@ function onExec(error, stdout, stderr) {
 	if (stdout) console.log('stdout: ' + stdout);
 	if (stderr) console.log('stderr: ' + stderr);
 	if (error !== null) {
-		console.log('exec error: ' + error);
+		console.log('exec error: ' + error.code);
+		process.exit(error.code);
 	} else {
 		runJob();
 	}
@@ -269,7 +270,7 @@ function addJob(job) {
 
 addJob(clean_builds);
 addJob(compile_arlib);
-// addJob(compile_kpm);
+addJob(compile_kpm);
 // compile_kpm
 addJob(compile_libjpeg);
 addJob(compile_combine);
