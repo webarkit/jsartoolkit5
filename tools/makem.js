@@ -30,6 +30,7 @@ var MEM = 256 * 1024 * 1024; // 64MB
 var SOURCE_PATH = path.resolve(__dirname, '../emscripten/') + '/';
 var OUTPUT_PATH = path.resolve(__dirname, '../build/') + '/';
 var BUILD_FILE = 'artoolkit.debug.js';
+var BUILD_WASM_FILE = 'artoolkit_wasm.js';
 var BUILD_MIN_FILE = 'artoolkit.min.js';
 
 var MAIN_SOURCES = [
