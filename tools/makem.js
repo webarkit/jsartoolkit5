@@ -106,6 +106,7 @@ var DEFINES = ' ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
+FLAGS += ' -s USE_ZLIB=1';
 //FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
 
