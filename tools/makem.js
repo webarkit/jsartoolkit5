@@ -189,21 +189,41 @@ var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
  	+ kpm_sources.join(' ')
  	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc ',
  		OUTPUT_PATH);
-
+/*
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
     + path.resolve(__dirname, LIBJPEG_ROOT) + '/' + libjpeg_sources
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
 		OUTPUT_PATH);
-
+*/
+var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
+	+ '../jpeg-6b/' +  libjpeg_sources
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
+		OUTPUT_PATH);
+/*
 var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
 	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
 	+ FLAGS + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
 	OUTPUT_PATH, OUTPUT_PATH, BUILD_FILE);
-
+*/
+var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
+	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
+	+ FLAGS + ' -s WASM=0' + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
+	OUTPUT_PATH, OUTPUT_PATH, BUILD_DEBUG_FILE);
+/*
 var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
 	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
 	+ FLAGS + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
 	OUTPUT_PATH, OUTPUT_PATH, BUILD_MIN_FILE);
+*/
+var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
+	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
+	+ FLAGS + ' -s WASM=0' + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
+	OUTPUT_PATH, OUTPUT_PATH, BUILD_MIN_FILE);
+
+var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
++ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
++ FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
+OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
 
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
