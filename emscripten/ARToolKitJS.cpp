@@ -204,7 +204,7 @@ extern "C" {
 
 	KpmHandle *createKpmHandle(ARParamLT *cparamLT) {
 		KpmHandle *kpmHandle;
-	    kpmHandle = kpmCreateHandle(cparamLT, AR_PIXEL_FORMAT_MONO);
+	    kpmHandle = kpmCreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA);
 		return kpmHandle;
 	}
 
