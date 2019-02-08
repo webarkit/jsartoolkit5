@@ -1,5 +1,5 @@
 (function() {
-	'use strict'
+	'use strict';
 
 	/**
 		The ARController is the main object for doing AR marker detection with JSARToolKit.
@@ -1260,7 +1260,7 @@
 		};
 
 		if ( false ) {
-		// if ( navigator.mediaDevices || window.MediaStreamTrack) {
+		 //if ( navigator.mediaDevices || window.MediaStreamTrack) {
 			if (navigator.mediaDevices) {
 				navigator.mediaDevices.getUserMedia({
 					audio: false,
@@ -1704,26 +1704,15 @@
 		}
 	}
 
-	var scope;
-	if (typeof window !== 'undefined') {
-		scope = window;
-	} else {
-		scope = self;
-	}
-
 	/* Exports */
-	scope.artoolkit = artoolkit;
-	scope.ARController = ARController;
-	scope.ARCameraParam = ARCameraParam;
+	window.artoolkit = artoolkit;
+	window.ARController = ARController;
+	window.ARCameraParam = ARCameraParam;
 
-	if (scope.Module) {
-		runWhenLoaded();
-	} else {
-		scope.Module = {
-			onRuntimeInitialized: function() {
-				runWhenLoaded();
-			}
-		};
-	}
 
+    window.Module = {
+        onRuntimeInitialized: function() {
+            runWhenLoaded();
+        }
+    };
 })();
