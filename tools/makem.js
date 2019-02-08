@@ -112,6 +112,7 @@ if (HAVE_NFT) {
 }
 
 var DEFINES = ' ';
+if (HAVE_NFT) DEFINES += ' -D HAVE_NFT ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
