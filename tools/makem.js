@@ -34,7 +34,12 @@ var BUILD_DEBUG_FILE = 'artoolkit.debug.js';
 var BUILD_WASM_FILE = 'artoolkit_wasm.js';
 var BUILD_MIN_FILE = 'artoolkit.min.js';
 
-var MAIN_SOURCES = [
+var MAIN_SOURCES = HAVE_NFT ? [
+	'NFT/ARMarkerNFT.c',
+	'NFT/trackingSub.c',
+	'NFT/thread_sub.c',
+	'ARToolKitJS.cpp'
+] : [
 	'ARToolKitJS.cpp'
 ];
 
@@ -185,12 +190,12 @@ var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libar.bc ',
 		OUTPUT_PATH);
-
+/*
  var compile_kpm = format(EMCC + ' ' + INCLUDES + ' '
  	+ kpm_sources.join(' ')
  	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc ',
  		OUTPUT_PATH);
-
+*/
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
     + path.resolve(__dirname, LIBJPEG_ROOT) + '/' + libjpeg_sources
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
