@@ -52,7 +52,10 @@ var ar_sources = [
 	'AR/*.c',
 	'ARICP/*.c',
 	'ARMulti/*.c',
-	'Gl/gsub_lite.c',
+		'Video/VideoLuma.c',
+		'ARUtil/log.c',
+		'ARUtil/file_utils.c',
+
 ].map(function(src) {
 	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/', src);
 });
