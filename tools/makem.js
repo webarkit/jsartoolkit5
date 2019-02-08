@@ -34,12 +34,7 @@ var BUILD_DEBUG_FILE = 'artoolkit.debug.js';
 var BUILD_WASM_FILE = 'artoolkit_wasm.js';
 var BUILD_MIN_FILE = 'artoolkit.min.js';
 
-var MAIN_SOURCES = HAVE_NFT ? [
-	'NFT/ARMarkerNFT.c',
-	'NFT/trackingSub.c',
-	'NFT/thread_sub.c',
-	'ARToolKitJS.cpp'
-] : [
+var MAIN_SOURCES = [
 	'ARToolKitJS.cpp'
 ];
 
@@ -52,10 +47,7 @@ var ar_sources = [
 	'AR/*.c',
 	'ARICP/*.c',
 	'ARMulti/*.c',
-		'Video/VideoLuma.c',
-		'ARUtil/log.c',
-		'ARUtil/file_utils.c',
-
+	'Gl/gsub_lite.c',
 ].map(function(src) {
 	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/', src);
 });
@@ -112,10 +104,8 @@ if (HAVE_NFT) {
 }
 
 var DEFINES = ' ';
-if (HAVE_NFT) DEFINES += ' -D HAVE_NFT ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
-FLAGS += ' -Wno-warn-absolute-paths ';
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 FLAGS += ' -s USE_ZLIB=1';
 //FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
@@ -195,12 +185,12 @@ var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libar.bc ',
 		OUTPUT_PATH);
-/*
+
  var compile_kpm = format(EMCC + ' ' + INCLUDES + ' '
  	+ kpm_sources.join(' ')
  	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc ',
  		OUTPUT_PATH);
-*/
+
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
     + path.resolve(__dirname, LIBJPEG_ROOT) + '/' + libjpeg_sources
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
