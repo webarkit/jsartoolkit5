@@ -12,17 +12,17 @@ var
 
 var HAVE_NFT = 1;
 
-var EMSCRIPTEN_PATH = process.env.EMSCRIPTEN;
+var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
 var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || "../emscripten/artoolkit5";
-var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/jpeg-6b";
+//var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/jpeg-6b";
 
-if (!EMSCRIPTEN_PATH) {
+if (!EMSCRIPTEN_ROOT) {
 	console.log("\nWarning: EMSCRIPTEN environment variable not found.")
 	console.log("If you get a \"command not found\" error,\ndo `source <path to emsdk>/emsdk_env.sh` and try again.");
 }
 
-var EMCC = EMSCRIPTEN_PATH ? path.resolve(EMSCRIPTEN_PATH, 'emcc') : 'emcc';
-var EMPP = EMSCRIPTEN_PATH ? path.resolve(EMSCRIPTEN_PATH, 'em++') : 'em++';
+var EMCC = EMSCRIPTEN_ROOT ? path.resolve(EMSCRIPTEN_ROOT, 'emcc') : 'emcc';
+var EMPP = EMSCRIPTEN_ROOT ? path.resolve(EMSCRIPTEN_ROOT, 'em++') : 'em++';
 var OPTIMIZE_FLAGS = ' -Oz '; // -Oz for smallest size
 var MEM = 256 * 1024 * 1024; // 64MB
 
@@ -30,9 +30,9 @@ var MEM = 256 * 1024 * 1024; // 64MB
 var SOURCE_PATH = path.resolve(__dirname, '../emscripten/') + '/';
 var OUTPUT_PATH = path.resolve(__dirname, '../build/') + '/';
 //var BUILD_FILE = 'artoolkit.debug.js';
-var BUILD_DEBUG_FILE = 'artoolkit.debug.js';
-var BUILD_WASM_FILE = 'artoolkit_wasm.js';
-var BUILD_MIN_FILE = 'artoolkit.min.js';
+var BUILD_DEBUG_FILE = 'artoolkitNft.debug.js';
+var BUILD_WASM_FILE = 'artoolkitNft_wasm.js';
+var BUILD_MIN_FILE = 'artoolkitNft.min.js';
 
 var MAIN_SOURCES = [
 	'ARToolKitJS.cpp'
@@ -47,7 +47,8 @@ var ar_sources = [
 	'AR/*.c',
 	'ARICP/*.c',
 	'ARMulti/*.c',
-	'Gl/gsub_lite.c',
+	//'Video/videoLuma.c',
+	//'Gl/gsub_lite.c',
 ].map(function(src) {
 	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/', src);
 });
@@ -55,7 +56,7 @@ var ar_sources = [
 var ar2_sources = [
 	'handle.c',
 	'imageSet.c',
-	'jpeg.c',
+	//'jpeg.c',
 	'marker.c',
 	'featureMap.c',
 	'featureSet.c',
@@ -106,8 +107,10 @@ if (HAVE_NFT) {
 var DEFINES = ' ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
+FLAGS += ' -Wno-warn-absolute-paths ';
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 FLAGS += ' -s USE_ZLIB=1';
+FLAGS += ' -s ERROR_ON_UNDEFINED_SYMBOLS=0';
 //FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
 
@@ -133,7 +136,11 @@ var INCLUDES = [
 	OUTPUT_PATH,
 	SOURCE_PATH,
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/FreakMatcher'),
-	path.resolve(__dirname, LIBJPEG_ROOT),
+	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/../jpeg-6b'),
+	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/Video'),
+	//'lib/SRC/KPM/FreakMatcher',
+	// 'include/macosx-universal/',
+	// '../jpeg-6b',
 ].map(function(s) { return '-I' + s }).join(' ');
 
 function format(str) {
@@ -142,6 +149,7 @@ function format(str) {
 	}
 	return str;
 }
+
 
 // Lib JPEG Compilation
 
@@ -155,13 +163,12 @@ var libjpeg_sources = 'jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jch
 		jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c \
 		jfdctint.c jidctflt.c jidctfst.c jidctint.c jidctred.c jquant1.c \
 		jquant2.c jutils.c jmemmgr.c \
-		jmemansi.c \
+		jmemname.c \
 		jcapimin.c jcapistd.c jctrans.c jcparam.c \
 		jdatadst.c jcinit.c jcmaster.c jcmarker.c jcmainct.c \
 		jcprepct.c jccoefct.c jccolor.c jcsample.c jchuff.c \
 		jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c \
-		jfdctint.c'.split(/\s+/).join(' ' + path.resolve(__dirname, LIBJPEG_ROOT) + '/')
-
+		jfdctint.c'.split(/\s+/).join(' ../jpeg-6b/')
 function clean_builds() {
 	try {
 		var stats = fs.statSync(OUTPUT_PATH);
@@ -190,12 +197,12 @@ var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
  	+ kpm_sources.join(' ')
  	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc ',
  		OUTPUT_PATH);
-
+/*
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
     + path.resolve(__dirname, LIBJPEG_ROOT) + '/' + libjpeg_sources
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
 		OUTPUT_PATH);
-/*
+
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
 	+ '../jpeg-6b/' +  libjpeg_sources
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
@@ -222,10 +229,11 @@ var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
 	+ FLAGS + ' -s WASM=0' + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
 	OUTPUT_PATH, OUTPUT_PATH, BUILD_MIN_FILE);
 
-var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
-+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
-+ FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
-OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
+	var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
+	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
+	+ FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
+	OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
+
 /*
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
@@ -279,8 +287,9 @@ addJob(clean_builds);
 addJob(compile_arlib);
 //addJob(compile_kpm);
 // compile_kpm
-addJob(compile_libjpeg);
+//addJob(compile_libjpeg);
 addJob(compile_combine);
+addJob(compile_wasm);
 addJob(compile_combine_min);
 // addJob(compile_all);
 

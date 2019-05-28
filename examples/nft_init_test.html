@@ -2,7 +2,7 @@
 <body>
 
 <script src="js/third_party/three.js/three.min.js"></script>
-<script src="../build/artoolkit.debug.js"></script>
+<script src="../build/artoolkitNft.debug.js"></script>
 <script src="../js/artoolkit.api.js"></script>
 
 <script>
@@ -14,7 +14,7 @@ cameraParam.onload = function() {
 	arController._initNFT();
 	arController.debugSetup();
 
-	arController.loadNFTMarker('DataNFT/pinball', function(markerId) { 
+	arController.loadNFTMarker('DataNFT/pinball', function(markerId) {
 		console.log('Created NFT marker', arguments);
 	});
 

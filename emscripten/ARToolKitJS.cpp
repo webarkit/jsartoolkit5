@@ -10,6 +10,7 @@
 #include <AR/config.h>
 #include <AR/arFilterTransMat.h>
 #include <AR2/tracking.h>
+#include <AR/video.h>
 #include <KPM/kpm.h>
 
 struct multi_marker {
@@ -25,6 +26,7 @@ struct arController {
 
 	ARUint8 *videoFrame = NULL;
 	int videoFrameSize;
+	ARUint8 *videoLuma = NULL;
 
 	int width = 0;
 	int height = 0;
@@ -48,7 +50,7 @@ struct arController {
 	int patt_id = 0; // Running pattern marker id
 
 	ARdouble cameraLens[16];
-
+	AR_PIXEL_FORMAT pixFormat = arVideoGetPixelFormat();
 };
 
 std::unordered_map<int, arController> arControllers;
@@ -204,7 +206,7 @@ extern "C" {
 
 	KpmHandle *createKpmHandle(ARParamLT *cparamLT) {
 		KpmHandle *kpmHandle;
-	    kpmHandle = kpmCreateHandle(cparamLT, AR_PIXEL_FORMAT_RGBA);
+	    kpmHandle = kpmCreateHandle(cparamLT);
 		return kpmHandle;
 	}
 
@@ -215,10 +217,10 @@ extern "C" {
 	int getKpmImageHeight(KpmHandle *kpmHandle) {
 		return kpmHandleGetYSize(kpmHandle);
 	}
-
-	int getKpmPixelSize(KpmHandle *kpmHandle) {
-		return arUtilGetPixelSize(kpmHandleGetPixelFormat(kpmHandle));
-	}
+	// disbling this; maybe a very old implementation?
+	//int getKpmPixelSize(KpmHandle *kpmHandle) {
+	//	return arUtilGetPixelSize(GetPixelFormat(kpmHandle));
+	//}
 
 	int setupAR2(int id) {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
@@ -846,7 +848,15 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
 		arController *arc = &(arControllers[id]);
 
-		return arDetectMarker( arc->arhandle, arc->videoFrame );
+		// Convert video frame to AR2VideoBufferT
+    AR2VideoBufferT buff = {0};
+    buff.buff = arc->videoFrame;
+    buff.fillFlag = 1;
+
+    buff.buffLuma = arc->videoLuma;
+
+
+		return arDetectMarker( arc->arhandle, &buff);
 	}
 
 	int getMarkerNum(int id) {
