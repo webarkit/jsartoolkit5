@@ -14,7 +14,7 @@ var HAVE_NFT = 1;
 
 var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
 var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || "../emscripten/artoolkit5";
-//var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/jpeg-6b";
+var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/jpeg-6b";
 
 if (!EMSCRIPTEN_ROOT) {
 	console.log("\nWarning: EMSCRIPTEN environment variable not found.")
@@ -47,6 +47,9 @@ var ar_sources = [
 	'AR/*.c',
 	'ARICP/*.c',
 	'ARMulti/*.c',
+	'Video/video.c',
+	'ARUtil/log.c',
+  'ARUtil/file_utils.c',
 	//'Video/videoLuma.c',
 	//'Gl/gsub_lite.c',
 ].map(function(src) {
@@ -56,7 +59,7 @@ var ar_sources = [
 var ar2_sources = [
 	'handle.c',
 	'imageSet.c',
-	//'jpeg.c',
+	'jpeg.c',
 	'marker.c',
 	'featureMap.c',
 	'featureSet.c',
@@ -105,6 +108,7 @@ if (HAVE_NFT) {
 }
 
 var DEFINES = ' ';
+if (HAVE_NFT) DEFINES += ' -D HAVE_NFT ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -Wno-warn-absolute-paths ';
@@ -136,6 +140,7 @@ var INCLUDES = [
 	OUTPUT_PATH,
 	SOURCE_PATH,
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/FreakMatcher'),
+	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/GL'),
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/../jpeg-6b'),
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/Video'),
 	//'lib/SRC/KPM/FreakMatcher',
@@ -168,7 +173,7 @@ var libjpeg_sources = 'jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jch
 		jdatadst.c jcinit.c jcmaster.c jcmarker.c jcmainct.c \
 		jcprepct.c jccoefct.c jccolor.c jcsample.c jchuff.c \
 		jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c \
-		jfdctint.c'.split(/\s+/).join(' ../jpeg-6b/')
+		jfdctint.c'.split(/\s+/).join(' /home/walter/kalwalt-github/jsartoolkit5/emscripten/jpeg-6b/')
 function clean_builds() {
 	try {
 		var stats = fs.statSync(OUTPUT_PATH);
@@ -197,18 +202,19 @@ var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
  	+ kpm_sources.join(' ')
  	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc ',
  		OUTPUT_PATH);
-/*
+
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
     + path.resolve(__dirname, LIBJPEG_ROOT) + '/' + libjpeg_sources
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
 		OUTPUT_PATH);
 
+/*
 var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
-	+ '../jpeg-6b/' +  libjpeg_sources
+	+ '/home/walter/kalwalt-github/jsartoolkit5/emscripten/jpeg-6b/' +  libjpeg_sources
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
 		OUTPUT_PATH);
-*/
-/*
+
+
 var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
 	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
 	+ FLAGS + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',

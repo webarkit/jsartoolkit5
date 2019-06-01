@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <AR/ar.h>
-#include <AR/gsub_lite.h>
+//#include <AR/gsub_lite.h>
 // #include <AR/gsub_es2.h>
 #include <AR/arMulti.h>
 #include <emscripten.h>
@@ -10,6 +10,7 @@
 #include <AR/config.h>
 #include <AR/arFilterTransMat.h>
 #include <AR2/tracking.h>
+#include <AR/paramGL.h>
 #include <AR/video.h>
 #include <KPM/kpm.h>
 
@@ -50,7 +51,7 @@ struct arController {
 	int patt_id = 0; // Running pattern marker id
 
 	ARdouble cameraLens[16];
-	AR_PIXEL_FORMAT pixFormat = arVideoGetPixelFormat();
+	AR_PIXEL_FORMAT pixFormat = AR_PIXEL_FORMAT_RGBA;
 };
 
 std::unordered_map<int, arController> arControllers;
@@ -225,6 +226,7 @@ extern "C" {
 	int setupAR2(int id) {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
+		//arc->pixFormat = arVideoGetPixelFormat();
 
 		arc->kpmHandle = createKpmHandle(arc->paramLT);
 
@@ -401,7 +403,7 @@ extern "C" {
 		arPattAttach(arc->arhandle, arc->arPattHandle);
 		// ARLOGi("setCamera(): Pattern handler attached.\n");
 
-		arglCameraFrustum(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, arc->cameraLens);
+		arglCameraFrustumRH(&((arc->paramLT)->param), arc->nearPlane, arc->farPlane, arc->cameraLens);
 
 		arc->kpmHandle = createKpmHandle(arc->paramLT);
 
