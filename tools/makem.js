@@ -140,9 +140,9 @@ var INCLUDES = [
 	OUTPUT_PATH,
 	SOURCE_PATH,
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/FreakMatcher'),
-	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/GL'),
+	//path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/GL'),
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/../jpeg-6b'),
-	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/Video'),
+	//path.resolve(__dirname, ARTOOLKIT5_ROOT + '/Video'),
 	//'lib/SRC/KPM/FreakMatcher',
 	// 'include/macosx-universal/',
 	// '../jpeg-6b',
@@ -168,12 +168,7 @@ var libjpeg_sources = 'jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jch
 		jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c \
 		jfdctint.c jidctflt.c jidctfst.c jidctint.c jidctred.c jquant1.c \
 		jquant2.c jutils.c jmemmgr.c \
-		jmemname.c \
-		jcapimin.c jcapistd.c jctrans.c jcparam.c \
-		jdatadst.c jcinit.c jcmaster.c jcmarker.c jcmainct.c \
-		jcprepct.c jccoefct.c jccolor.c jcsample.c jchuff.c \
-		jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c \
-		jfdctint.c'.split(/\s+/).join(' /home/walter/kalwalt-github/jsartoolkit5/emscripten/jpeg-6b/')
+		jmemansi.c'.split(/\s+/).join(' /home/walter/kalwalt-github/jsartoolkit5/emscripten/jpeg-6b/')
 function clean_builds() {
 	try {
 		var stats = fs.statSync(OUTPUT_PATH);
@@ -293,7 +288,7 @@ addJob(clean_builds);
 addJob(compile_arlib);
 //addJob(compile_kpm);
 // compile_kpm
-//addJob(compile_libjpeg);
+addJob(compile_libjpeg);
 addJob(compile_combine);
 addJob(compile_wasm);
 addJob(compile_combine_min);
