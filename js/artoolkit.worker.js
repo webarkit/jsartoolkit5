@@ -2,7 +2,7 @@
 	ARToolKit Web Worker proxy.
 */
 
-importScripts("../build/artoolkit.min.js");
+importScripts("../build/artoolkitNft.min.js");
 
 WorkerARControllers = {};
 WorkerARControllerID = 0;

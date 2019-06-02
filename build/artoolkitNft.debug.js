@@ -57910,6 +57910,77 @@ function __ZNSt3__210__stdinbufIwE9__getcharEb($0, $1) {
  return $$11 | 0;
 }
 
+function _setCamera($id, $cameraID) {
+ $id = $id | 0;
+ $cameraID = $cameraID | 0;
+ var $0 = 0, $2 = 0, $arhandle = 0, $call31 = 0, $call34 = 0, $call39 = 0, $call47 = 0, $call7 = 0, $cameraID$addr = 0, $height = 0, $id$addr = 0, $param = 0, $paramLT = 0, $retval$2 = 0, $vararg_buffer = 0, $vararg_buffer2 = 0, $vararg_buffer4 = 0, $vararg_buffer6 = 0, $width = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ STACKTOP = STACKTOP + 48 | 0;
+ if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(48);
+ $vararg_buffer6 = sp + 24 | 0;
+ $vararg_buffer4 = sp + 16 | 0;
+ $vararg_buffer2 = sp + 8 | 0;
+ $vararg_buffer = sp;
+ $id$addr = sp + 32 | 0;
+ $cameraID$addr = sp + 28 | 0;
+ HEAP32[$id$addr >> 2] = $id;
+ HEAP32[$cameraID$addr >> 2] = $cameraID;
+ do if (!(__ZNSt3__212__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(56144, $id$addr) | 0)) $retval$2 = -1; else {
+  $call7 = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56144, $id$addr) | 0;
+  if (!(__ZNSt3__212__hash_tableINS_17__hash_value_typeIi7ARParamEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(56164, $cameraID$addr) | 0)) $retval$2 = -1; else {
+   $param = $call7 + 8 | 0;
+   _memcpy($param | 0, __ZNSt3__213unordered_mapIi7ARParamNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56164, $cameraID$addr) | 0, 184) | 0;
+   $0 = HEAP32[$param >> 2] | 0;
+   $width = $call7 + 208 | 0;
+   $2 = HEAP32[$call7 + 12 >> 2] | 0;
+   $height = $call7 + 212 | 0;
+   if (($0 | 0) == (HEAP32[$width >> 2] | 0)) {
+    if (($2 | 0) != (HEAP32[$height >> 2] | 0)) label = 5;
+   } else label = 5;
+   if ((label | 0) == 5) {
+    HEAP32[$vararg_buffer >> 2] = $0;
+    HEAP32[$vararg_buffer + 4 >> 2] = $2;
+    _arLog(0, 2, 44701, $vararg_buffer);
+    _arParamChangeSize($param, HEAP32[$width >> 2] | 0, HEAP32[$height >> 2] | 0, $param) | 0;
+   }
+   _deleteHandle($call7);
+   $call31 = _arParamLTCreate($param, 15) | 0;
+   $paramLT = $call7 + 192 | 0;
+   HEAP32[$paramLT >> 2] = $call31;
+   if (!$call31) {
+    _arLog(0, 3, 44748, $vararg_buffer2);
+    $retval$2 = -1;
+    break;
+   }
+   $call34 = _arCreateHandle($call31) | 0;
+   $arhandle = $call7 + 216 | 0;
+   HEAP32[$arhandle >> 2] = $call34;
+   if (!$call34) {
+    _arLog(0, 3, 44786, $vararg_buffer4);
+    $retval$2 = -1;
+    break;
+   }
+   _arSetPixelFormat($call34, HEAP32[$call7 + 424 >> 2] | 0) | 0;
+   $call39 = _ar3DCreateHandle($param) | 0;
+   HEAP32[$call7 + 228 >> 2] = $call39;
+   if (!$call39) {
+    _arLog(0, 3, 44823, $vararg_buffer6);
+    $retval$2 = -1;
+    break;
+   } else {
+    _arPattAttach(HEAP32[$arhandle >> 2] | 0, HEAP32[$call7 + 220 >> 2] | 0) | 0;
+    _arglCameraFrustumRH(HEAP32[$paramLT >> 2] | 0, +HEAPF64[$call7 + 264 >> 3], +HEAPF64[$call7 + 272 >> 3], $call7 + 296 | 0);
+    $call47 = _createKpmHandle(HEAP32[$paramLT >> 2] | 0) | 0;
+    HEAP32[$call7 + 232 >> 2] = $call47;
+    $retval$2 = 0;
+    break;
+   }
+  }
+ } while (0);
+ STACKTOP = sp;
+ return $retval$2 | 0;
+}
+
 function __ZN6vision16FindHoughMatchesERNSt3__26vectorINS_7match_tENS0_9allocatorIS2_EEEERKNS_21HoughSimilarityVotingERKS5_if($0, $1, $2, $3, $4) {
  $0 = $0 | 0;
  $1 = $1 | 0;
@@ -58086,77 +58157,6 @@ function _scanexp($0, $1) {
  }
  setTempRet0($99 | 0);
  return $100 | 0;
-}
-
-function _setCamera($id, $cameraID) {
- $id = $id | 0;
- $cameraID = $cameraID | 0;
- var $0 = 0, $2 = 0, $arhandle = 0, $call31 = 0, $call34 = 0, $call39 = 0, $call47 = 0, $call7 = 0, $cameraID$addr = 0, $height = 0, $id$addr = 0, $param = 0, $paramLT = 0, $retval$2 = 0, $vararg_buffer = 0, $vararg_buffer2 = 0, $vararg_buffer4 = 0, $vararg_buffer6 = 0, $width = 0, label = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 48 | 0;
- if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(48);
- $vararg_buffer6 = sp + 24 | 0;
- $vararg_buffer4 = sp + 16 | 0;
- $vararg_buffer2 = sp + 8 | 0;
- $vararg_buffer = sp;
- $id$addr = sp + 32 | 0;
- $cameraID$addr = sp + 28 | 0;
- HEAP32[$id$addr >> 2] = $id;
- HEAP32[$cameraID$addr >> 2] = $cameraID;
- do if (!(__ZNSt3__212__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(56144, $id$addr) | 0)) $retval$2 = -1; else {
-  $call7 = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56144, $id$addr) | 0;
-  if (!(__ZNSt3__212__hash_tableINS_17__hash_value_typeIi7ARParamEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(56164, $cameraID$addr) | 0)) $retval$2 = -1; else {
-   $param = $call7 + 8 | 0;
-   _memcpy($param | 0, __ZNSt3__213unordered_mapIi7ARParamNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56164, $cameraID$addr) | 0, 184) | 0;
-   $0 = HEAP32[$param >> 2] | 0;
-   $width = $call7 + 208 | 0;
-   $2 = HEAP32[$call7 + 12 >> 2] | 0;
-   $height = $call7 + 212 | 0;
-   if (($0 | 0) == (HEAP32[$width >> 2] | 0)) {
-    if (($2 | 0) != (HEAP32[$height >> 2] | 0)) label = 5;
-   } else label = 5;
-   if ((label | 0) == 5) {
-    HEAP32[$vararg_buffer >> 2] = $0;
-    HEAP32[$vararg_buffer + 4 >> 2] = $2;
-    _arLog(0, 2, 44701, $vararg_buffer);
-    _arParamChangeSize($param, HEAP32[$width >> 2] | 0, HEAP32[$height >> 2] | 0, $param) | 0;
-   }
-   _deleteHandle($call7);
-   $call31 = _arParamLTCreate($param, 15) | 0;
-   $paramLT = $call7 + 192 | 0;
-   HEAP32[$paramLT >> 2] = $call31;
-   if (!$call31) {
-    _arLog(0, 3, 44748, $vararg_buffer2);
-    $retval$2 = -1;
-    break;
-   }
-   $call34 = _arCreateHandle($call31) | 0;
-   $arhandle = $call7 + 216 | 0;
-   HEAP32[$arhandle >> 2] = $call34;
-   if (!$call34) {
-    _arLog(0, 3, 44786, $vararg_buffer4);
-    $retval$2 = -1;
-    break;
-   }
-   _arSetPixelFormat($call34, 2) | 0;
-   $call39 = _ar3DCreateHandle($param) | 0;
-   HEAP32[$call7 + 228 >> 2] = $call39;
-   if (!$call39) {
-    _arLog(0, 3, 44823, $vararg_buffer6);
-    $retval$2 = -1;
-    break;
-   } else {
-    _arPattAttach(HEAP32[$arhandle >> 2] | 0, HEAP32[$call7 + 220 >> 2] | 0) | 0;
-    _arglCameraFrustumRH(HEAP32[$paramLT >> 2] | 0, +HEAPF64[$call7 + 264 >> 3], +HEAPF64[$call7 + 272 >> 3], $call7 + 296 | 0);
-    $call47 = _createKpmHandle(HEAP32[$paramLT >> 2] | 0) | 0;
-    HEAP32[$call7 + 232 >> 2] = $call47;
-    $retval$2 = 0;
-    break;
-   }
-  }
- } while (0);
- STACKTOP = sp;
- return $retval$2 | 0;
 }
 
 function _icpPoint($0, $1, $2, $3, $4) {
