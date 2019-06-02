@@ -388,7 +388,7 @@ extern "C" {
 			return -1;
 		}
 		// AR_DEFAULT_PIXEL_FORMAT
-		int set = arSetPixelFormat(arc->arhandle, AR_PIXEL_FORMAT_RGBA);
+		int set = arSetPixelFormat(arc->arhandle, arc->pixFormat);
 
 		// ARLOGi("setCamera(): arCreateHandle done\n");
 
