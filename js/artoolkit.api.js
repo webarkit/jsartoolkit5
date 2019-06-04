@@ -1803,10 +1803,10 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 
 		return files;
 	}
-	
+
 	var multi_marker_count = 0;
 
-	function addMultiMarker(arId, url, callback) {
+	function addMultiMarker(arId, url, callback, onError) {
 		var filename = '/multi_marker_' + multi_marker_count++;
 		ajax(url, filename, function(bytes) {
 			var files = parseMultiFile(bytes);
@@ -1819,13 +1819,13 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 
 			if (!files.length) return ok();
 
-			var path = url.split('/').slice(0, -1).join('/')
+			var path = url.split('/').slice(0, -1).join('/');
 			files = files.map(function(file) {
 				return [path + '/' + file, file]
-			})
+			});
 
 			ajaxDependencies(files, ok);
-		});
+		}, function(error) { if(onError) onError(error)});
 	}
 
 	var camera_count = 0;
