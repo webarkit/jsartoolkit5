@@ -1326,7 +1326,7 @@
 					constraints.maxWidth = configuration.width.max;
 				}
 				if (configuration.width.min) {
-					constraints.minWidth = configuration.width.max;
+					constraints.minWidth = configuration.width.min;
 				}
 			} else {
 				constraints.maxWidth = configuration.width;
@@ -1340,7 +1340,7 @@
 					constraints.maxHeight = configuration.height.max;
 				}
 				if (configuration.height.min) {
-					constraints.minHeight = configuration.height.max;
+					constraints.minHeight = configuration.height.min;
 				}
 			} else {
 				constraints.maxHeight = configuration.height;
@@ -1348,14 +1348,14 @@
 		}
 
 		mediaDevicesConstraints.facingMode = facing;
+	  mediaDevicesConstraints.deviceId = configuration.deviceId;
 
-		navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+		// @ts-ignore: Ignored because it is needed to support older browsers
+        navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 		var hdConstraints = {
 			audio: false,
-			video: {
-				mandatory: constraints
-		  	}
-		};
+			video: constraints
+        };
 
 		if ( false ) {
 		 //if ( navigator.mediaDevices || window.MediaStreamTrack) {
