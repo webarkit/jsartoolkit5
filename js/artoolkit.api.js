@@ -1485,7 +1485,15 @@
 		var video = ARController.getUserMedia(obj);
 		return video;
 	};
-
+	/**
+		* Properly end the video stream
+		* @param {HTMLVideoElement} video The video to stop
+		*/
+	 ARController._teardownVideo = function(video) {
+			 video.srcObject.getVideoTracks()[0].stop();
+			 video.srcObject = null;
+			 video.src = null;
+	 }
 
 	/**
 		ARCameraParam is used for loading AR camera parameters for use with ARController.
