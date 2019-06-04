@@ -1357,47 +1357,49 @@
 			video: constraints
         };
 
-		if ( false ) {
-		 //if ( navigator.mediaDevices || window.MediaStreamTrack) {
-			if (navigator.mediaDevices) {
-				navigator.mediaDevices.getUserMedia({
-					audio: false,
-					video: mediaDevicesConstraints
-				}).then(success, onError);
-			} else {
-				MediaStreamTrack.getSources(function(sources) {
-					var facingDir = mediaDevicesConstraints.facingMode;
-					if (facing && facing.exact) {
-						facingDir = facing.exact;
-					}
-					for (var i=0; i<sources.length; i++) {
-						if (sources[i].kind === 'video' && sources[i].facing === facingDir) {
-							hdConstraints.video.mandatory.sourceId = sources[i].id;
-							break;
-						}
-					}
-					if (facing && facing.exact && !hdConstraints.video.mandatory.sourceId) {
-						onError('Failed to get camera facing the wanted direction');
+
+				// @ts-ignore: ignored because it is needed to support older browsers
+		if ( navigator.mediaDevices || window.MediaStreamTrack.getSources) {
+					if (navigator.mediaDevices) {
+						navigator.mediaDevices.getUserMedia({
+							audio: false,
+							video: mediaDevicesConstraints
+						}).then(success, onError);
 					} else {
-						if (navigator.getUserMedia) {
-							navigator.getUserMedia(hdConstraints, success, onError);
-						} else {
-							onError('navigator.getUserMedia is not supported on your browser');
-						}
+		                // This function of accessing the media device is deprecated and outdated and shouldn't be used anymore.
+				        // @ts-ignore: ignored because it is needed to support older browsers
+		                window.MediaStreamTrack.getSources(function(sources) {
+							var facingDir = mediaDevicesConstraints.facingMode;
+							if (facing && facing.exact) {
+								facingDir = facing.exact;
+							}
+							for (var i=0; i<sources.length; i++) {
+								if (sources[i].kind === 'video' && sources[i].facing === facingDir) {
+									hdConstraints.video.mandatory.sourceId = sources[i].id;
+									break;
+								}
+							}
+							if (facing && facing.exact && !hdConstraints.video.mandatory.sourceId) {
+								onError('Failed to get camera facing the wanted direction');
+							} else {
+								if (navigator.getUserMedia) {
+									navigator.getUserMedia(hdConstraints, success, onError);
+								} else {
+									onError('navigator.getUserMedia is not supported on your browser');
+								}
+							}
+						});
 					}
-				});
-			}
-		} else {
-			if (navigator.getUserMedia) {
-				navigator.getUserMedia(hdConstraints, success, onError);
-			} else {
-				onError('navigator.getUserMedia is not supported on your browser');
-			}
-		}
+				} else {
+					if (navigator.getUserMedia) {
+						navigator.getUserMedia(hdConstraints, success, onError);
+					} else {
+						onError('navigator.getUserMedia is not supported on your browser');
+					}
+				}
 
-		return video;
+				return video;
 	};
-
 	/**
 		ARController.getUserMediaARController gets an ARController for the device camera video feed and calls the
 		given onSuccess callback with it.
