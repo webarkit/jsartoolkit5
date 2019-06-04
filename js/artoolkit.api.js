@@ -1609,21 +1609,20 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 		@param {string} src URL to load.
 	*/
 	ARCameraParam.prototype.load = function(src) {
-		if (this._src !== '') {
-			throw("ARCameraParam: Trying to load camera parameters twice.")
-		}
-		this._src = src;
-		if (src) {
-			var self = this;
-			artoolkit.loadCamera(src, function(id) {
-				self.id = id;
-				self.complete = true;
-				self.onload();
-			}, function(err) {
-				self.onerror(err);
-			});
-		}
-	};
+			if (this._src !== '') {
+				throw("ARCameraParam: Trying to load camera parameters twice.")
+			}
+			this._src = src;
+			if (src) {
+				artoolkit.loadCamera(src, function(id) {
+					this.id = id;
+					this.complete = true;
+					this.onload();
+				}.bind(this), function(err) {
+					this.onerror(err);
+				}.bind(this));
+			}
+		};
 
 	Object.defineProperty(ARCameraParam.prototype, 'src', {
 		set: function(src) {
