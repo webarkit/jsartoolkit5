@@ -62,7 +62,7 @@
 		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success.
 	*/
 	var ARController = function(width, height, camera) {
-		var id;
+		this.id = undefined;
 		var w = width, h = height;
 
 		this.orientation = 'landscape';
@@ -100,22 +100,24 @@
 		this.videoHeight = h;
 		this.videoSize = this.videoWidth * this.videoHeight;
 		this.videoLuma = null;
+		this.camera_mat = null;
+		this.marker_transform_mat = null;
 		this.videoLumaPointer = null;
 		this._bwpointer = undefined;
 		this._lumaCtx = undefined;
 
-		if (typeof camera === 'string') {
+		if (typeof cameraPara === 'string') {
 
-			var self = this;
-			this.cameraParam = new ARCameraParam(camera, function() {
-				self._initialize();
-			}, function(err) {
-				console.error("ARController: Failed to load ARCameraParam", err);
-			});
+			this.cameraParam = new ARCameraParam(cameraPara, function() {
+				this._initialize();
+			}.bind(this), function(err) {
+                console.error("ARController: Failed to load ARCameraParam", err);
+                this.onload(err);
+			}.bind(this));
 
 		} else {
 
-			this.cameraParam = camera;
+			this.cameraParam = cameraPara;
 			this._initialize();
 
 		}
