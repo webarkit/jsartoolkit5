@@ -1516,13 +1516,28 @@
 	var ARCameraParam = function(src, onload, onerror) {
 		this.id = -1;
 		this._src = '';
-		this.complete = false;
-		this.onload = onload;
-		this.onerror = onerror;
+        this.complete = false;
+        if(!onload) {
+            this.onload = function(){console.log('Successfully loaded');};
+            console.warn("onload callback should be defined");
+        } else {
+            this.onload = onload;
+        }
+        if(!onerror) {
+            this.onerror = function(err) {console.error("Error: " + err)};
+            console.warn("onerror callback should be defined");
+        } else {
+            this.onerror = onerror;
+        }
+
 		if (src) {
 			this.load(src);
-		}
+        }
+        else {
+            console.warn("No camera parameter file defined! It should be defined in constructor or in ARCameraParam.load(url)");
+        }
 	};
+
 
 	/**
 		Loads the given URL as camera parameters definition file into this ARCameraParam.
