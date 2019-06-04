@@ -97,6 +97,7 @@
 
 		this.videoWidth = w;
 		this.videoHeight = h;
+		this.videoSize = this.videoWidth * this.videoHeight;
 		this.videoLuma = null;
 		this.videoLumaPointer = null;
 
