@@ -77,8 +77,8 @@
 			this.image = image;
 		}
 
-		this.width = w;
-		this.height = h;
+		//this.width = w;
+		//this.height = h;
 
 		this.nftMarkerCount = 0;
 
@@ -89,12 +89,12 @@
 		this.transform_mat = new Float32Array(16);
 		this.transformGL_RH = new Float64Array(16);
 
-		if (typeof document !== 'undefined') {
+		//if (typeof document !== 'undefined') {
 			this.canvas = document.createElement('canvas');
 			this.canvas.width = w;
 			this.canvas.height = h;
 			this.ctx = this.canvas.getContext('2d');
-		}
+		//}
 
 		this.videoWidth = w;
 		this.videoHeight = h;
