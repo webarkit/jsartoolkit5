@@ -504,7 +504,17 @@
 		@param {function} onError - The error callback. Called with the encountered error if the load fails.
 	*/
 	ARController.prototype.loadMarker = function(markerURL, onSuccess, onError) {
-		return artoolkit.addMarker(this.id, markerURL, onSuccess, onError);
+        if(markerURL){
+            artoolkit.addMarker(this.id, markerURL, onSuccess, onError);
+        }
+        else {
+            if(onError){
+                onError("Marker URL needs to be defined and not equal empty string!");
+            }
+            else {
+                console.error("Marker URL needs to be defined and not equal empty string!");
+            }
+        }
 	};
 
 	/**
