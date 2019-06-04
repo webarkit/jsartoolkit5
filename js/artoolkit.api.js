@@ -622,6 +622,9 @@
 		@param {number} scale The scale for the transform.
 	*/
 	ARController.prototype.transMatToGLMat = function(transMat, glMat, scale) {
+        if(glMat == undefined){
+            glMat = new Float64Array(16);
+        }
 		glMat[0 + 0*4] = transMat[0]; // R1C1
 		glMat[0 + 1*4] = transMat[1]; // R1C2
 		glMat[0 + 2*4] = transMat[2];
@@ -644,8 +647,7 @@
 			glMat[14] *= scale;
 		}
 		return glMat;
-	};
-
+  };
 	/**
 		This is the core ARToolKit marker detection function. It calls through to a set of
 		internal functions to perform the key marker detection steps of binarization and
