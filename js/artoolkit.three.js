@@ -1,6 +1,6 @@
 /* THREE.js ARToolKit integration */
 
-(function() {
+;(function() {
 	var integrate = function() {
 		/**
 			Helper for setting up a Three.js AR scene using the device camera as input.
@@ -285,7 +285,7 @@
 
 				}
 				if (obj) {
-					obj.matrix.elements.set(ev.data.matrix);
+					obj.matrix.fromArray(ev.data.matrixGL_RH);
 					obj.visible = true;
 				}
 			});
@@ -311,7 +311,7 @@
 			this.addEventListener('getMultiMarker', function(ev) {
 				var obj = this.threeMultiMarkers[ev.data.multiMarkerId];
 				if (obj) {
-					obj.matrix.elements.set(ev.data.matrix);
+					obj.matrix.fromArray(ev.data.matrixGL_RH);
 					obj.visible = true;
 				}
 			});
@@ -326,7 +326,7 @@
 				var obj = this.threeMultiMarkers[marker];
 				if (obj && obj.markers && obj.markers[subMarkerID]) {
 					var sub = obj.markers[subMarkerID];
-					sub.matrix.elements.set(ev.data.matrix);
+					sub.matrix.fromArray(ev.data.matrix);
 					sub.visible = (subMarker.visible >= 0);
 				}
 			});
@@ -363,7 +363,7 @@
 			}
 		} else {
 			setTimeout(tick, 50);
-		}			
+		}
 	};
 
 	tick();
