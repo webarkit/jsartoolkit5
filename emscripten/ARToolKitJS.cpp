@@ -1028,6 +1028,7 @@ extern "C" {
 
 		arc->videoFrameSize = width * height * 4 * sizeof(ARUint8);
 		arc->videoFrame = (ARUint8*) malloc(arc->videoFrameSize);
+		arc->videoLuma = (ARUint8*) malloc(arc->videoFrameSize / 4);
 
 		if ((arc->arPattHandle = arPattCreateHandle()) == NULL) {
 			ARLOGe("setup(): Error: arPattCreateHandle.\n");

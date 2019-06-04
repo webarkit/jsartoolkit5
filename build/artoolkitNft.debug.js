@@ -72883,6 +72883,42 @@ function _strspn($0, $1) {
  return $$0 | 0;
 }
 
+function _setup($width, $height, $cameraID) {
+ $width = $width | 0;
+ $height = $height | 0;
+ $cameraID = $cameraID | 0;
+ var $0 = 0, $call = 0, $call10 = 0, $call7 = 0, $call9 = 0, $id = 0, $mul4 = 0, $vararg_buffer1 = 0, $videoFrame = 0, $videoFrameSize = 0, sp = 0;
+ sp = STACKTOP;
+ STACKTOP = STACKTOP + 16 | 0;
+ if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(16);
+ $vararg_buffer1 = sp + 8 | 0;
+ $id = sp + 12 | 0;
+ $0 = HEAP32[14047] | 0;
+ HEAP32[14047] = $0 + 1;
+ HEAP32[$id >> 2] = $0;
+ $call = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56144, $id) | 0;
+ HEAP32[$call >> 2] = HEAP32[$id >> 2];
+ HEAP32[$call + 208 >> 2] = $width;
+ HEAP32[$call + 212 >> 2] = $height;
+ $mul4 = Math_imul($width << 2, $height) | 0;
+ $videoFrameSize = $call + 200 | 0;
+ HEAP32[$videoFrameSize >> 2] = $mul4;
+ $call7 = _malloc($mul4) | 0;
+ $videoFrame = $call + 196 | 0;
+ HEAP32[$videoFrame >> 2] = $call7;
+ $call9 = _malloc((HEAP32[$videoFrameSize >> 2] | 0) / 4 | 0) | 0;
+ HEAP32[$call + 204 >> 2] = $call9;
+ $call10 = _arPattCreateHandle() | 0;
+ HEAP32[$call + 220 >> 2] = $call10;
+ if (!$call10) _arLog(0, 3, 44395, sp);
+ _setCamera(HEAP32[$id >> 2] | 0, $cameraID) | 0;
+ HEAP32[$vararg_buffer1 >> 2] = HEAP32[$videoFrameSize >> 2];
+ _arLog(0, 1, 44432, $vararg_buffer1);
+ _emscripten_asm_const_iiiiii(0, HEAP32[$call >> 2] | 0, HEAP32[$videoFrame >> 2] | 0, HEAP32[$videoFrameSize >> 2] | 0, $call + 296 | 0, 51520) | 0;
+ STACKTOP = sp;
+ return HEAP32[$call >> 2] | 0;
+}
+
 function __ZNSt3__26vectorIPNS_6locale5facetENS_15__sso_allocatorIS3_Lm28EEEE8__appendEm($0, $1) {
  $0 = $0 | 0;
  $1 = $1 | 0;
@@ -74136,40 +74172,6 @@ function _merged_2v_upsample($0, $1, $2, $3, $4, $5, $6) {
  if (!(HEAP32[$10 >> 2] | 0)) HEAP32[$2 >> 2] = (HEAP32[$2 >> 2] | 0) + 1;
  STACKTOP = sp;
  return;
-}
-
-function _setup($width, $height, $cameraID) {
- $width = $width | 0;
- $height = $height | 0;
- $cameraID = $cameraID | 0;
- var $0 = 0, $call = 0, $call7 = 0, $call8 = 0, $id = 0, $mul4 = 0, $vararg_buffer1 = 0, $videoFrame = 0, $videoFrameSize = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16 | 0;
- if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(16);
- $vararg_buffer1 = sp + 8 | 0;
- $id = sp + 12 | 0;
- $0 = HEAP32[14047] | 0;
- HEAP32[14047] = $0 + 1;
- HEAP32[$id >> 2] = $0;
- $call = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56144, $id) | 0;
- HEAP32[$call >> 2] = HEAP32[$id >> 2];
- HEAP32[$call + 208 >> 2] = $width;
- HEAP32[$call + 212 >> 2] = $height;
- $mul4 = Math_imul($width << 2, $height) | 0;
- $videoFrameSize = $call + 200 | 0;
- HEAP32[$videoFrameSize >> 2] = $mul4;
- $call7 = _malloc($mul4) | 0;
- $videoFrame = $call + 196 | 0;
- HEAP32[$videoFrame >> 2] = $call7;
- $call8 = _arPattCreateHandle() | 0;
- HEAP32[$call + 220 >> 2] = $call8;
- if (!$call8) _arLog(0, 3, 44395, sp);
- _setCamera(HEAP32[$id >> 2] | 0, $cameraID) | 0;
- HEAP32[$vararg_buffer1 >> 2] = HEAP32[$videoFrameSize >> 2];
- _arLog(0, 1, 44432, $vararg_buffer1);
- _emscripten_asm_const_iiiiii(0, HEAP32[$call >> 2] | 0, HEAP32[$videoFrame >> 2] | 0, HEAP32[$videoFrameSize >> 2] | 0, $call + 296 | 0, 51520) | 0;
- STACKTOP = sp;
- return HEAP32[$call >> 2] | 0;
 }
 
 function _quantize3_ord_dither($0, $1, $2, $3) {

@@ -97,6 +97,8 @@
 
 		this.videoWidth = w;
 		this.videoHeight = h;
+		this.videoLuma = null;
+		this.videoLumaPointer = null;
 
 		if (typeof camera === 'string') {
 
@@ -1085,8 +1087,10 @@
 		var params = artoolkit.frameMalloc;
 		this.framepointer = params.framepointer;
 		this.framesize = params.framesize;
+		this.videoLumaPointer = params.videoLumaPointer;
 
 		this.dataHeap = new Uint8Array(Module.HEAPU8.buffer, this.framepointer, this.framesize);
+		this.videoLuma = new Uint8Array(Module.HEAPU8.buffer, this.videoLumaPointer, this.framesize/4);
 
 		this.camera_mat = new Float64Array(Module.HEAPU8.buffer, params.camera, 16);
 		this.marker_transform_mat = new Float64Array(Module.HEAPU8.buffer, params.transform, 12);
@@ -1094,16 +1098,15 @@
 		this.setProjectionNearPlane(0.1)
 		this.setProjectionFarPlane(1000);
 
-		var self = this;
 		setTimeout(function() {
-			if (self.onload) {
-				self.onload();
+			if (this.onload) {
+				this.onload();
 			}
-			self.dispatchEvent({
+			this.dispatchEvent({
 				name: 'load',
-				target: self
+				target: this
 			});
-		}, 1);
+		}.bind(this), 1);
 	};
 
 	ARController.prototype._initNFT = function() {
@@ -1114,28 +1117,32 @@
 		if (!image) {
 			image = this.image;
 		}
-		if (image.data) {
+		this.ctx.save();
 
-			var imageData = image;
-
+		if (this.orientation === 'portrait') {
+			this.ctx.translate(this.canvas.width, 0);
+			this.ctx.rotate(Math.PI/2);
+			this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
 		} else {
-
-			this.ctx.save();
-
-			if (this.orientation === 'portrait') {
-				this.ctx.translate(this.canvas.width, 0);
-				this.ctx.rotate(Math.PI/2);
-				this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
-			} else {
-				this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
-			}
+			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
+		}
 
 			this.ctx.restore();
 			var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+			var data = imageData.data;  // this is of type Uint8ClampedArray: The Uint8ClampedArray typed array represents an array of 8-bit unsigned integers clamped to 0-255 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)
 
-		}
+        //Here we have access to the unmodified video image. We now need to add the videoLuma chanel to be able to serve the underlying ARTK API
+        if(this.videoLuma) {
+            var q = 0;
+            //Create luma from video data assuming Pixelformat AR_PIXEL_FORMAT_RGBA (ARToolKitJS.cpp L: 43)
 
-		var data = imageData.data;
+            for(var p=0; p < this.videoSize; p++){
+                var r = data[q+0], g = data[q+1], b = data[q+2];
+                // videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
+                this.videoLuma[p] = (r+r+r+b+g+g+g+g)>>3;
+                q += 4;
+            }
+        }
 
 		if (this.dataHeap) {
 			this.dataHeap.set( data );
