@@ -61,7 +61,7 @@
 		@param {number} height The height of the images to process.
 		@param {ARCameraParam | string} camera The ARCameraParam to use for image processing. If this is a string, the ARController treats it as an URL and tries to load it as a ARCameraParam definition file, calling ARController#onload on success.
 	*/
-	var ARController = function(width, height, camera) {
+	var ARController = function(width, height, cameraPara) {
 		this.id = undefined;
 		var w = width, h = height;
 
@@ -71,7 +71,7 @@
 
 		if (typeof width !== 'number') {
 			var image = width;
-			camera = height;
+			cameraPara = height;
 			w = image.videoWidth || image.width;
 			h = image.videoHeight || image.height;
 			this.image = image;
