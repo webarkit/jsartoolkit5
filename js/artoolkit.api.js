@@ -101,6 +101,8 @@
 		this.videoSize = this.videoWidth * this.videoHeight;
 		this.videoLuma = null;
 		this.videoLumaPointer = null;
+		this._bwpointer = undefined;
+		this._lumaCtx = undefined;
 
 		if (typeof camera === 'string') {
 
@@ -469,8 +471,15 @@
 		The debug canvas is added to document.body.
 	*/
 	ARController.prototype.debugSetup = function() {
-		document.body.appendChild(this.canvas)
-		this.setDebugMode(1);
+		document.body.appendChild(this.canvas);
+
+    var lumaCanvas = document.createElement('canvas');
+		lumaCanvas.width = this.canvas.width;
+		lumaCanvas.height = this.canvas.height;
+	  this._lumaCtx = lumaCanvas.getContext('2d');
+    document.body.appendChild(lumaCanvas);
+
+		this.setDebugMode(true);
 		this._bwpointer = this.getProcessingImage();
 	};
 
