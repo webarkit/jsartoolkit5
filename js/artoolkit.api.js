@@ -1905,16 +1905,16 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 
 	if (window.Module) {
 		window.Module.onRuntimeInitialized = function() {
-            runWhenLoaded();
-            var event = new Event('artoolkit-loaded');
-            window.dispatchEvent(event);
-        }
+	           runWhenLoaded();
+	           var event = new Event('artoolkit-loaded');
+	           window.dispatchEvent(event);
+	       }
 	} else {
-        window.Module = {
-            onRuntimeInitialized: function() {
-                runWhenLoaded();
-            }
-        };
-    }
+	       window.Module = {
+	           onRuntimeInitialized: function() {
+	               runWhenLoaded();
+	           }
+	       };
+	   }
 
 })();
