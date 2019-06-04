@@ -1499,14 +1499,14 @@ function isDataURI(filename) {
 
 // === Body ===
 
-var ASM_CONSTS = [function($0, $1, $2, $3, $4) { if (!artoolkit["frameMalloc"]) { artoolkit["frameMalloc"] = ({}); } var frameMalloc = artoolkit["frameMalloc"]; frameMalloc["framepointer"] = $1; frameMalloc["framesize"] = $2; frameMalloc["camera"] = $3; frameMalloc["transform"] = $4; },
+var ASM_CONSTS = [function($0, $1, $2, $3, $4, $5) { if (!artoolkit["frameMalloc"]) { artoolkit["frameMalloc"] = ({}); } var frameMalloc = artoolkit["frameMalloc"]; frameMalloc["framepointer"] = $1; frameMalloc["framesize"] = $2; frameMalloc["camera"] = $3; frameMalloc["transform"] = $4; },
  function($0, $1, $2, $3) { if (!artoolkit["multiEachMarkerInfo"]) { artoolkit["multiEachMarkerInfo"] = ({}); } var multiEachMarker = artoolkit["multiEachMarkerInfo"]; multiEachMarker['visible'] = $0; multiEachMarker['pattId'] = $1; multiEachMarker['pattType'] = $2; multiEachMarker['width'] = $3; },
  function($0, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32) { var $a = arguments; var i = 12; if (!artoolkit["markerInfo"]) { artoolkit["markerInfo"] = ({ pos: [0,0], line: [[0,0,0], [0,0,0], [0,0,0], [0,0,0]], vertex: [[0,0], [0,0], [0,0], [0,0]] }); } var markerInfo = artoolkit["markerInfo"]; markerInfo["area"] = $0; markerInfo["id"] = $1; markerInfo["idPatt"] = $2; markerInfo["idMatrix"] = $3; markerInfo["dir"] = $4; markerInfo["dirPatt"] = $5; markerInfo["dirMatrix"] = $6; markerInfo["cf"] = $7; markerInfo["cfPatt"] = $8; markerInfo["cfMatrix"] = $9; markerInfo["pos"][0] = $10; markerInfo["pos"][1] = $11; markerInfo["line"][0][0] = $a[i++]; markerInfo["line"][0][1] = $a[i++]; markerInfo["line"][0][2] = $a[i++]; markerInfo["line"][1][0] = $a[i++]; markerInfo["line"][1][1] = $a[i++]; markerInfo["line"][1][2] = $a[i++]; markerInfo["line"][2][0] = $a[i++]; markerInfo["line"][2][1] = $a[i++]; markerInfo["line"][2][2] = $a[i++]; markerInfo["line"][3][0] = $a[i++]; markerInfo["line"][3][1] = $a[i++]; markerInfo["line"][3][2] = $a[i++]; markerInfo["vertex"][0][0] = $a[i++]; markerInfo["vertex"][0][1] = $a[i++]; markerInfo["vertex"][1][0] = $a[i++]; markerInfo["vertex"][1][1] = $a[i++]; markerInfo["vertex"][2][0] = $a[i++]; markerInfo["vertex"][2][1] = $a[i++]; markerInfo["vertex"][3][0] = $a[i++]; markerInfo["vertex"][3][1] = $a[i++]; markerInfo["errorCorrected"] = $a[i++]; },
  function($0, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) { var $a = arguments; var i = 0; if (!artoolkit["NFTMarkerInfo"]) { artoolkit["NFTMarkerInfo"] = ({ id: 0, error: -1, found: 0, pose: [0,0,0,0, 0,0,0,0, 0,0,0,0] }); } var markerInfo = artoolkit["NFTMarkerInfo"]; markerInfo["id"] = $a[i++]; markerInfo["error"] = $a[i++]; markerInfo["found"] = 1; markerInfo["pose"][0] = $a[i++]; markerInfo["pose"][1] = $a[i++]; markerInfo["pose"][2] = $a[i++]; markerInfo["pose"][3] = $a[i++]; markerInfo["pose"][4] = $a[i++]; markerInfo["pose"][5] = $a[i++]; markerInfo["pose"][6] = $a[i++]; markerInfo["pose"][7] = $a[i++]; markerInfo["pose"][8] = $a[i++]; markerInfo["pose"][9] = $a[i++]; markerInfo["pose"][10] = $a[i++]; markerInfo["pose"][11] = $a[i++]; },
  function($0) { var $a = arguments; var i = 0; if (!artoolkit["NFTMarkerInfo"]) { artoolkit["NFTMarkerInfo"] = ({ id: 0, error: -1, found: 0, pose: [0,0,0,0, 0,0,0,0, 0,0,0,0] }); } var markerInfo = artoolkit["NFTMarkerInfo"]; markerInfo["id"] = $a[i++]; markerInfo["error"] = -1; markerInfo["found"] = 0; markerInfo["pose"][0] = 0; markerInfo["pose"][1] = 0; markerInfo["pose"][2] = 0; markerInfo["pose"][3] = 0; markerInfo["pose"][4] = 0; markerInfo["pose"][5] = 0; markerInfo["pose"][6] = 0; markerInfo["pose"][7] = 0; markerInfo["pose"][8] = 0; markerInfo["pose"][9] = 0; markerInfo["pose"][10] = 0; markerInfo["pose"][11] = 0; }];
 
-function _emscripten_asm_const_iiiiii(code, a0, a1, a2, a3, a4) {
-  return ASM_CONSTS[code](a0, a1, a2, a3, a4);
+function _emscripten_asm_const_iiiiiii(code, a0, a1, a2, a3, a4, a5) {
+  return ASM_CONSTS[code](a0, a1, a2, a3, a4, a5);
 }
 
 function _emscripten_asm_const_iiiid(code, a0, a1, a2, a3) {
@@ -6892,7 +6892,7 @@ var asmLibraryArg = {
   "_emscripten_asm_const_ii": _emscripten_asm_const_ii,
   "_emscripten_asm_const_iiddddddddddddd": _emscripten_asm_const_iiddddddddddddd,
   "_emscripten_asm_const_iiiid": _emscripten_asm_const_iiiid,
-  "_emscripten_asm_const_iiiiii": _emscripten_asm_const_iiiiii,
+  "_emscripten_asm_const_iiiiiii": _emscripten_asm_const_iiiiiii,
   "_emscripten_asm_const_iiiiiiiidddddddddddddddddddddddddi": _emscripten_asm_const_iiiiiiiidddddddddddddddddddddddddi,
   "_emscripten_get_heap_size": _emscripten_get_heap_size,
   "_emscripten_get_now": _emscripten_get_now,
@@ -7057,7 +7057,7 @@ var asm = (/** @suppress {uselessCode} */ function(global, env, buffer) {
   _emscripten_asm_const_ii=env._emscripten_asm_const_ii,
   _emscripten_asm_const_iiddddddddddddd=env._emscripten_asm_const_iiddddddddddddd,
   _emscripten_asm_const_iiiid=env._emscripten_asm_const_iiiid,
-  _emscripten_asm_const_iiiiii=env._emscripten_asm_const_iiiiii,
+  _emscripten_asm_const_iiiiiii=env._emscripten_asm_const_iiiiiii,
   _emscripten_asm_const_iiiiiiiidddddddddddddddddddddddddi=env._emscripten_asm_const_iiiiiiiidddddddddddddddddddddddddi,
   _emscripten_get_heap_size=env._emscripten_get_heap_size,
   _emscripten_get_now=env._emscripten_get_now,
@@ -16793,6 +16793,7 @@ function __ZNSt3__212__next_primeEm($0) {
  STACKTOP = sp;
  return $$8 | 0;
 }
+
 function _fmt_fp($0, $1, $2, $3, $4, $5) {
  $0 = $0 | 0;
  $1 = +$1;
@@ -72041,6 +72042,43 @@ function _make_funny_pointers($0) {
  return;
 }
 
+function _setup($width, $height, $cameraID) {
+ $width = $width | 0;
+ $height = $height | 0;
+ $cameraID = $cameraID | 0;
+ var $0 = 0, $call = 0, $call10 = 0, $call7 = 0, $call9 = 0, $id = 0, $mul4 = 0, $vararg_buffer1 = 0, $videoFrame = 0, $videoFrameSize = 0, $videoLuma = 0, sp = 0;
+ sp = STACKTOP;
+ STACKTOP = STACKTOP + 16 | 0;
+ if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(16);
+ $vararg_buffer1 = sp + 8 | 0;
+ $id = sp + 12 | 0;
+ $0 = HEAP32[14047] | 0;
+ HEAP32[14047] = $0 + 1;
+ HEAP32[$id >> 2] = $0;
+ $call = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56144, $id) | 0;
+ HEAP32[$call >> 2] = HEAP32[$id >> 2];
+ HEAP32[$call + 208 >> 2] = $width;
+ HEAP32[$call + 212 >> 2] = $height;
+ $mul4 = Math_imul($width << 2, $height) | 0;
+ $videoFrameSize = $call + 200 | 0;
+ HEAP32[$videoFrameSize >> 2] = $mul4;
+ $call7 = _malloc($mul4) | 0;
+ $videoFrame = $call + 196 | 0;
+ HEAP32[$videoFrame >> 2] = $call7;
+ $call9 = _malloc((HEAP32[$videoFrameSize >> 2] | 0) / 4 | 0) | 0;
+ $videoLuma = $call + 204 | 0;
+ HEAP32[$videoLuma >> 2] = $call9;
+ $call10 = _arPattCreateHandle() | 0;
+ HEAP32[$call + 220 >> 2] = $call10;
+ if (!$call10) _arLog(0, 3, 44395, sp);
+ _setCamera(HEAP32[$id >> 2] | 0, $cameraID) | 0;
+ HEAP32[$vararg_buffer1 >> 2] = HEAP32[$videoFrameSize >> 2];
+ _arLog(0, 1, 44432, $vararg_buffer1);
+ _emscripten_asm_const_iiiiiii(0, HEAP32[$call >> 2] | 0, HEAP32[$videoFrame >> 2] | 0, HEAP32[$videoFrameSize >> 2] | 0, $call + 296 | 0, 51520, HEAP32[$videoLuma >> 2] | 0) | 0;
+ STACKTOP = sp;
+ return HEAP32[$call >> 2] | 0;
+}
+
 function __ZNSt3__212basic_stringIwNS_11char_traitsIwEENS_9allocatorIwEEE21__grow_by_and_replaceEmmmmmmPKw($0, $1, $2, $3, $4, $5, $6, $7) {
  $0 = $0 | 0;
  $1 = $1 | 0;
@@ -72881,42 +72919,6 @@ function _strspn($0, $1) {
  } while (0);
  STACKTOP = sp;
  return $$0 | 0;
-}
-
-function _setup($width, $height, $cameraID) {
- $width = $width | 0;
- $height = $height | 0;
- $cameraID = $cameraID | 0;
- var $0 = 0, $call = 0, $call10 = 0, $call7 = 0, $call9 = 0, $id = 0, $mul4 = 0, $vararg_buffer1 = 0, $videoFrame = 0, $videoFrameSize = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16 | 0;
- if ((STACKTOP | 0) >= (STACK_MAX | 0)) abortStackOverflow(16);
- $vararg_buffer1 = sp + 8 | 0;
- $id = sp + 12 | 0;
- $0 = HEAP32[14047] | 0;
- HEAP32[14047] = $0 + 1;
- HEAP32[$id >> 2] = $0;
- $call = __ZNSt3__213unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(56144, $id) | 0;
- HEAP32[$call >> 2] = HEAP32[$id >> 2];
- HEAP32[$call + 208 >> 2] = $width;
- HEAP32[$call + 212 >> 2] = $height;
- $mul4 = Math_imul($width << 2, $height) | 0;
- $videoFrameSize = $call + 200 | 0;
- HEAP32[$videoFrameSize >> 2] = $mul4;
- $call7 = _malloc($mul4) | 0;
- $videoFrame = $call + 196 | 0;
- HEAP32[$videoFrame >> 2] = $call7;
- $call9 = _malloc((HEAP32[$videoFrameSize >> 2] | 0) / 4 | 0) | 0;
- HEAP32[$call + 204 >> 2] = $call9;
- $call10 = _arPattCreateHandle() | 0;
- HEAP32[$call + 220 >> 2] = $call10;
- if (!$call10) _arLog(0, 3, 44395, sp);
- _setCamera(HEAP32[$id >> 2] | 0, $cameraID) | 0;
- HEAP32[$vararg_buffer1 >> 2] = HEAP32[$videoFrameSize >> 2];
- _arLog(0, 1, 44432, $vararg_buffer1);
- _emscripten_asm_const_iiiiii(0, HEAP32[$call >> 2] | 0, HEAP32[$videoFrame >> 2] | 0, HEAP32[$videoFrameSize >> 2] | 0, $call + 296 | 0, 51520) | 0;
- STACKTOP = sp;
- return HEAP32[$call >> 2] | 0;
 }
 
 function __ZNSt3__26vectorIPNS_6locale5facetENS_15__sso_allocatorIS3_Lm28EEEE8__appendEm($0, $1) {
@@ -97989,13 +97991,6 @@ function dynCall_vid(index, a1, a2) {
  FUNCTION_TABLE_vid[index & 3](a1 | 0, +a2);
 }
 
-function _vfprintf($0, $1, $2) {
- $0 = $0 | 0;
- $1 = $1 | 0;
- $2 = $2 | 0;
- return ___vfprintf_internal($0, $1, $2, 1, 56) | 0;
-}
-
 function _llvm_bswap_i32(x) {
  x = x | 0;
  return (x & 255) << 24 | (x >> 8 & 255) << 16 | (x >> 16 & 255) << 8 | x >>> 24 | 0;
@@ -98015,6 +98010,12 @@ function b21(p0, p1, p2, p3, p4) {
  p3 = p3 | 0;
  p4 = p4 | 0;
  nullFunc_viiiii(21);
+}
+function _vfprintf($0, $1, $2) {
+ $0 = $0 | 0;
+ $1 = $1 | 0;
+ $2 = $2 | 0;
+ return ___vfprintf_internal($0, $1, $2, 1, 56) | 0;
 }
 
 function _mbsinit($0) {
