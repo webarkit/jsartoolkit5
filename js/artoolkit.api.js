@@ -1829,18 +1829,18 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	}
 
 	var camera_count = 0;
-	function loadCamera(url, callback) {
+	function loadCamera(url, callback, errorCallback) {
 		var filename = '/camera_param_' + camera_count++;
-		var writeCallback = function() {
-			var id = Module._loadCamera(filename);
-			if (callback) callback(id);
+		var writeCallback = function(errorCode) {
+            var id = Module._loadCamera(filename);
+            if (callback) callback(id);
 		};
 		if (typeof url === 'object') { // Maybe it's a byte array
 			writeByteArrayToFS(filename, url, writeCallback);
 		} else if (url.indexOf("\n") > -1) { // Or a string with the camera param
 			writeStringToFS(filename, url, writeCallback);
 		} else {
-			ajax(url, filename, writeCallback);
+			ajax(url, filename, writeCallback, errorCallback);
 		}
 	}
 
