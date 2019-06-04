@@ -1779,7 +1779,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 
 		lines.forEach(function(line) {
 			line = line.trim();
-			if (!line || line.startsWith('#')) return;
+			if (!line || line.startsWith('#')) return; // FIXME: Should probably be `if (line.indexOf('#') === 0) { return; }`
 
 			switch (state) {
 				case 0:
@@ -1803,7 +1803,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 
 		return files;
 	}
-
+	
 	var multi_marker_count = 0;
 
 	function addMultiMarker(arId, url, callback) {
