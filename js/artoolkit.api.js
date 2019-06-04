@@ -1300,10 +1300,20 @@
 		});
 
 		var success = function(stream) {
-			video.addEventListener('loadedmetadata', initProgress, false);
-			//video.src = window.URL.createObjectURL(stream);
-			video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
-			readyToPlay = true;
+            //DEPRECATED: don't use window.URL.createObjectURL(stream) any longer it might be removed soon. Only there to support old browsers src: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+            if(window.URL.createObjectURL) {
+                //Need to add try-catch because iOS 11 fails to createObjectURL from stream. As this is deprecated  we should remove this soon
+                try {
+                    video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to being deprecated
+                }
+                catch (ex) {
+                    // Nothing todo, the purpose of this is to remove an error from the console on iOS 11
+                }
+            }
+						video.srcObject = stream; // This should be used instead. Which has the benefit to give us access to the stream object
+            readyToPlay = true;
+            video.autoplay = true;
+            video.playsInline = true;
 			play(); // Try playing without user input, should work on non-Android Chrome
 		};
 
