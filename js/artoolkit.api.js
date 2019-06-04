@@ -87,6 +87,7 @@
 		this.barcodeMarkers = {};
 		this.nftMarkers = {};
 		this.transform_mat = new Float32Array(16);
+		this.transformGL_RH = new Float64Array(16);
 
 		if (typeof document !== 'undefined') {
 			this.canvas = document.createElement('canvas');
@@ -247,13 +248,15 @@
 				visible.matrix.set(markerInfo.pose);
 				visible.inCurrent = true;
 				this.transMatToGLMat(visible.matrix, this.transform_mat);
+				this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
 				this.dispatchEvent({
 					name: 'getNFTMarker',
 					target: this,
 					data: {
 						index: i,
 						marker: markerInfo,
-						matrix: this.transform_mat
+						matrix: this.transform_mat,
+						matrixGL_RH: this.transformGL_RH
 					}
 				});
 			}
@@ -266,6 +269,7 @@
 
 			artoolkit.getTransMatMultiSquareRobust(this.id, i);
 			this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
+			this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
 
 			for (var j=0; j<subMarkerCount; j++) {
 				var multiEachMarkerInfo = this.getMultiEachMarker(i, j);
@@ -276,7 +280,8 @@
 						target: this,
 						data: {
 							multiMarkerId: i,
-							matrix: this.transform_mat
+							matrix: this.transform_mat,
+							matrixGL_RH: this.transformGL_RH
 						}
 					});
 					break;
@@ -286,6 +291,7 @@
 				for (var j=0; j<subMarkerCount; j++) {
 					var multiEachMarkerInfo = this.getMultiEachMarker(i, j);
 					this.transMatToGLMat(this.marker_transform_mat, this.transform_mat);
+					this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
 					this.dispatchEvent({
 						name: 'getMultiMarkerSub',
 						target: this,
@@ -293,7 +299,8 @@
 							multiMarkerId: i,
 							markerIndex: j,
 							marker: multiEachMarkerInfo,
-							matrix: this.transform_mat
+							matrix: this.transform_mat,
+							matrixGL_RH: this.transformGL_RH
 						}
 					});
 				}
@@ -1078,6 +1085,10 @@
 		for (var i=0; i<marker_num; i++) {
 			this._debugMarker(this.getMarker(i));
 		}
+		if(this.transform_mat && this.transformGL_RH){
+            console.log("GL 4x4 Matrix: " + this.transform_mat);
+            console.log("GL_RH 4x4 Mat: " + this.transformGL_RH);
+        }
 	};
 
 
