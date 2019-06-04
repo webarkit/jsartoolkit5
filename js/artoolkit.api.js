@@ -1866,16 +1866,21 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	//	ajax('../bin/Data2/markers.dat', '/Data2/markers.dat', callback);
 	//	ajax('../bin/Data/patt.hiro', '/patt.hiro', callback);
 
-	function ajax(url, target, callback) {
+	function ajax(url, target, callback, errorCallback) {
 		var oReq = new XMLHttpRequest();
 		oReq.open('GET', url, true);
 		oReq.responseType = 'arraybuffer'; // blob arraybuffer
 
-		oReq.onload = function(oEvent) {
-			// console.log('ajax done for ', url);
-			var arrayBuffer = oReq.response;
-			var byteArray = new Uint8Array(arrayBuffer);
-			writeByteArrayToFS(target, byteArray, callback);
+		oReq.onload = function() {
+            if(this.status == 200) {
+                // console.log('ajax done for ', url);
+                var arrayBuffer = oReq.response;
+                var byteArray = new Uint8Array(arrayBuffer);
+                writeByteArrayToFS(target, byteArray, callback);
+            }
+            else {
+                errorCallback(this.status);
+            }
 		};
 
 		oReq.send();
