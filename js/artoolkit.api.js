@@ -130,7 +130,14 @@
 		Calling this avoids leaking Emscripten memory, which may be important if you're using multiple ARControllers.
 	*/
 	ARController.prototype.dispose = function() {
-		artoolkit.teardown(this.id);
+        // It is possible to call dispose on an ARController that was never initialized. But if it was never initialized the id is undefined.
+        if(this.id > -1) {
+		    artoolkit.teardown(this.id);
+        }
+
+        if(this.image && this.image.srcObject) {
+            ARController._teardownVideo(this.image);
+        }
 
 		for (var t in this) {
 			this[t] = null;
