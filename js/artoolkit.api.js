@@ -1280,9 +1280,14 @@
 			'click', 'mousedown', 'mouseup', 'mousemove',
 			'keydown', 'keyup', 'keypress', 'scroll'
 		];
-		var play = function(ev) {
+		var play = function() {
 			if (readyToPlay) {
-				video.play();
+				video.play().then(function() {
+                    onSuccess(video);
+                }).catch(function(error) {
+                    onError(error);
+                    ARController._teardownVideo(video);
+                });
 				if (!video.paused) {
 					eventNames.forEach(function(eventName) {
 						window.removeEventListener(eventName, play, true);
