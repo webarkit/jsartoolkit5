@@ -1448,6 +1448,9 @@
 		}
 		var onSuccess = configuration.onSuccess;
 		var cameraParamURL = configuration.cameraParam;
+		var onError = configuration.onError || function (err) {
+					 console.error("ARController: Failed to load ARCameraParam", err);
+			 }
 
 		obj.onSuccess = function() {
 			new ARCameraParam(cameraParamURL, function() {
@@ -1473,12 +1476,13 @@
 					arController.videoHeight = video.videoHeight;
 				}
 				onSuccess(arController, arCameraParam);
-			}, function(err) {
-				console.error("ARController: Failed to load ARCameraParam", err);
-			});
-		};
+				}, function(err) {
+	                ARController._teardownVideo(video);
+	                onError(err);
+				});
+			};
 
-		var video = this.getUserMedia(obj);
+		var video = ARController.getUserMedia(obj);
 		return video;
 	};
 
