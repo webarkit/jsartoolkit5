@@ -1081,6 +1081,12 @@
 		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
 		this.ctx.putImageData(id, 0, 0)
 
+		//Debug Luma
+		var lumaBuffer = new Uint8ClampedArray(this.framesize);
+		lumaBuffer.set(this.videoLuma);
+		var lumaImageData = new ImageData(lumaBuffer, this.videoWidth, this.videoHeight);
+		this._lumaCtx.putImageData(lumaImageData,0,0);
+
 		var marker_num = this.getMarkerNum();
 		for (var i=0; i<marker_num; i++) {
 			this._debugMarker(this.getMarker(i));
