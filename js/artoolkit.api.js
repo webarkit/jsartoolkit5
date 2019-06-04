@@ -1739,12 +1739,12 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	}
 
 	var marker_count = 0;
-	function addMarker(arId, url, callback) {
+	function addMarker(arId, url, callback, onError) {
 		var filename = '/marker_' + marker_count++;
 		ajax(url, filename, function() {
 			var id = Module._addMarker(arId, filename);
 			if (callback) callback(id);
-		});
+		}, function(errorNumber) {if(onError) onError(errorNumber)});
 	}
 
 	function addNFTMarker(arId, url, callback) {
