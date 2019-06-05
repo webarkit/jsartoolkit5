@@ -205,11 +205,11 @@
 			o.inCurrent = false;
 		}
 
-		this.dispatchEvent({
+	/*	this.dispatchEvent({
 			name: 'markerNum',
 			target: this,
 			data: markerNum
-		});
+		}); */
 
 		for (var i=0; i<markerNum; i++) {
 			var markerInfo = this.getMarker(i);
@@ -242,6 +242,7 @@
 
 			visible.inCurrent = true;
 			this.transMatToGLMat(visible.matrix, this.transform_mat);
+			this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
 			this.dispatchEvent({
 				name: 'getMarker',
 				target: this,
@@ -249,7 +250,8 @@
 					index: i,
 					type: markerType,
 					marker: markerInfo,
-					matrix: this.transform_mat
+					matrix: this.transform_mat,
+					matrixGL_RH: this.transformGL_RH
 				}
 			});
 		}
