@@ -99,6 +99,11 @@
 		this.videoWidth = w;
 		this.videoHeight = h;
 		this.videoSize = this.videoWidth * this.videoHeight;
+
+		//Set during _initialize
+    this.framepointer = null;
+		this.framesize = null;
+		this.dataHeap = null;
 		this.videoLuma = null;
 		this.camera_mat = null;
 		this.marker_transform_mat = null;
