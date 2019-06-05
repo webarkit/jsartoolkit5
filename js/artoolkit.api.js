@@ -1165,7 +1165,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	*/
 	ARController.prototype.debugDraw = function() {
 		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
-		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
+		var id = new ImageData(debugBuffer, this.videoWidth, this.videoHeight);
 		this.ctx.putImageData(id, 0, 0)
 
 		//Debug Luma
