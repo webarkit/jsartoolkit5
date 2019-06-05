@@ -563,11 +563,11 @@
 	 * @param {Float64Array} dst	The float array to populate with the 3x4 marker transformation matrix
 	 * @return	{Float64Array} The dst array.
 	 */
-	 ARController.prototype.getTransMatSquare = function(markerUID, markerWidth, dst) {
- 		artoolkit.getTransMatSquare(this.id, markerUID, markerWidth);
- 		dst.set(this.marker_transform_mat);
- 		return dst;
- 	};
+	ARController.prototype.getTransMatSquare = function(markerUID, markerWidth, dst) {
+		artoolkit.getTransMatSquare(this.id, markerUID, markerWidth);
+		dst.set(this.marker_transform_mat);
+		return dst;
+	};
 
 	/**
 	 * Populates the provided float array with the current transformation for the specified marker, using
@@ -664,45 +664,45 @@
  @param {number} [scale] The scale for the transform.
 */
 ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
- {
-		 var m_modelview;
-		 if(glRhMatrix == undefined)
-				 m_modelview = new Float64Array(16);
-		 else
-				 m_modelview = glRhMatrix;
+{
+    var m_modelview;
+    if(glRhMatrix == undefined)
+        m_modelview = new Float64Array(16);
+    else
+        m_modelview = glRhMatrix;
 
-		 // x
-		 m_modelview[0] = glMatrix[0];
-		 m_modelview[4] = glMatrix[4];
-		 m_modelview[8] = glMatrix[8];
-		 m_modelview[12] = glMatrix[12];
-		 // y
-		 m_modelview[1] = -glMatrix[1];
-		 m_modelview[5] = -glMatrix[5];
-		 m_modelview[9] = -glMatrix[9];
-		 m_modelview[13] = -glMatrix[13];
-		 // z
-		 m_modelview[2] = -glMatrix[2];
-		 m_modelview[6] = -glMatrix[6];
-		 m_modelview[10] = -glMatrix[10];
-		 m_modelview[14] = -glMatrix[14];
+    // x
+    m_modelview[0] = glMatrix[0];
+    m_modelview[4] = glMatrix[4];
+    m_modelview[8] = glMatrix[8];
+    m_modelview[12] = glMatrix[12];
+    // y
+    m_modelview[1] = -glMatrix[1];
+    m_modelview[5] = -glMatrix[5];
+    m_modelview[9] = -glMatrix[9];
+    m_modelview[13] = -glMatrix[13];
+    // z
+    m_modelview[2] = -glMatrix[2];
+    m_modelview[6] = -glMatrix[6];
+    m_modelview[10] = -glMatrix[10];
+    m_modelview[14] = -glMatrix[14];
 
-		 // 0 0 0 1
-		 m_modelview[3] = 0;
-		 m_modelview[7] = 0;
-		 m_modelview[11] = 0;
-		 m_modelview[15] = 1;
+    // 0 0 0 1
+    m_modelview[3] = 0;
+    m_modelview[7] = 0;
+    m_modelview[11] = 0;
+    m_modelview[15] = 1;
 
-		 if (scale != undefined && scale !== 0.0) {
-	 m_modelview[12] *= scale;
-	 m_modelview[13] *= scale;
-	 m_modelview[14] *= scale;
- }
+    if (scale != undefined && scale !== 0.0) {
+		m_modelview[12] *= scale;
+		m_modelview[13] *= scale;
+		m_modelview[14] *= scale;
+	}
 
-		 glRhMatrix = m_modelview;
+    glRhMatrix = m_modelview;
 
-		 return glRhMatrix;
-}
+    return glRhMatrix;
+  }
 	/**
 		This is the core ARToolKit marker detection function. It calls through to a set of
 		internal functions to perform the key marker detection steps of binarization and
@@ -733,7 +733,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
         	arGetDetectedMarkerCount, but the current name lives on for historical reasons.
     */
 	ARController.prototype.getMarkerNum = function() {
-		return artoolkit.getMarkerNum(this.id);
+			return artoolkit.getMarkerNum(this.id);
 	};
 
 	/**
@@ -853,8 +853,8 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	 * @return {Float64Array} The 16-element WebGL camera matrix for the ARController camera parameters.
 	 */
 	ARController.prototype.getCameraMatrix = function() {
-		return this.camera_mat;
-	};
+ 		return this.camera_mat;
+ 	};
 
 	/**
 		Returns the shared ARToolKit 3x4 marker transformation matrix, used for passing and receiving
@@ -876,9 +876,9 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	 * @param {number} debug		true to enable debug mode, false to disable debug mode
 	 * @see				getDebugMode()
 	 */
-	ARController.prototype.setDebugMode = function(mode) {
-		return artoolkit.setDebugMode(this.id, mode);
-	};
+	 ARController.prototype.setDebugMode = function(mode) {
+ 		return artoolkit.setDebugMode(this.id, mode);
+ 	};
 
 	/**
 	 * Returns whether debug mode is currently enabled.
@@ -886,8 +886,8 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	 * @see				setDebugMode()
 	 */
 	ARController.prototype.getDebugMode = function() {
-		return artoolkit.getDebugMode(this.id);
-	};
+ 		return artoolkit.getDebugMode(this.id);
+ 	};
 
 	/**
 		Returns the Emscripten HEAP offset to the debug processing image used by ARToolKit.
@@ -896,7 +896,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	*/
 	ARController.prototype.getProcessingImage = function() {
 		return artoolkit.getProcessingImage(this.id);
-	}
+	};
 
 	/**
 		Sets the logging level to use by ARToolKit.
