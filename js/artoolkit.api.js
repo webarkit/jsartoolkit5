@@ -1186,7 +1186,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	// private
 
 	ARController.prototype._initialize = function() {
-		this.id = artoolkit.setup(this.width, this.height, this.cameraParam.id);
+		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
 
 		this._initNFT();
 
