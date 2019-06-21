@@ -719,6 +719,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 			A result of 0 does not however, imply any markers were detected.
 	*/
 	ARController.prototype.detectMarker = function(image) {
+		console.log('detection?');
 		if (this._copyImageToHeap(image)) {
 			return artoolkit.detectMarker(this.id);
 		}
@@ -1165,7 +1166,14 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	*/
 	ARController.prototype.debugDraw = function() {
 		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
-		var id = new ImageData(debugBuffer, this.videoWidth, this.videoHeight);
+		var id = new ImageData(new Uint8ClampedArray(this.canvas.width*this.canvas.height*4), this.canvas.width, this.canvas.height);
+		for (var i=0, j=0; i<debugBuffer.length; i++, j+=4) {
+			var v = debugBuffer[i];
+			id.data[j+0] = v;
+			id.data[j+1] = v;
+			id.data[j+2] = v;
+			id.data[j+3] = 255;
+		}
 		this.ctx.putImageData(id, 0, 0)
 
 		//Debug Luma
@@ -1235,29 +1243,31 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
 		}
 
-			this.ctx.restore();
-			var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-			var data = imageData.data;  // this is of type Uint8ClampedArray: The Uint8ClampedArray typed array represents an array of 8-bit unsigned integers clamped to 0-255 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)
+		this.ctx.restore();
 
-        //Here we have access to the unmodified video image. We now need to add the videoLuma chanel to be able to serve the underlying ARTK API
-        if(this.videoLuma) {
-            var q = 0;
-            //Create luma from video data assuming Pixelformat AR_PIXEL_FORMAT_RGBA (ARToolKitJS.cpp L: 43)
+	var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+	var data = imageData.data;  // this is of type Uint8ClampedArray: The Uint8ClampedArray typed array represents an array of 8-bit unsigned integers clamped to 0-255 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)
 
-            for(var p=0; p < this.videoSize; p++){
-                var r = data[q+0], g = data[q+1], b = data[q+2];
-                // videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
-                this.videoLuma[p] = (r+r+r+b+g+g+g+g)>>3;
-                q += 4;
-            }
-        }
+			//Here we have access to the unmodified video image. We now need to add the videoLuma chanel to be able to serve the underlying ARTK API
+			if(this.videoLuma) {
+					var q = 0;
+					//Create luma from video data assuming Pixelformat AR_PIXEL_FORMAT_RGBA (ARToolKitJS.cpp L: 43)
 
-		if (this.dataHeap) {
-			this.dataHeap.set( data );
-			return true;
-		}
-		return false;
-	};
+					for(var p=0; p < this.videoSize; p++){
+							var r = data[q+0], g = data[q+1], b = data[q+2];
+							// videoLuma[p] = (r+r+b+g+g+g)/6;         // https://stackoverflow.com/a/596241/5843642
+							this.videoLuma[p] = (r+r+r+b+g+g+g+g)>>3;
+							q += 4;
+					}
+			}
+
+	if (this.dataHeap) {
+		this.dataHeap.set( data );
+		return true;
+	}
+	return false;
+};
+
 
 	ARController.prototype._debugMarker = function(marker) {
 		var vertex, pos;
@@ -1373,7 +1383,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
             if(window.URL.createObjectURL) {
                 //Need to add try-catch because iOS 11 fails to createObjectURL from stream. As this is deprecated  we should remove this soon
                 try {
-                    video.src = window.URL.createObjectURL(stream); // DEPRECATED: this feature is in the process to being deprecated
+                    video.srcObject = stream; // DEPRECATED: this feature is in the process to being deprecated
                 }
                 catch (ex) {
                     // Nothing todo, the purpose of this is to remove an error from the console on iOS 11
@@ -1839,8 +1849,12 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	function loadCamera(url, callback, errorCallback) {
 		var filename = '/camera_param_' + camera_count++;
 		var writeCallback = function(errorCode) {
-            var id = Module._loadCamera(filename);
-            if (callback) callback(id);
+			if (!Module._loadCamera) {
+	if (callback) callback(id);					setTimeout(writeCallback, 10);
+	} else {
+		var id = Module._loadCamera(filename);
+		if (callback) callback(id);
+	}
 		};
 		if (typeof url === 'object') { // Maybe it's a byte array
 			writeByteArrayToFS(filename, url, writeCallback);
@@ -1909,19 +1923,14 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	window.ARController = ARController;
 	window.ARCameraParam = ARCameraParam;
 
-
 	if (window.Module) {
-		window.Module.onRuntimeInitialized = function() {
-	           runWhenLoaded();
-	           var event = new Event('artoolkit-loaded');
-	           window.dispatchEvent(event);
-	       }
+		runWhenLoaded();
 	} else {
-	       window.Module = {
-	           onRuntimeInitialized: function() {
-	               runWhenLoaded();
-	           }
-	       };
-	   }
+		window.Module = {
+			onRuntimeInitialized: function() {
+				runWhenLoaded();
+			}
+		};
+	}
 
 })();
