@@ -347,8 +347,8 @@
 			this.patternMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
-                matrix: new Float64Array(12),
-                matrixGL_RH: new Float64Array(12),
+        matrix: new Float64Array(12),
+        matrixGL_RH: new Float64Array(12),
 				markerWidth: markerWidth || this.defaultMarkerWidth
 			};
 		}
@@ -376,8 +376,8 @@
 			this.barcodeMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
-                matrix: new Float64Array(12),
-                matrixGL_RH: new Float64Array(12),
+        matrix: new Float64Array(12),
+        matrixGL_RH: new Float64Array(12),
 				markerWidth: markerWidth || this.defaultMarkerWidth
 			};
 		}
@@ -405,7 +405,8 @@
 			this.nftMarkers[id] = obj = {
 				inPrevious: false,
 				inCurrent: false,
-				matrix: new Float32Array(12),
+				matrix: new Float64Array(12),
+				matrixGL_RH: new Float64Array(12),
 				markerWidth: markerWidth || this.defaultMarkerWidth
 			};
 		}
