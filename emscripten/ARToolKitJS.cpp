@@ -1047,6 +1047,7 @@ extern "C" {
 			frameMalloc["framesize"] = $2;
 			frameMalloc["camera"] = $3;
 			frameMalloc["transform"] = $4;
+			frameMalloc["videoLumaPointer"] = $5;
 		},
 			arc->id,
 			arc->videoFrame,
