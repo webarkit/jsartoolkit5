@@ -200,7 +200,7 @@ extern "C" {
 		KpmResult *kpmResult = NULL;
 		int kpmResultNum = -1;
 
-        kpmMatching( arc->kpmHandle, arc->videoFrame );
+        kpmMatching( arc->kpmHandle, arc->videoLuma );
         kpmGetResult( arc->kpmHandle, &kpmResult, &kpmResultNum );
         return kpmResultNum;
 	}

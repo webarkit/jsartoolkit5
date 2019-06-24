@@ -719,7 +719,6 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 			A result of 0 does not however, imply any markers were detected.
 	*/
 	ARController.prototype.detectMarker = function(image) {
-		console.log('detection?');
 		if (this._copyImageToHeap(image)) {
 			return artoolkit.detectMarker(this.id);
 		}
