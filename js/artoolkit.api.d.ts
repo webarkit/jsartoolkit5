@@ -27,6 +27,7 @@ export class ARController {
     defaultMarkerWidth: number;
     patternMarkers: object;
     barcodeMarkers: object;
+    nftMarkers: object;
     transform_mat: Float64Array;
     transformGL_RH: Float64Array;
 
