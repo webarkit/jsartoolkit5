@@ -114,7 +114,7 @@
 			var scene = new THREE.Scene();
 			var camera = new THREE.Camera();
 			camera.matrixAutoUpdate = false;
-			camera.projectionMatrix.elements.set(this.getCameraMatrix());
+			setProjectionMatrix(camera.projectionMatrix, this.getCameraMatrix());
 
 			scene.add(camera);
 
@@ -285,7 +285,7 @@
 
 				}
 				if (obj) {
-					obj.matrix.fromArray(ev.data.matrixGL_RH);
+					setProjectionMatrix(obj.matrix, ev.data.matrixGL_RH);
 					obj.visible = true;
 				}
 			});
@@ -353,7 +353,16 @@
 		};
 
 	};
-
+	/**
+	 * Helper Method for Three.js compatibility
+	 */
+	var setProjectionMatrix = function(projectionMatrix, value) {
+		if (typeof projectionMatrix.elements.set === "function") {
+			projectionMatrix.elements.set(value);
+		} else {
+			projectionMatrix.elements = [].slice.call(value);
+		}
+	};
 
 	var tick = function() {
 		if (window.ARController && window.THREE) {
