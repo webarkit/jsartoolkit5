@@ -326,7 +326,7 @@
 				var obj = this.threeMultiMarkers[marker];
 				if (obj && obj.markers && obj.markers[subMarkerID]) {
 					var sub = obj.markers[subMarkerID];
-					sub.matrix.fromArray(ev.data.matrix);
+					sub.matrix.fromArray(ev.data.matrixGL_RH);
 					sub.visible = (subMarker.visible >= 0);
 				}
 			});
