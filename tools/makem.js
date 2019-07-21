@@ -131,7 +131,7 @@ FLAGS += ' -mssse3';
 var DEBUG_FLAGS = ' -g ';
 // DEBUG_FLAGS += ' -s ASSERTIONS=2 '
 DEBUG_FLAGS += ' -s ASSERTIONS=1 '
-// DEBUG_FLAGS += ' --profiling-funcs '
+DEBUG_FLAGS += ' --profiling '
 // DEBUG_FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
 DEBUG_FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
 DEBUG_FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
