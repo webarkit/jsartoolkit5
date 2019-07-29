@@ -1,7 +1,13 @@
 ;(function() {
 	'use strict';
 
-	if(window.artoolkit_wasm_url) {
+				var scope;
+				if (typeof window !== 'undefined') {
+					scope = window;
+				} else {
+					scope = self;
+				}
+				if(scope.artoolkit_wasm_url) {
          function downloadWasm(url) {
              return new Promise(function(resolve, reject) {
              var wasmXHR = new XMLHttpRequest();
@@ -13,7 +19,7 @@
              });
          }
 
-          var wasm = downloadWasm(window.artoolkit_wasm_url);
+          var wasm = downloadWasm(scope.artoolkit_wasm_url);
 
           // Module.instantiateWasm is a user-implemented callback which the Emscripten runtime calls to perform
          // the WebAssembly instantiation action. The callback function will be called with two parameters, imports
@@ -77,8 +83,8 @@
 			this.image = image;
 		}
 
-		//this.width = w;
-		//this.height = h;
+		this.width = w;
+		this.height = h;
 
 		this.nftMarkerCount = 0;
 
@@ -89,12 +95,12 @@
 		this.transform_mat = new Float32Array(16);
 		this.transformGL_RH = new Float64Array(16);
 
-		//if (typeof document !== 'undefined') {
+		if (typeof document !== 'undefined') {
 			this.canvas = document.createElement('canvas');
 			this.canvas.width = w;
 			this.canvas.height = h;
 			this.ctx = this.canvas.getContext('2d');
-		//}
+		}
 
 		this.videoWidth = w;
 		this.videoHeight = h;
@@ -1196,7 +1202,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	// private
 
 	ARController.prototype._initialize = function() {
-		this.id = artoolkit.setup(this.canvas.width, this.canvas.height, this.cameraParam.id);
+		this.id = artoolkit.setup(this.width, this.height, this.cameraParam.id);
 
 		this._initNFT();
 
@@ -1233,6 +1239,11 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 		if (!image) {
 			image = this.image;
 		}
+		if (image.data) {
+
+			var imageData = image;
+
+		} else {
 		this.ctx.save();
 
 		if (this.orientation === 'portrait') {
@@ -1246,6 +1257,7 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 		this.ctx.restore();
 
 	var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+}
 	var data = imageData.data;  // this is of type Uint8ClampedArray: The Uint8ClampedArray typed array represents an array of 8-bit unsigned integers clamped to 0-255 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)
 
 			//Here we have access to the unmodified video image. We now need to add the videoLuma chanel to be able to serve the underlying ARTK API
@@ -1919,22 +1931,22 @@ ARController.prototype.arglCameraViewRHf = function(glMatrix, glRhMatrix, scale)
 	}
 
 	/* Exports */
-	window.artoolkit = artoolkit;
-	window.ARController = ARController;
-	window.ARCameraParam = ARCameraParam;
+	scope.artoolkit = artoolkit;
+	scope.ARController = ARController;
+	scope.ARCameraParam = ARCameraParam;
 
-	if (window.Module) {
-		window.Module.onRuntimeInitialized = function() {
-            runWhenLoaded();
-            var event = new Event('artoolkit-loaded');
-            window.dispatchEvent(event);
-        }
+	if (scope.Module) {
+		scope.Module.onRuntimeInitialized = function() {
+		runWhenLoaded();
+		var event = new Event('artoolkit-loaded');
+            scope.dispatchEvent(event);
+		}
 	} else {
-        window.Module = {
-            onRuntimeInitialized: function() {
-                runWhenLoaded();
-            }
-        };
-    }
+		scope.Module = {
+			onRuntimeInitialized: function() {
+				runWhenLoaded();
+			}
+		};
+	}
 
 })();
