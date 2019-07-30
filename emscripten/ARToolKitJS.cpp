@@ -13,6 +13,9 @@
 #include <AR/paramGL.h>
 #include <AR/video.h>
 #include <KPM/kpm.h>
+#include "trackingMod.h"
+
+#define PAGES_MAX               10          // Maximum number of pages expected. You can change this down (to save memory) or up (to accomodate more pages.)
 
 struct multi_marker {
 	int id;
@@ -41,6 +44,7 @@ struct arController {
 	AR2HandleT* ar2Handle;
 
 	int surfaceSetCount = 0; // Running NFT marker id
+	AR2SurfaceSetT      *surfaceSet[PAGES_MAX];
 	std::unordered_map<int, AR2SurfaceSetT*> surfaceSets;
 
 	ARdouble nearPlane = 0.0001;
@@ -111,6 +115,13 @@ extern "C" {
             		trans[j][k] = kpmResult[flag].camPose[j][k];
             	}
             }
+						ar2SetInitTrans(arc->surfaceSet[kpmResult[0].pageNo], trans);
+						if( ar2TrackingMod(arc->ar2Handle, arc->surfaceSet[kpmResult[0].pageNo], arc->videoFrame, trans, &err) < 0 ) {
+						ARLOGi("Tracking lost.\n");
+						//arc->detectedPage = -2;
+				} else {
+						ARLOGi("Tracked page %d (max %d).\n",arc->surfaceSet[kpmResult[0].pageNo], arc->surfaceSetCount - 1);
+				}
 			EM_ASM_({
 				var $a = arguments;
 				var i = 0;
@@ -235,7 +246,6 @@ extern "C" {
 
 	int loadNFTMarker(arController *arc, int surfaceSetCount, const char* datasetPathname) {
 		int i, pageNo;
-		AR2SurfaceSetT *surfaceSet;
 		KpmRefDataSet *refDataSet;
 
 		KpmHandle *kpmHandle = arc->kpmHandle;
@@ -265,12 +275,12 @@ extern "C" {
 		// Load AR2 data.
 		ARLOGi("Reading %s.fset\n", datasetPathname);
 
-		if ((surfaceSet = ar2ReadSurfaceSet(datasetPathname, "fset", NULL)) == NULL ) {
+		if ((arc->surfaceSet[surfaceSetCount] = ar2ReadSurfaceSet(datasetPathname, "fset", NULL)) == NULL ) {
 		    ARLOGe("Error reading data from %s.fset\n", datasetPathname);
 		}
 		ARLOGi("  Done.\n");
 
-		arc->surfaceSets[surfaceSetCount] = surfaceSet;
+	if (surfaceSetCount == PAGES_MAX) exit(-1);
 
 		if (kpmSetRefDataSet(kpmHandle, refDataSet) < 0) {
 		    ARLOGe("Error: kpmSetRefDataSet\n");

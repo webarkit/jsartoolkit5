@@ -35,7 +35,8 @@ var BUILD_WASM_FILE = 'artoolkitNft_wasm.js';
 var BUILD_MIN_FILE = 'artoolkitNft.min.js';
 
 var MAIN_SOURCES = [
-	'ARToolKitJS.cpp'
+	'ARToolKitJS.cpp',
+	'trackingMod.c'
 ];
 
 MAIN_SOURCES = MAIN_SOURCES.map(function(src) {
