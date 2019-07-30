@@ -263,7 +263,7 @@
 		}
 
 		var nftMarkerCount = this.nftMarkerCount;
-		artoolkit.detectNFTMarker(this.id);
+		this.detectNFTMarker();
 		for (var i=0; i<nftMarkerCount; i++) {
 			var markerInfo = this.getNFTMarker(i);
 
@@ -334,6 +334,10 @@
 			this.debugDraw();
 		}
 	};
+
+	ARController.prototype.detectNFTMarker = function(){
+		artoolkit.detectNFTMarker(this.id);
+	}
 
 	/**
 		Adds the given pattern marker ID to the index of tracked IDs.

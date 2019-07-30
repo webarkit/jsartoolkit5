@@ -24,7 +24,7 @@ onmessage = function(ev) {
 			ev.target = id;
 			postMessage({event: ev});
 		};
-		['load', 'markerNum', 'getMarker', 'getNFTMarker', 'getMultiMarker', 'getMultiMarkerSub'].forEach(function(n) {
+		['load', 'markerNum', 'getMarker', 'detectNFTMarker', 'getNFTMarker', 'getMultiMarker', 'getMultiMarkerSub'].forEach(function(n) {
 			arController.addEventListener(n, eventProxy);
 		});
 		postMessage({method: 'new', id: id, callID: ev.data.callID});

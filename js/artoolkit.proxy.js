@@ -80,8 +80,8 @@
 		var proxy = new ARProxy(
 			arController,
 			'/examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
-			function() { 
-				console.log("Created a new ARController Worker", arguments); 
+			function() {
+				console.log("Created a new ARController Worker", arguments);
 			}
 		);
 
@@ -127,7 +127,7 @@
 			}
 		}
 		this.worker.call(null, 'new', [arController.videoWidth, arController.videoHeight, cameraParam], [], newCallback);
-		this.worker.listenForAllEvents(function(ev) { 
+		this.worker.listenForAllEvents(function(ev) {
 			if (ev.target === self.id) {
 				self.dispatchEvent(ev);
 			}
@@ -226,6 +226,7 @@
 		'getTransMatMultiSquareRobust',
 		'transMatToGLMat',
 		'detectMarker',
+		'detectNFTMarker',
 		'getMarkerNum',
 		'getMarker',
 		'getNFTMarker',
@@ -271,7 +272,7 @@
 		'createThreeBarcodeMarker',
 		'setupThree'
 	];
-	ARProxy.callbackIndices = {"dispose":0,"process":1,"trackPatternMarkerId":2,"trackBarcodeMarkerId":2,"trackNFTMarkerId":2,"getMultiMarkerCount":0,"getMultiMarkerPatternCount":1,"addEventListener":2,"removeEventListener":2,"dispatchEvent":1,"debugSetup":0,"loadMarker":1,"loadNFTMarker":1,"loadMultiMarker":1,"getTransMatSquare":3,"getTransMatSquareCont":4,"getTransMatMultiSquare":2,"getTransMatMultiSquareRobust":2,"transMatToGLMat":3,"detectMarker":1,"getMarkerNum":0,"getMarker":1,"getNFTMarker":1,"setMarkerInfoVertex":2,"cloneMarkerInfo":1,"getMultiEachMarker":2,"getTransformationMatrix":0,"getCameraMatrix":0,"getMarkerTransformationMatrix":0,"setDebugMode":1,"getDebugMode":0,"getProcessingImage":0,"setLogLevel":1,"getLogLevel":0,"setMarkerInfoDir":2,"setProjectionNearPlane":1,"getProjectionNearPlane":0,"setProjectionFarPlane":1,"getProjectionFarPlane":0,"setThresholdMode":1,"getThresholdMode":0,"setThreshold":1,"getThreshold":0,"setPatternDetectionMode":1,"getPatternDetectionMode":0,"setMatrixCodeType":1,"getMatrixCodeType":0,"setLabelingMode":1,"getLabelingMode":0,"setPattRatio":1,"getPattRatio":0,"setImageProcMode":1,"getImageProcMode":0,"debugDraw":0,"_initialize":0,"_initNFT":0,"_copyImageToHeap":1,"_debugMarker":1,"createThreeScene":1,"createThreeMarker":2,"createThreeNFTMarker":2,"createThreeMultiMarker":1,"createThreeBarcodeMarker":2,"setupThree":0};
+	ARProxy.callbackIndices = {"dispose":0,"process":1,"trackPatternMarkerId":2,"trackBarcodeMarkerId":2,"trackNFTMarkerId":2,"getMultiMarkerCount":0,"getMultiMarkerPatternCount":1,"addEventListener":2,"removeEventListener":2,"dispatchEvent":1,"debugSetup":0,"loadMarker":1,"loadNFTMarker":1,"loadMultiMarker":1,"getTransMatSquare":3,"getTransMatSquareCont":4,"getTransMatMultiSquare":2,"getTransMatMultiSquareRobust":2,"transMatToGLMat":3,"detectMarker":1,"detectNFTMarker":0,"getMarkerNum":0,"getMarker":1,"getNFTMarker":1,"setMarkerInfoVertex":2,"cloneMarkerInfo":1,"getMultiEachMarker":2,"getTransformationMatrix":0,"getCameraMatrix":0,"getMarkerTransformationMatrix":0,"setDebugMode":1,"getDebugMode":0,"getProcessingImage":0,"setLogLevel":1,"getLogLevel":0,"setMarkerInfoDir":2,"setProjectionNearPlane":1,"getProjectionNearPlane":0,"setProjectionFarPlane":1,"getProjectionFarPlane":0,"setThresholdMode":1,"getThresholdMode":0,"setThreshold":1,"getThreshold":0,"setPatternDetectionMode":1,"getPatternDetectionMode":0,"setMatrixCodeType":1,"getMatrixCodeType":0,"setLabelingMode":1,"getLabelingMode":0,"setPattRatio":1,"getPattRatio":0,"setImageProcMode":1,"getImageProcMode":0,"debugDraw":0,"_initialize":0,"_initNFT":0,"_copyImageToHeap":1,"_debugMarker":1,"createThreeScene":1,"createThreeMarker":2,"createThreeNFTMarker":2,"createThreeMultiMarker":1,"createThreeBarcodeMarker":2,"setupThree":0};
 
 	for (var i = 0; i < ARProxy.methods.length; i++) {
 		var methodName = ARProxy.methods[i];
