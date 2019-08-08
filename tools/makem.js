@@ -14,7 +14,7 @@ var HAVE_NFT = 1;
 
 var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
 var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || "../emscripten/artoolkit5";
-var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/jpeg-6b";
+var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/libjpeg";
 
 if (!EMSCRIPTEN_ROOT) {
 	console.log("\nWarning: EMSCRIPTEN environment variable not found.")
@@ -143,7 +143,7 @@ var INCLUDES = [
 	SOURCE_PATH,
 	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/FreakMatcher'),
 	//path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/GL'),
-	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/../jpeg-6b'),
+	path.resolve(__dirname, ARTOOLKIT5_ROOT + '/../libjpeg'),
 	//path.resolve(__dirname, ARTOOLKIT5_ROOT + '/Video'),
 	//'lib/SRC/KPM/FreakMatcher',
 	// 'include/macosx-universal/',
@@ -170,7 +170,7 @@ var libjpeg_sources = 'jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jch
 		jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c \
 		jfdctint.c jidctflt.c jidctfst.c jidctint.c jidctred.c jquant1.c \
 		jquant2.c jutils.c jmemmgr.c \
-		jmemansi.c'.split(/\s+/).join(' /home/walter/kalwalt-github/jsartoolkit5/emscripten/jpeg-6b/')
+		jmemansi.c'.split(/\s+/).join(' /home/walter/kalwalt-github/jsartoolkit5/emscripten/libjpeg/')
 function clean_builds() {
 	try {
 		var stats = fs.statSync(OUTPUT_PATH);
