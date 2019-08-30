@@ -13,7 +13,6 @@
 #include <AR/paramGL.h>
 #include <AR/video.h>
 #include <KPM/kpm.h>
-#include "trackingMod.h"
 
 #define PAGES_MAX               10          // Maximum number of pages expected. You can change this down (to save memory) or up (to accomodate more pages.)
 
@@ -115,13 +114,7 @@ extern "C" {
             		trans[j][k] = kpmResult[flag].camPose[j][k];
             	}
             }
-						ar2SetInitTrans(arc->surfaceSet[kpmResult[0].pageNo], trans);
-						if( ar2TrackingMod(arc->ar2Handle, arc->surfaceSet[kpmResult[0].pageNo], arc->videoFrame, trans, &err) < 0 ) {
-						ARLOGi("Tracking lost.\n");
-						//arc->detectedPage = -2;
-				} else {
-						ARLOGi("Tracked page %d (max %d).\n",arc->surfaceSet[kpmResult[0].pageNo], arc->surfaceSetCount - 1);
-				}
+
 			EM_ASM_({
 				var $a = arguments;
 				var i = 0;
