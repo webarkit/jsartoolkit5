@@ -117,7 +117,7 @@ FLAGS += ' -s USE_ZLIB=1';
 //FLAGS += ' -s ERROR_ON_UNDEFINED_SYMBOLS=0';
 //FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
-FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'
+// FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'
 
 var PRE_FLAGS = ' --pre-js ' + path.resolve(__dirname, '../js/artoolkit.api.js') +' ';
 
@@ -169,7 +169,7 @@ var libjpeg_sources = 'jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jch
 		jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c \
 		jfdctint.c jidctflt.c jidctfst.c jidctint.c jidctred.c jquant1.c \
 		jquant2.c jutils.c jmemmgr.c \
-		jmemansi.c'.split(/\s+/).join(' /home/walter/kalwalt-github/jsartoolkit5/emscripten/libjpeg/')
+		jmemansi.c'.split(/\s+/).join(' ' + process.env.LIBJPEG_ROOT + '/')
 function clean_builds() {
 	try {
 		var stats = fs.statSync(OUTPUT_PATH);
