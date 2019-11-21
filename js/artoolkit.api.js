@@ -50,7 +50,7 @@
 		To use an ARController, you need to tell it the dimensions to use for the AR processing canvas and
 		pass it an ARCameraParam to define the camera parameters to use when processing images.
 		The ARCameraParam defines the lens distortion and aspect ratio of the camera used.
-		See https://www.artoolworks.com/support/library/Calibrating_your_camera for more information about AR camera parameteters and how to make and use them.
+		See https://www.artoolworks.com/support/library/Calibrating_your_camera for more information about AR camera parameters and how to make and use them.
 
 		If you pass an image as the first argument, the ARController uses that as the image to process,
 		using the dimensions of the image as AR processing canvas width and height. If the first argument
@@ -106,7 +106,6 @@
         this.videoHeight = h;
         this.videoSize = this.videoWidth * this.videoHeight;
 
-        //Set during _initialize
         this.framepointer = null;
         this.framesize = null;
         this.dataHeap = null;
@@ -118,19 +117,15 @@
         this._lumaCtx = undefined;
 
         if (typeof cameraPara === 'string') {
-
             this.cameraParam = new ARCameraParam(cameraPara, function () {
                 this._initialize();
             }.bind(this), function (err) {
                 console.error("ARController: Failed to load ARCameraParam", err);
                 this.onload(err);
             }.bind(this));
-
         } else {
-
             this.cameraParam = cameraPara;
             this._initialize();
-
         }
     };
 
@@ -159,7 +154,10 @@
 		Detects markers in the given image. The process method dispatches marker detection events during its run.
 
 		The marker detection process proceeds by first dispatching a markerNum event that tells you how many
-		markers were found in the image. Next, a getMarker event is dispatched for each found marker square.
+        markers were found in the image. Next, a getMarker event is dispatched for each found marker square.
+
+        Then, a getNFTMarker event is dispatched for each found NFT marker.
+
 		Finally, getMultiMarker is dispatched for every found multimarker, followed by getMultiMarkerSub events
 		dispatched for each of the markers in the multimarker.
 
@@ -170,6 +168,9 @@
 				console.log("Detected marker with ids:", ev.data.marker.id, ev.data.marker.idPatt, ev.data.marker.idMatrix);
 				console.log("Marker data", ev.data.marker);
 				console.log("Marker transform matrix:", [].join.call(ev.data.matrix, ', '));
+            });
+            arController.addEventListener('getNFTMarker', function(ev) {
+				// do stuff
 			});
 			arController.addEventListener('getMultiMarker', function(ev) {
 				console.log("Detected multimarker with id:", ev.data.multiMarkerId);
@@ -193,6 +194,7 @@
             console.error("detectMarker error: " + result);
         }
 
+        // get markers
         var markerNum = this.getMarkerNum();
         var k, o;
         for (k in this.patternMarkers) {
@@ -211,12 +213,7 @@
             o.inCurrent = false;
         }
 
-        /*	this.dispatchEvent({
-                name: 'markerNum',
-                target: this,
-                data: markerNum
-            }); */
-
+        // detect fiducial (aka squared) markers
         for (var i = 0; i < markerNum; i++) {
             var markerInfo = this.getMarker(i);
 
@@ -262,6 +259,8 @@
             });
         }
 
+        // sticchi
+        // detect NFT markers
         var nftMarkerCount = this.nftMarkerCount;
         this.detectNFTMarker();
 
@@ -270,6 +269,7 @@
 
             if (markerInfo.found) {
                 console.log('>>>>> Marker NFT FOUND!!', markerInfo)
+
                 var visible = this.trackNFTMarkerId(i);
                 visible.matrix.set(markerInfo.pose);
                 visible.inCurrent = true;
@@ -288,6 +288,7 @@
             }
         }
 
+        // detect multiple markers
         var multiMarkerCount = this.getMultiMarkerCount();
         for (var i = 0; i < multiMarkerCount; i++) {
             var subMarkerCount = this.getMultiMarkerPatternCount(i);
@@ -332,6 +333,7 @@
                 }
             }
         }
+
         if (this._bwpointer) {
             this.debugDraw();
         }
@@ -668,14 +670,16 @@
         }
         return glMat;
     };
-	/**
- Converts the given 4x4 openGL matrix in the 16-element transMat array
- into a 4x4 OpenGL Right-Hand-View matrix and writes the result into the 16-element glMat array.
- If scale parameter is given, scales the transform of the glMat by the scale parameter.
- @param {Float64Array} glMatrix The 4x4 marker transformation matrix.
- @param {Float64Array} [glRhMatrix] The 4x4 GL right hand transformation matrix.
- @param {number} [scale] The scale for the transform.
-*/
+
+    /**
+        Converts the given 4x4 openGL matrix in the 16-element transMat array
+        into a 4x4 OpenGL Right-Hand-View matrix and writes the result into the 16-element glMat array.
+        If scale parameter is given, scales the transform of the glMat by the scale parameter.
+
+        @param {Float64Array} glMatrix The 4x4 marker transformation matrix.
+        @param {Float64Array} [glRhMatrix] The 4x4 GL right hand transformation matrix.
+        @param {number} [scale] The scale for the transform.
+    */
     ARController.prototype.arglCameraViewRHf = function (glMatrix, glRhMatrix, scale) {
         var m_modelview;
         if (glRhMatrix == undefined)
@@ -727,7 +731,7 @@
         examining the match confidence value) and pose extraction.
 
 		@param {image} Image to be processed to detect markers.
-		@return {number}     0 if the function proceeded without error, or a value less than 0 in case of error.
+		@return {number} 0 if the function proceeded without error, or a value less than 0 in case of error.
 			A result of 0 does not however, imply any markers were detected.
 	*/
     ARController.prototype.detectMarker = function (image) {
@@ -740,7 +744,7 @@
 	/**
 		Get the number of markers detected in a video frame.
 
-	    @return {number}     The number of detected markers in the most recent image passed to arDetectMarker.
+	    @return {number} The number of detected markers in the most recent image passed to arDetectMarker.
     	    Note that this is actually a count, not an index. A better name for this function would be
         	arGetDetectedMarkerCount, but the current name lives on for historical reasons.
     */
@@ -1203,8 +1207,7 @@
         }
     };
 
-
-    // private
+    // private methods
 
     ARController.prototype._initialize = function () {
         this.id = artoolkit.setup(this.width, this.height, this.cameraParam.id);
@@ -1363,12 +1366,6 @@
         var onError = configuration.onError || function (err) { console.error("ARController.getUserMedia", err); };
 
         var video = document.createElement('video');
-
-        var initProgress = function () {
-            if (this.videoWidth !== 0) {
-                onSuccess(video);
-            }
-        };
 
         var readyToPlay = false;
         var eventNames = [

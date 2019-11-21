@@ -74,30 +74,6 @@
         return worker;
     };
 
-	/**
-		ARProxy implements a proxy ARController that dispatches its calls to an ARController running in a Web Worker.
-
-		var proxy = new ARProxy(
-			arController,
-			'/examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
-			function() {
-				console.log("Created a new ARController Worker", arguments);
-			}
-		);
-
-		proxy.addEventListener('load', function() {
-			this.loadNFTMarker("mymarker", function(ev) {
-				var markerRoot = this.arController.createThreeNFTMarker(ev.result[0]);
-				markerRoot.add(sphere);
-				arScene.scene.add(markerRoot);
-				this.processingDone = true;
-
-			});
-		});
-
-		proxy.process(arScene.video);
-
-	*/
     ARProxy = function (arController, cameraParam, callback) {
         this.listeners = {};
         this.allEventListeners = [];
@@ -278,10 +254,8 @@
         var methodName = ARProxy.methods[i];
         ARProxy.prototype[methodName] = (function (methodName) {
             var callbackIndex = ARProxy.callbackIndices[methodName];
-            var onErrorIndex = callbackIndex + 1;
             return function () {
                 var callback = arguments[callbackIndex];
-                var onError = arguments[onErrorIndex];
                 var transferables = ARProxy.getTransferables(methodName, arguments);
                 this.worker.call(this.id, methodName, [].slice.call(arguments, 0, callbackIndex), transferables, callback.bind(this));
             };
@@ -289,15 +263,18 @@
     }
 
     ARProxy.prototype.process = function (image) {
-        if (this.processingDone) {
-            this.processingDone = false;
-            this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height);
-            var self = this;
-            var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            this.worker.call(this.id, 'process', [imageData], [imageData.data.buffer], function (ev) {
-                console.log('Processed frame');
-                self.processingDone = true;
-            });
+        // processingDone is true if NFT marker has been loaded, created and connected to an object on the scene
+        if (!this.processingDone) {
+            return;
         }
+
+        this.processingDone = false;
+        this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height);
+        var self = this;
+        var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        this.worker.call(this.id, 'process', [imageData], [imageData.data.buffer], function () {
+            console.log('Processed frame');
+            self.processingDone = true;
+        });
     };
 })();
