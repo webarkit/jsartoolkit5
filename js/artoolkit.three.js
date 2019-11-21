@@ -278,10 +278,10 @@
 				var marker = ev.data.marker;
 				var obj;
 				if (ev.data.type === artoolkit.PATTERN_MARKER) {
-					obj = this.threePatternMarkers[ev.data.marker.idPatt];
+					obj = this.threePatternMarkers[marker.idPatt];
 
 				} else if (ev.data.type === artoolkit.BARCODE_MARKER) {
-					obj = this.threeBarcodeMarkers[ev.data.marker.idMatrix];
+					obj = this.threeBarcodeMarkers[marker.idMatrix];
 
 				}
 				if (obj) {
@@ -294,10 +294,12 @@
 				Listen to getNFTMarker events to keep track of Three.js markers.
 			*/
 			this.addEventListener('getNFTMarker', function(ev) {
-				var marker = ev.data.marker;
+                var marker = ev.data.marker;
 				var obj;
 
-				obj = this.threeNFTMarkers[ev.data.marker.id];
+                console.log('Found NFT marker', marker, obj);
+
+				obj = this.threeNFTMarkers[marker.id];
 
 				if (obj) {
 					obj.matrix.fromArray(ev.data.matrixGL_RH);
