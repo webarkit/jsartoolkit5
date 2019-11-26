@@ -1,6 +1,6 @@
 onCameraStream = function (arScene, arController) {
     var proxy = new ARProxy(arController, '../examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', function () {
-        console.log('got new', arguments);
+        console.log('Create ARProxy', arguments);
     });
 
     proxy.addEventListener('load', function (ev) {
@@ -9,13 +9,19 @@ onCameraStream = function (arScene, arController) {
         this.processingDone = false;
 
         this.loadNFTMarker('../examples/DataNFT/pinball', function (ev) {
-            console.log('Created NFT marker', ev.result[0]);
-
             var markerRoot = this.arController.createThreeNFTMarker(ev.result[0]);
+
+            console.log('Created NFT marker', ev.result[0], markerRoot);
+
             markerRoot.add(sphere);
             arScene.scene.add(markerRoot);
 
             this.processingDone = true;
+
+            const loader = document.body.querySelector('.arjs-loader');
+            if (loader && loader.parentElement) {
+                loader.parentElement.removeChild(loader);
+            }
         });
     });
 

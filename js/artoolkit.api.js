@@ -259,7 +259,6 @@
             });
         }
 
-        // sticchi
         // detect NFT markers
         var nftMarkerCount = this.nftMarkerCount;
         this.detectNFTMarker();
@@ -268,8 +267,6 @@
             var markerInfo = this.getNFTMarker(i);
 
             if (markerInfo.found) {
-                console.log('>>>>> Marker NFT FOUND!!', markerInfo)
-
                 var visible = this.trackNFTMarkerId(i);
                 visible.matrix.set(markerInfo.pose);
                 visible.inCurrent = true;
