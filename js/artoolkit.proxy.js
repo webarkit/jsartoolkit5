@@ -114,6 +114,11 @@
             this.arController.dispatchEvent(ev);
         });
 
+        this.addEventListener('lostNFTMarker', function (ev) {
+            this.arController.threeNFTMarkers[ev.data.index].keepVisible = true;
+            this.arController.dispatchEvent(ev);
+        });
+
         this.addEventListener('getMarker', function (ev) {
             if (ev.data.type === artoolkit.BARCODE_MARKER) {
                 if (this.arController.threeBarcodeMarkers[ev.data.index]) {

@@ -282,6 +282,17 @@
                         matrixGL_RH: this.transformGL_RH
                     }
                 });
+            } else {
+                this.dispatchEvent({
+                    name: 'lostNFTMarker',
+                    target: this,
+                    data: {
+                        index: i,
+                        marker: markerInfo,
+                        matrix: this.transform_mat,
+                        matrixGL_RH: this.transformGL_RH
+                    }
+                });
             }
         }
 

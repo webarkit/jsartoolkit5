@@ -9,6 +9,7 @@ onCameraStream = function (arScene, arController) {
         this.processingDone = false;
 
         this.loadNFTMarker('../examples/DataNFT/pinball', function (ev) {
+
             var markerRoot = this.arController.createThreeNFTMarker(ev.result[0]);
 
             console.log('Created NFT marker', ev.result[0], markerRoot);
