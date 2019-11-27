@@ -267,6 +267,7 @@
             var markerInfo = this.getNFTMarker(i);
 
             if (markerInfo.found) {
+                self.markerFound = i;
                 var visible = this.trackNFTMarkerId(i);
                 visible.matrix.set(markerInfo.pose);
                 visible.inCurrent = true;
@@ -282,7 +283,9 @@
                         matrixGL_RH: this.transformGL_RH
                     }
                 });
-            } else {
+            } else if (self.markerFound === i) {
+                delete self.markerFound;
+
                 this.dispatchEvent({
                     name: 'lostNFTMarker',
                     target: this,
