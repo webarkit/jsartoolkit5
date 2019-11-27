@@ -263,11 +263,16 @@
         var nftMarkerCount = this.nftMarkerCount;
         this.detectNFTMarker();
 
+        // in ms
+        var MARKER_LOST_TIME = 200;
+
         for (var i = 0; i < nftMarkerCount; i++) {
             var markerInfo = this.getNFTMarker(i);
 
             if (markerInfo.found) {
                 self.markerFound = i;
+                self.markerFoundTime = Date.now();
+
                 var visible = this.trackNFTMarkerId(i);
                 visible.matrix.set(markerInfo.pose);
                 visible.inCurrent = true;
@@ -284,6 +289,12 @@
                     }
                 });
             } else if (self.markerFound === i) {
+                // for now this marker found/lost events handling is for one marker at a time
+                if ((Date.now() - self.markerFoundTime) <= MARKER_LOST_TIME) {
+                    // not handling marker lost for less than specified time
+                    return;
+                };
+
                 delete self.markerFound;
 
                 this.dispatchEvent({
