@@ -109,6 +109,7 @@ extern "C" {
         }
 
         if (flag > -1) {
+					ARLOGi("flag is greater than -1. \n");
             for (j = 0; j < 3; j++) {
             	for (k = 0; k < 4; k++) {
             		trans[j][k] = kpmResult[flag].camPose[j][k];
