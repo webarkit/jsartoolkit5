@@ -101,14 +101,15 @@ extern "C" {
         float trans[3][4];
         for( i = 0; i < kpmResultNum; i++ ) {
             if (kpmResult[i].pageNo == markerIndex && kpmResult[i].camPoseF == 0 ) {
-	            if( flag == -1 || err > kpmResult[i].error ) { // Take the first or best result.
+							ARLOGi("flag result is: %d\n", flag);
+							if( flag == -1 || err > kpmResult[i].error ) { // Take the first or best result.
 	                flag = i;
-									ARLOGi("flag error is: %s\n", flag);
+									ARLOGi("flag error is: %d\n", flag);
 	                err = kpmResult[i].error;
 	            }
 	        }
         }
-				ARLOGi("flag is: %s\n", flag);
+				ARLOGi("flag is: %d\n", flag);
         if (flag > -1) {
 					ARLOGi("flag is greater than -1. \n");
             for (j = 0; j < 3; j++) {
@@ -205,9 +206,11 @@ extern "C" {
 
 		KpmResult *kpmResult = NULL;
 		int kpmResultNum = -1;
-
+				ARLOGi("Starting matching\n");
         kpmMatching( arc->kpmHandle, arc->videoLuma );
+				ARLOGi("Matching started\n");
         kpmGetResult( arc->kpmHandle, &kpmResult, &kpmResultNum );
+				ARLOGi("KPM result...%d\n", kpmResultNum);
         return kpmResultNum;
 	}
 
