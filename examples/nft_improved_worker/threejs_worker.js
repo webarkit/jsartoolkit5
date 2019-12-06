@@ -23,7 +23,7 @@ var setMatrix = function (matrix, value) {
     }
 };
 
-function start(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
+function start(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update, greyCover) {
     let vw, vh;
     let sw, sh;
     let pscale, sscale;
@@ -36,7 +36,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
     let context_process = canvas_process.getContext('2d');
 
     // let context_draw = canvas_draw.getContext('2d');
-    let renderer = new THREE.WebGLRenderer({canvas: canvas_draw, alpha: true, antialias: true});
+    let renderer = new THREE.WebGLRenderer({ canvas: canvas_draw, alpha: true, antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
 
     let scene = new THREE.Scene();
@@ -97,7 +97,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
 
         worker = new Worker('nft/worker.js');
 
-        worker.postMessage({type: "load", pw: pw, ph: ph, marker: '../' + marker.url});
+        worker.postMessage({ type: "load", pw: pw, ph: ph, marker: '../' + marker.url });
 
         worker.onmessage = (ev) => {
             let msg = ev.data;
@@ -115,6 +115,11 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
                     proj[9] *= ratioH;
                     proj[13] *= ratioH;
                     setMatrix(camera.projectionMatrix, proj);
+
+                    // removing loader page if present
+                    if (greyCover && greyCover.parentElement) {
+                        greyCover.parentElement.removeChild(greyCover);
+                    }
                     break;
                 }
                 case "found": {
@@ -171,7 +176,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
         context_process.drawImage(video, 0, 0, vw, vh, ox, oy, w, h);
 
         let imageData = context_process.getImageData(0, 0, pw, ph);
-        worker.postMessage({type: "process", imagedata: imageData}, [imageData.data.buffer]);
+        worker.postMessage({ type: "process", imagedata: imageData }, [imageData.data.buffer]);
     }
     let tick = () => {
         draw();
