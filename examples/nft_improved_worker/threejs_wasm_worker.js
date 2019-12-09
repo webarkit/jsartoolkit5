@@ -7,7 +7,7 @@ let markers = {
         width: 1637,
         height: 2048,
         dpi: 600,
-        url: "resources/pinball/pinball",
+        url: "../DataNFT/pinball",
     },
 };
 
