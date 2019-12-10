@@ -119,17 +119,10 @@ FLAGS += ' -s USE_ZLIB=1';
 //FLAGS += ' -s ERROR_ON_UNDEFINED_SYMBOLS=0';
 //FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
-if (process.platform === "linux") {
-   	FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'
-}
 
 var PRE_FLAGS = ' --pre-js ' + path.resolve(__dirname, '../js/artoolkit.api.js') +' ';
 
 FLAGS += ' --bind ';
-FLAGS += ' -msse';
-FLAGS += ' -msse2';
-FLAGS += ' -msse3';
-FLAGS += ' -mssse3';
 
 /* DEBUG FLAGS */
 var DEBUG_FLAGS = ' -g ';
