@@ -25,19 +25,16 @@ jsartoolkit5 aim is to create a Javascript version of artoolkit5. First, you nee
   - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
 
 3. Copy libjpeg-6b to emscripten/libjpeg
-  - or, set the `LIBJPEG_ROOT` environment variable to point to your libjpeg source directory
+  - or, set the `LIBJPEG_ROOT` environment variable to point to your libjpeg   source directory
 
   You can use the following version (tested recently) of libjpeg: (https://github.com/kalwalt/libjpeg-for-jsartoolkit5)
 
 4. Set the `LIBJPEG_ROOT` variable - if you have not done it before - to the local path of your libjpeg (which you have cloned in the previous step)
 
 5. Building
-  1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
+  1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`)
   2. Rename the `ARTOOLKIT5_ROOT/include/AR/config.h.in` file to `config.h`
   3. Run `npm run build`
-
-Troubleshootings:
-  - If you get errors about `BINARYEN_TRAP_MODE`, comment/de-comment following line on `makem.js` file: `FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'`
 
 During development, you can run ```npm run watch```, it will rebuild the library everytime you change ```./js/``` directory.
 
