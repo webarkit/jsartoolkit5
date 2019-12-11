@@ -4,11 +4,11 @@
  */
 
 
- var
- 	 exec = require('child_process').exec,
- 	 path = require('path'),
- 	 fs = require('fs'),
- 	 child;
+var
+ 	exec = require('child_process').exec,
+ 	path = require('path'),
+ 	fs = require('fs'),
+ 	child;
 
 var HAVE_NFT = 1;
 
@@ -65,8 +65,6 @@ var ar_sources = matchAll([
     'Video/video.c',
     'ARUtil/log.c',
     'ARUtil/file_utils.c',
-    //'Video/videoLuma.c',
-    //'Gl/gsub_lite.c',
 ]);
 
 var ar2_sources = matchAll([
@@ -123,7 +121,6 @@ var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -Wno-warn-absolute-paths ';
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 FLAGS += ' -s USE_ZLIB=1';
-//FLAGS += ' -s ERROR_ON_UNDEFINED_SYMBOLS=0';
 //FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
 
@@ -145,12 +142,7 @@ var INCLUDES = [
     OUTPUT_PATH,
     SOURCE_PATH,
     path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/FreakMatcher'),
-    //path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/GL'),
     path.resolve(__dirname, ARTOOLKIT5_ROOT + '/../libjpeg'),
-    //path.resolve(__dirname, ARTOOLKIT5_ROOT + '/Video'),
-    //'lib/SRC/KPM/FreakMatcher',
-    // 'include/macosx-universal/',
-    // '../jpeg-6b',
 ].map(function(s) { return '-I' + s }).join(' ');
 
 function format(str) {
@@ -208,29 +200,13 @@ var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
     + FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
     OUTPUT_PATH);
 
-/*
-var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
-	+ '/home/walter/kalwalt-github/jsartoolkit5/emscripten/jpeg-6b/' +  libjpeg_sources
-	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc ',
-		OUTPUT_PATH);
-var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
-	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
-	+ FLAGS + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
-	OUTPUT_PATH, OUTPUT_PATH, BUILD_FILE);
-*/
-// var ALL_BC = " {OUTPUT_PATH}*.bc ";
 var ALL_BC = " {OUTPUT_PATH}libar.bc {OUTPUT_PATH}libjpeg.bc ";
 
 var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
     + ALL_BC + MAIN_SOURCES
     + FLAGS + ' -s WASM=0' + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
     OUTPUT_PATH, OUTPUT_PATH, OUTPUT_PATH, BUILD_DEBUG_FILE);
-/*
-var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
-	+ ALL_BC + MAIN_SOURCES
-	+ FLAGS + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
-	OUTPUT_PATH, OUTPUT_PATH, OUTPUT_PATH, BUILD_MIN_FILE);
-*/
+
 var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
     + ALL_BC + MAIN_SOURCES
     + FLAGS + ' -s WASM=0' + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
@@ -241,12 +217,6 @@ var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
     + FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
     OUTPUT_PATH, OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
 
-/*
-var compile_all = format(EMCC + ' ' + INCLUDES + ' '
-	+ ar_sources.join(' ')
-	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
-		OUTPUT_PATH, BUILD_FILE);
-*/
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '
     + ar_sources.join(' ')
     + FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
