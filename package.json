@@ -19,6 +19,7 @@
     "url": "https://github.com/artoolkit/jsartoolkit5/issues"
   },
   "dependencies": {
+    "glob": "^7.1.6",
     "json2csv": "^4.1.5"
   },
   "devDependencies": {
