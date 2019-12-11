@@ -1,4 +1,4 @@
-var artoolkit_wasm_url = '../../../build/artoolkitNft_wasm.wasm';
+var artoolkit_wasm_url = 'artoolkitNft_wasm.wasm';
 
 window = {};
 window.listeners = {};
