@@ -6,7 +6,6 @@ function isMobile() {
     return /Android|mobile|iPad|iPhone/i.test(navigator.userAgent);
 }
 
-const frameLength = 200; // in ms
 const interpolationFactor = 24;
 
 let trackedMatrix = {
