@@ -29,10 +29,10 @@ var MEM = 256 * 1024 * 1024;
 
 var SOURCE_PATH = path.resolve(__dirname, '../emscripten/') + '/';
 var OUTPUT_PATH = path.resolve(__dirname, '../build/') + '/';
-//var BUILD_FILE = 'artoolkit.debug.js';
-var BUILD_DEBUG_FILE = 'artoolkitNft.debug.js';
-var BUILD_WASM_FILE = 'artoolkitNft_wasm.js';
-var BUILD_MIN_FILE = 'artoolkitNft.min.js';
+
+var BUILD_DEBUG_FILE = 'artoolkit.debug.js';
+var BUILD_WASM_FILE = 'artoolkit_wasm.js';
+var BUILD_MIN_FILE = 'artoolkit.min.js';
 
 var MAIN_SOURCES = [
 	'ARToolKitJS.cpp',
