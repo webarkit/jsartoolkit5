@@ -84,11 +84,6 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
     let root = new THREE.Object3D();
     scene.add(root);
 
-    sphere.material.shading = THREE.FlatShading;
-    sphere.position.z = 0;
-    sphere.position.x = 100;
-    sphere.position.y = 100;
-    sphere.scale.set(200, 200, 200);
     /* Load Model */
     let loader = new THREE.GLTFLoader();
 
@@ -117,11 +112,6 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
 
         }
     );
-
-    //root.matrixAutoUpdate = false;
-    // root.add(sphere);
-
-
 
     let load = () => {
         vw = input_width;
@@ -211,7 +201,6 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
 
         if (!lastmsg) {
           //  console.log(model);
-          //  sphere.visible = false;
         //   model.visible = false;
         } else {
             let proj = JSON.parse(lastmsg.proj);
@@ -232,10 +221,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
 
            // set matrix of 'root' by detected 'world' matrix
             setMatrix( root.matrix, trackedMatrix.interpolated );
-
-           // sphere.visible = true;
-         //   model.visible = true;
-          //  setMatrix(root.matrix, world);
+           //model.visible = true;
         }
         renderer.render(scene, camera);
     };
