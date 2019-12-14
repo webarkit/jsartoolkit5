@@ -13,7 +13,7 @@ var
 var HAVE_NFT = 1;
 
 var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
-var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT;
+var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || path.resolve(__dirname, "../emscripten/artoolkit5");
 var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/libjpeg";
 
 if (!EMSCRIPTEN_ROOT) {
@@ -130,7 +130,6 @@ var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -Wno-warn-absolute-paths ';
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 FLAGS += ' -s USE_ZLIB=1';
-//FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
 // FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'
 
