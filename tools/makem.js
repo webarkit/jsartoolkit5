@@ -13,7 +13,7 @@ var
 var HAVE_NFT = 1;
 
 var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
-var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || "../emscripten/artoolkit5";
+var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT;
 var LIBJPEG_ROOT = process.env.LIBJPEG_ROOT || "../emscripten/libjpeg";
 
 if (!EMSCRIPTEN_ROOT) {
@@ -39,6 +39,15 @@ var MAIN_SOURCES = [
 	'trackingMod.c',
 	'trackingMod2d.c',
 ];
+
+if (!fs.existsSync(path.resolve(ARTOOLKIT5_ROOT, 'include/AR/config.h'))) {
+	console.log("Renaming and moving config.h.in to config.h");
+	fs.copyFileSync(
+		path.resolve(ARTOOLKIT5_ROOT, 'include/AR/config.h.in'),
+		path.resolve(ARTOOLKIT5_ROOT, 'include/AR/config.h')
+	);
+	console.log("Done!");
+}
 
 MAIN_SOURCES = MAIN_SOURCES.map(function(src) {
 	return path.resolve(SOURCE_PATH, src);
