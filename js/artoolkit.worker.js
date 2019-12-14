@@ -21,7 +21,7 @@ let ar = null;
 let markerResult = null;
 
 function load(msg) {
-    let param = new ARCameraParam('../../examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat');
+    let param = new ARCameraParam(msg.camera_para);
     param.onload = function () {
         ar = new ARController(msg.pw, msg.ph, param);
         let cameraMatrix = ar.getCameraMatrix();
