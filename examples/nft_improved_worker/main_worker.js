@@ -58,7 +58,7 @@ let markers = {
         width: 1637,
         height: 2048,
         dpi: 215,
-        url: "../DataNFT/pinball",
+        url: "./examples/DataNFT/pinball",
     },
 };
 
@@ -103,7 +103,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
         canvas_process.width = pw;
         canvas_process.height = ph;
 
-        worker = new Worker('nft/worker.js');
+        worker = new Worker('../../js/artoolkit.worker.js');
 
         worker.postMessage({type: "load", pw: pw, ph: ph, marker: '../' + marker.url});
 
