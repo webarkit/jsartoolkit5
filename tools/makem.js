@@ -65,20 +65,7 @@ MAIN_SOURCES = MAIN_SOURCES.map(function(src) {
 	return path.resolve(SOURCE_PATH, src);
 }).join(' ');
 
-var glob = require("glob");
-function match(pattern) {
-    var r = glob.sync('emscripten/artoolkit5/lib/SRC/' + pattern);
-    return r;
-}
-function matchAll(patterns, prefix="") {
-    let r = [];
-    for(let pattern of patterns) {
-        r.push(...(match(prefix + pattern)));
-    }
-    return r;
-}
-
-var ar_sources = matchAll([
+var ar_sources = [
     'AR/arLabelingSub/*.c',
     'AR/*.c',
     'ARICP/*.c',
@@ -86,9 +73,11 @@ var ar_sources = matchAll([
     'Video/video.c',
     'ARUtil/log.c',
     'ARUtil/file_utils.c',
-]);
+].map(function(src) {
+	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/', src);
+});
 
-var ar2_sources = matchAll([
+var ar2_sources = [
     'handle.c',
     'imageSet.c',
     'jpeg.c',
@@ -105,9 +94,11 @@ var ar2_sources = matchAll([
     'searchPoint.c',
     'coord.c',
     'util.c',
-], 'AR2/');
+].map(function(src) {
+	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/AR2/', src);
+});
 
-var kpm_sources = matchAll([
+var kpm_sources = [
     'kpmHandle.c*',
     'kpmRefDataSet.c*',
     'kpmMatching.c*',
@@ -127,7 +118,9 @@ var kpm_sources = matchAll([
     'FreakMatcher/framework/image.c*',
     'FreakMatcher/framework/logger.c*',
     'FreakMatcher/framework/timers.c*',
-], 'KPM/');
+].map(function(src) {
+	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/', src);
+});
 
 if (HAVE_NFT) {
   ar_sources = ar_sources
