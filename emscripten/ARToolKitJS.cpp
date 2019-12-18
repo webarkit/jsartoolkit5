@@ -1,3 +1,14 @@
+/*
+    ** From: ar.h L:94 **
+    #ifdef ARDOUBLE_IS_FLOAT
+    typedef float             ARdouble;
+    #else
+    typedef double            ARdouble;
+    #endif
+
+    ** According to config.h ARDOUBLE_IS_FLOAT is false when compiling with emscripten. This means we are dealing with 64bit float
+*/
+
 #include <stdio.h>
 #include <AR/ar.h>
 //#include <AR/gsub_lite.h>
@@ -351,6 +362,12 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
 
+        //TODO: Fix Cleanup luma.
+        // if(arc->videoLuma) {
+        //     free(arc->videoLuma);
+        //     arc->videoLuma = NULL;
+        // }
+
 		if (arc->videoFrame) {
 			free(arc->videoFrame);
 			arc->videoFrame = NULL;
@@ -493,22 +510,6 @@ extern "C" {
 		}
 
 		return arc->patt_id;
-	}
-
-	int addNFTMarker(int id, std::string datasetPathname) {
-		if (arControllers.find(id) == arControllers.end()) { return -1; }
-		arController *arc = &(arControllers[id]);
-
-		// Load marker(s).
-		int patt_id = arc->surfaceSetCount;
-		if (!loadNFTMarker(arc, patt_id, datasetPathname.c_str())) {
-			ARLOGe("ARToolKitJS(): Unable to set up NFT marker.\n");
-			return -1;
-		}
-
-		arc->surfaceSetCount++;
-
-		return patt_id;
 	}
 
 	int addMultiMarker(int id, std::string patt_name) {
@@ -895,6 +896,7 @@ extern "C" {
 		return arDetectMarker( arc->arhandle, &buff);
 	}
 
+
 	int getMarkerNum(int id) {
 		if (arControllers.find(id) == arControllers.end()) { return ARCONTROLLER_NOT_FOUND; }
 		arController *arc = &(arControllers[id]);
@@ -1090,6 +1092,7 @@ extern "C" {
 			gTransform,
 			arc->videoLuma          //$5
 		);
+
 
 		return arc->id;
 	}
