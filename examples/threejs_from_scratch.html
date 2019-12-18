@@ -132,7 +132,7 @@ function tick() {
 tick();
 
 var cameraParam = new ARCameraParam();
-cameraParam.onload = function() {
+cameraParam.onload = async function() {
 
 	arController = new ARController(320, 240, cameraParam);
 	arController.debugSetup();
