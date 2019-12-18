@@ -33,7 +33,7 @@
     "watch": "^0.18.0"
   },
   "scripts": {
-    "build": "cd emscripten/artoolkit5/ && emconfigure ./Configure && cd ../../ && node tools/makem.js; echo Built at `date`",
+    "build": "node tools/makem.js; echo Built at `date`",
     "watch": "./node_modules/.bin/watch 'npm run build' ./js/",
     "create-doc": "grunt jsdoc",
     "test": "http-server -p 8085",
