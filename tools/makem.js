@@ -135,7 +135,7 @@ var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -Wno-warn-absolute-paths ';
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 FLAGS += ' -s USE_ZLIB=1';
-FLAGS += ' -s USE_LIBJPEG';
+//FLAGS += ' -s USE_LIBJPEG';
 FLAGS += ' --memory-init-file 0 '; // for memless file
 // FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'
 
