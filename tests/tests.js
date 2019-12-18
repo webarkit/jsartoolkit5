@@ -64,7 +64,7 @@ QUnit.module("ARController", {
             assert.deepEqual(arController.defaultMarkerWidth, 1, "Check the default values: defaultMarkerWidth");
             assert.deepEqual(arController.patternMarkers,{},"Check the default values: patternMarkers==={}");
             assert.deepEqual(arController.barcodeMarkers,{},"Check the default values: barcodeMarkers==={}");
-            assert.deepEqual(arController.transform_mat,new Float64Array(16),"Check the default values: transform_mat");
+            assert.deepEqual(arController.transform_mat,new Float32Array(16),"Check the default values: transform_mat");
             assert.ok(arController.canvas, "Check the default values: canvas");
             assert.ok(arController.ctx, "Check the default values: ctx");
         }
