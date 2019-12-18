@@ -12,7 +12,7 @@ var
   os = require('os'),
 	child;
 
-var HAVE_NFT = 0;
+var HAVE_NFT = 1;
 
 var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
 var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || path.resolve(__dirname, "../emscripten/artoolkit5");
@@ -142,12 +142,6 @@ FLAGS += ' --memory-init-file 0 '; // for memless file
 var PRE_FLAGS = ' --pre-js ' + path.resolve(__dirname, '../js/artoolkit.api.js') +' ';
 
 FLAGS += ' --bind ';
-FLAGS += ' -msse';
-FLAGS += ' -msse2';
-FLAGS += ' -msse3';
-FLAGS += ' -mssse3';
-
-
 
 /* DEBUG FLAGS */
 var DEBUG_FLAGS = ' -g ';
@@ -157,7 +151,6 @@ DEBUG_FLAGS += ' --profiling '
 // DEBUG_FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
 DEBUG_FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
 DEBUG_FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
-
 
 var INCLUDES = [
     path.resolve(__dirname, ARTOOLKIT5_ROOT + '/include'),
@@ -219,11 +212,6 @@ var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
     + ALL_BC + MAIN_SOURCES
     + FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
     OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
-
-var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
-+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
-+ FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
-OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
 
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '
     + ar_sources.join(' ')

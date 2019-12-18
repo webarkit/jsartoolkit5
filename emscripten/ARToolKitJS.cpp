@@ -512,6 +512,22 @@ extern "C" {
 		return arc->patt_id;
 	}
 
+	int addNFTMarker(int id, std::string datasetPathname) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		// Load marker(s).
+		int patt_id = arc->surfaceSetCount;
+		if (!loadNFTMarker(arc, patt_id, datasetPathname.c_str())) {
+			ARLOGe("ARToolKitJS(): Unable to set up NFT marker.\n");
+			return -1;
+		}
+
+		arc->surfaceSetCount++;
+
+		return patt_id;
+	}
+
 	int addMultiMarker(int id, std::string patt_name) {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
