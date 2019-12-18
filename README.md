@@ -34,7 +34,8 @@ jsartoolkit5 aim is to create a Javascript version of artoolkit5. First, you nee
 5. Building
   1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
   2. Rename the `ARTOOLKIT5_ROOT/include/AR/config.h.in` file to `config.h`
-  3. Run `npm run build`
+  3. Run `npm install`
+  4. Run `npm run build`
 
 Troubleshootings:
   - If you get errors about `BINARYEN_TRAP_MODE`, comment/de-comment following line on `makem.js` file: `FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'`
