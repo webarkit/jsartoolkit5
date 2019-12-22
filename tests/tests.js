@@ -77,16 +77,16 @@ QUnit.test("Create ARController default", assert => {
     const success = () => {
         const arController = new ARController(videoWidth, videoHeight, cameraPara);
         this.checkDefault(arController);
-    
+
         arController.onload = (err) => {
             assert.notOk(err, "no error");
             assert.ok(true, "successfully loaded");
-    
+
             assert.deepEqual(arController.cameraParam, cameraPara, "Check the default values: cameraPara");
             assert.deepEqual(arController.videoWidth, videoWidth, "Check the default values: videoWidth");
             assert.deepEqual(arController.videoHeight, videoHeight, "Check the default values: videoHeight");
             assert.notOk(arController.image, "Check the default values: image === undefined");
-        
+
             assert.deepEqual(arController.canvas.width, videoWidth,"Check the default values: canvas.width");
             assert.deepEqual(arController.canvas.height, videoHeight, "Check the default values: canvas.height");
             setTimeout(() => {
@@ -109,15 +109,15 @@ QUnit.test("Create ARController track image", assert => {
         arController.debugSetup();
         arController.addEventListener('getMarker', (trackableInfo) => {
             assert.ok(true, "Marker found");
-            assert.deepEqual(trackableInfo.data.marker.idMatrix,0);
+            assert.deepEqual(trackableInfo.marker.idMatrix,0);
         });
-    
+
         arController.onload = (err) => {
             assert.deepEqual(arController.cameraParam, cameraPara, "Check the default values: cameraPara");
             assert.deepEqual(arController.image, v1, "Check the default values: image");
             assert.deepEqual(arController.videoWidth, v1.width, "Check the default values: image.width");
             assert.deepEqual(arController.videoHeight, v1.height, "Check the default values: image.height");
-        
+
             assert.deepEqual(arController.canvas.width, v1.width,"Check the default values: canvas.width");
             assert.deepEqual(arController.canvas.height, v1.height, "Check the default values: canvas.height");
             assert.notOk(err, "no error");
@@ -130,7 +130,7 @@ QUnit.test("Create ARController track image", assert => {
                 arController.process(v1);
                 // const detectMarkerResult = arController.detectMarker()
                 const t1 = performance.now();
-    
+
                 // assert.ok( detectMarkerResult == 0, "Detect marker ran successfull");
                 assert.ok( t1 - t0 < 700, "Process returns within expected time < 100ms actual: " + (t1 - t0));
 
@@ -154,7 +154,7 @@ QUnit.test("Create ARController default, CameraPara as string", assert => {
     const cameraParaUrl = './camera_para.dat';
     const done = assert.async();
     assert.timeout(this.timeout);
-    //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms 
+    //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms
 
     const error = function () {
         assert.ok(false);
@@ -167,11 +167,11 @@ QUnit.test("Create ARController default, CameraPara as string", assert => {
             assert.notOk(err, "no error");
             assert.ok(true, "successfully loaded");
             this.checkDefault(arController);
-    
+
             assert.deepEqual(arController.videoWidth, videoWidth, "Check the default values: videoWidth");
             assert.deepEqual(arController.videoHeight, videoHeight, "Check the default values: videoHeight");
             assert.notOk(arController.image, "Check the default values: image === undefined");
-        
+
             assert.deepEqual(arController.canvas.width, videoWidth,"Check the default values: canvas.width");
             assert.deepEqual(arController.canvas.height, videoHeight, "Check the default values: canvas.height");
 
@@ -188,7 +188,7 @@ QUnit.test("Create ARController default, CameraPara as invalid string", assert =
     const videoWidth = 640, videoHeight = 480;
     const cameraParaUrl = './camera_para_error.dat';
     assert.timeout(this.timeout);
-    //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms 
+    //ARController calls _initialize, which in turn contains a timeOut-function that waits for 1ms
     const done = assert.async();
 
     const error = function () {
@@ -210,7 +210,7 @@ QUnit.test("Create ARController default, CameraPara as invalid string", assert =
 
 });
 
-/* #### ARController.getUserMedia module #### */ 
+/* #### ARController.getUserMedia module #### */
 QUnit.module("ARController.getUserMedia", {
     afterEach : assert => {
         if(this.video.srcObject) {
@@ -237,7 +237,7 @@ QUnit.test("getUserMedia", assert => {
         const videoTrackSettings = videoTrack.getSettings();
         assert.deepEqual(videoTrackSettings.width, width, "Video width from constraints");
         assert.deepEqual(videoTrackSettings.height, height, "Video height from constraints");
-        
+
         const supported = navigator.mediaDevices.getSupportedConstraints();
         // Mobile supports facingMode to be set. Desktop states that facingMode is supported but doesn't list the facing mode inside the settings and hence it will fail
         if(supported["facingMode"] && videoTrackSettings.facingMode)
@@ -366,8 +366,8 @@ QUnit.test("getUserMedia facing user", assert => {
     document.body.appendChild(video);
 });
 
-/* #### ARController.getUserMediaARController module #### */ 
-QUnit.module("ARController.getUserMediaARController", { 
+/* #### ARController.getUserMediaARController module #### */
+QUnit.module("ARController.getUserMediaARController", {
     beforeEach : assert => {
         this.timeout = 5000;
         this.cleanUpTimeout = 500;
@@ -404,7 +404,7 @@ QUnit.test("getUserMediaARController default", assert => {
         facingMode : 'environment'
     }
     const video = ARController.getUserMediaARController(config);
-    assert.ok(video, "Video created");                                                  
+    assert.ok(video, "Video created");
     document.body.appendChild(video);
 });
 QUnit.test("getUserMediaARController wrong calib-url", assert => {
@@ -434,7 +434,7 @@ QUnit.test("getUserMediaARController wrong calib-url", assert => {
         facingMode : 'environment'
     }
     const video = ARController.getUserMediaARController(config);
-    assert.ok(video, "Video created");                                                  
+    assert.ok(video, "Video created");
     document.body.appendChild(video);
 });
 QUnit.module("ARController.Test trackable registration",{
@@ -481,11 +481,11 @@ QUnit.test("Register valid trackable", assert => {
         maxARVideoSize: 640,
         width: 640,
         height: 480,
-        facingMode: 'environment', 
+        facingMode: 'environment',
     };
 
     this.video = ARController.getUserMediaARController(config);
-    
+
 });
 QUnit.test("Register invalid trackable", assert => {
 
@@ -519,11 +519,11 @@ QUnit.test("Register invalid trackable", assert => {
         maxARVideoSize: 640,
         width: 640,
         height: 480,
-        facingMode: 'environment', 
+        facingMode: 'environment',
     };
 
     this.video = ARController.getUserMediaARController(config);
-    
+
 });
 QUnit.test("Register empty URL trackable", assert => {
 
@@ -558,13 +558,13 @@ QUnit.test("Register empty URL trackable", assert => {
         maxARVideoSize: 640,
         width: 640,
         height: 480,
-        facingMode: 'environment', 
+        facingMode: 'environment',
     };
 
     this.video = ARController.getUserMediaARController(config);
-    
+
 });
-/* #### Full setup test #### */ 
+/* #### Full setup test #### */
 QUnit.module("Performance test video",{
     beforeEach : assert => {
         this.timeout = 10000;
@@ -600,7 +600,7 @@ QUnit.test("PTV: performance test video", assert => {
         performance.mark('getUserMediaARController-success');
         performance.measure('Start videostream','start video measure', 'getUserMediaARController-success');
 
-        arController.loadMarker('./patt.hiro',(markerId) => { 
+        arController.loadMarker('./patt.hiro',(markerId) => {
             performance.mark('loadMarker-success');
             performance.measure('Load marker','getUserMediaARController-success', 'loadMarker-success');
 
@@ -667,11 +667,11 @@ QUnit.test("performance test image", assert => {
         arController.onload = () => {
             performance.mark('ARController.onload()');
             performance.measure('Start ARController','start image measure', 'ARController.onload()');
-    
-            arController.loadMarker('./patt.hiro',(markerId) => { 
+
+            arController.loadMarker('./patt.hiro',(markerId) => {
                 performance.mark('loadMarker-success');
                 performance.measure('Load marker','ARController.onload()', 'loadMarker-success');
-    
+
                 for(var i = 0; i <= 100; i++) {
                     //Process an image
                     performance.mark('process-' + i + ' start');
@@ -679,7 +679,7 @@ QUnit.test("performance test image", assert => {
                     performance.mark('process-' + i + ' done');
                     performance.measure('process image','process-' + i + ' start', 'process-' + i + ' done');
                 }
-     
+
                 performance.mark('cleanup');
                 arController.dispose();
                 done();
