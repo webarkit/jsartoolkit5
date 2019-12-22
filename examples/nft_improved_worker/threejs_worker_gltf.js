@@ -200,8 +200,9 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
         lasttime = now;
 
         if (!lastmsg) {
-          //  console.log(model);
-        //   model.visible = false;
+
+          root.visible = false;
+          
         } else {
             let proj = JSON.parse(lastmsg.proj);
             let world = JSON.parse(lastmsg.matrixGL_RH);
@@ -219,9 +220,11 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
                trackedMatrix.interpolated[i] = trackedMatrix.interpolated[i] + ( trackedMatrix.delta[i] / interpolationFactor );
            }
 
+           root.visible = true;
+
            // set matrix of 'root' by detected 'world' matrix
-            setMatrix( root.matrix, trackedMatrix.interpolated );
-           //model.visible = true;
+           setMatrix( root.matrix, trackedMatrix.interpolated );
+
         }
         renderer.render(scene, camera);
     };
