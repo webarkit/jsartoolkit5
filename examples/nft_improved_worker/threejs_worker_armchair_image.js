@@ -1,7 +1,3 @@
-let model;
-const clock = new THREE.Clock();
-let mixers = [];
-
 function isMobile() {
     return /Android|mobile|iPad|iPhone/i.test(navigator.userAgent);
 }
@@ -28,7 +24,7 @@ let markers = {
     "pinball": {
         width: 1637,
         height: 2048,
-        dpi: 215,
+        dpi: 600,
         url: "../examples/DataNFT/pinball",
     },
 };
@@ -44,8 +40,9 @@ var setMatrix = function (matrix, value) {
         matrix.elements = [].slice.call(array);
     }
 };
+var texture = new THREE.TextureLoader().load( '../../examples/Data/armchair.jpg' );
 
-function start(container, marker, video, input_width, input_height, canvas_draw, greyCover) {
+function start(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update, greyCover) {
     let vw, vh;
     let sw, sh;
     let pscale, sscale;
@@ -54,8 +51,6 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
     let ox, oy;
     let worker;
     let camera_para = '../../examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat'
-
-
 
     let canvas_process = document.createElement('canvas');
     let context_process = canvas_process.getContext('2d');
@@ -66,52 +61,31 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
 
     let scene = new THREE.Scene();
 
+    var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
+    scene.add( ambientLight );
+
     let camera = new THREE.Camera();
     camera.matrixAutoUpdate = false;
-    // let camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-    // camera.position.z = 400;
+
+    var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
+    camera.add( pointLight );
 
     scene.add(camera);
-
-    const light = new THREE.AmbientLight( 0xffffff );
-    scene.add(light);
-
-    let sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(0.5, 8, 8),
-        new THREE.MeshNormalMaterial()
-    );
 
     let root = new THREE.Object3D();
     scene.add(root);
 
-    /* Load Model */
-    let loader = new THREE.GLTFLoader();
+  	var mat = new THREE.MeshLambertMaterial({color: 0xbbbbff, map: texture});
+    var planeGeom = new THREE.PlaneGeometry(1,1,1,1);
+    var plane = new THREE.Mesh(planeGeom, mat);
+  	plane.position.z = 0;
+  	plane.position.x = 40;
+  	plane.position.y = 40;
+  	plane.scale.set(80,80,80);
 
-    loader.load(
-        // resource URL
-        '../Data/models/Flamingo.glb',
-        // called when the resource is loaded
-        function ( gltf ) {
 
-            //root.add( glb.scene );
-            model = gltf.scene.children[ 0 ];
-            model.position.z = 0;
-            model.position.x = 100;
-            model.position.y = 100;
-
-            const animation = gltf.animations[ 0 ];
-            const mixer = new THREE.AnimationMixer( model );
-            mixers.push( mixer );
-            const action = mixer.clipAction( animation );
-            action.play();
-
-            root.matrixAutoUpdate = false;
-            root.add( model );
-
-           // console.log(model);
-
-        }
-    );
+    root.matrixAutoUpdate = false;
+    root.add(plane);
 
     let load = () => {
         vw = input_width;
@@ -145,7 +119,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
 
         worker = new Worker('../../js/artoolkit.worker.js');
 
-        worker.postMessage({ type: "load", pw: pw, ph: ph, camera_para: camera_para, marker: '../' + marker.url });
+        worker.postMessage({ type: "load", pw: pw, ph: ph, camera_para: camera_para, marker: marker.url });
 
         worker.onmessage = (ev) => {
             let msg = ev.data;
@@ -179,7 +153,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
                     break;
                 }
             }
-           // track_update();
+            track_update();
             process();
         };
     };
@@ -193,16 +167,14 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
     let time = 0;
 
     let draw = () => {
-       // render_update();
+        render_update();
         let now = Date.now();
         let dt = now - lasttime;
         time += dt;
         lasttime = now;
 
         if (!lastmsg) {
-
-          root.visible = false;
-
+            plane.visible = false;
         } else {
             let proj = JSON.parse(lastmsg.proj);
             let world = JSON.parse(lastmsg.matrixGL_RH);
@@ -215,16 +187,13 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
             let h = height / dpi * 2.54 * 10;
 
             // interpolate matrix
-           for( let i = 0; i < 16; i++ ) {
+            for( let i = 0; i < 16; i++ ) {
                trackedMatrix.delta[i] = world[i] - trackedMatrix.interpolated[i];
                trackedMatrix.interpolated[i] = trackedMatrix.interpolated[i] + ( trackedMatrix.delta[i] / interpolationFactor );
-           }
+             }
 
-           root.visible = true;
-
-           // set matrix of 'root' by detected 'world' matrix
-           setMatrix( root.matrix, trackedMatrix.interpolated );
-
+            setMatrix( root.matrix, trackedMatrix.interpolated );
+            plane.visible = true;
         }
         renderer.render(scene, camera);
     };
@@ -240,11 +209,6 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
     let tick = () => {
         draw();
         requestAnimationFrame(tick);
-        if ( mixers.length > 0 ) {
-            for ( var i = 0; i < mixers.length; i ++ ) {
-                mixers[ i ].update( clock.getDelta() );
-            }
-        }
     };
 
     load();
