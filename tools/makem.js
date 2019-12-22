@@ -12,15 +12,15 @@ var
   os = require('os'),
 	child;
 
+const platform = os.platform();
+
 var HAVE_NFT = 1;
 
 var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
 var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || path.resolve(__dirname, "../emscripten/artoolkit5");
 var LIBJPEG_INCLUDE = process.env.LIBJPEG_ROOT;
 
-// LIBJPEG_ROOT not defined? Take to one from artoolkit5 directory for macOS and Win
 if (!LIBJPEG_INCLUDE) {
-	const platform = os.platform();
   if (platform === 'darwin') {
     LIBJPEG_INCLUDE = `${ARTOOLKIT5_ROOT}/include/macosx-universal/`
   } else if (platform === 'win32') {
@@ -65,7 +65,25 @@ MAIN_SOURCES = MAIN_SOURCES.map(function(src) {
 	return path.resolve(SOURCE_PATH, src);
 }).join(' ');
 
-var ar_sources = [
+let srcTest = path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/');
+
+let arSources, ar_sources;
+
+if (platform === 'win32') {
+	var glob = require("glob");
+function match(pattern) {
+    var r = glob.sync('emscripten/artoolkit5/lib/SRC/' + pattern);
+    return r;
+}
+function matchAll(patterns, prefix="") {
+    let r = [];
+    for(let pattern of patterns) {
+        r.push(...(match(prefix + pattern)));
+    }
+    return r;
+}
+
+	ar_sources = matchAll([
     'AR/arLabelingSub/*.c',
     'AR/*.c',
     'ARICP/*.c',
@@ -73,9 +91,20 @@ var ar_sources = [
     'Video/video.c',
     'ARUtil/log.c',
     'ARUtil/file_utils.c',
-].map(function(src) {
-	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/', src);
-});
+]);
+} else {
+	ar_sources = [
+	  'AR/arLabelingSub/*.c',
+	  'AR/*.c',
+	  'ARICP/*.c',
+	  'ARMulti/*.c',
+	  'Video/video.c',
+	  'ARUtil/log.c',
+	  'ARUtil/file_utils.c',
+	].map(function(src) {
+		return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/', src);
+	});
+}
 
 var ar2_sources = [
     'handle.c',
@@ -99,25 +128,25 @@ var ar2_sources = [
 });
 
 var kpm_sources = [
-    'kpmHandle.c*',
-    'kpmRefDataSet.c*',
-    'kpmMatching.c*',
-    'kpmResult.c*',
-    'kpmUtil.c*',
-    'kpmFopen.c*',
-    'FreakMatcher/detectors/DoG_scale_invariant_detector.c*',
-    'FreakMatcher/detectors/gaussian_scale_space_pyramid.c*',
-    'FreakMatcher/detectors/gradients.c*',
-    'FreakMatcher/detectors/harris.c*',
-    'FreakMatcher/detectors/orientation_assignment.c*',
-    'FreakMatcher/detectors/pyramid.c*',
-    'FreakMatcher/facade/visual_database_facade.c*',
-    'FreakMatcher/matchers/hough_similarity_voting.c*',
-    'FreakMatcher/matchers/freak.c*',
-    'FreakMatcher/framework/date_time.c*',
-    'FreakMatcher/framework/image.c*',
-    'FreakMatcher/framework/logger.c*',
-    'FreakMatcher/framework/timers.c*',
+	'kpmHandle.cpp',
+	'kpmRefDataSet.cpp',
+	'kpmMatching.cpp',
+	'kpmResult.cpp',
+	'kpmUtil.cpp',
+	'kpmFopen.c',
+	'FreakMatcher/detectors/DoG_scale_invariant_detector.cpp',
+	'FreakMatcher/detectors/gaussian_scale_space_pyramid.cpp',
+	'FreakMatcher/detectors/gradients.cpp',
+	'FreakMatcher/detectors/harris.cpp',
+	'FreakMatcher/detectors/orientation_assignment.cpp',
+	'FreakMatcher/detectors/pyramid.cpp',
+	'FreakMatcher/facade/visual_database_facade.cpp',
+	'FreakMatcher/matchers/hough_similarity_voting.cpp',
+	'FreakMatcher/matchers/freak.cpp',
+	'FreakMatcher/framework/date_time.cpp',
+	'FreakMatcher/framework/image.cpp',
+	'FreakMatcher/framework/logger.cpp',
+	'FreakMatcher/framework/timers.cpp',
 ].map(function(src) {
 	return path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/KPM/', src);
 });
