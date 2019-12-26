@@ -50,7 +50,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
     let pw, ph;
     let ox, oy;
     let worker;
-    let camera_para = '../../examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat'
+    let camera_para = 'https://kalwalt.github.io/jsartoolkit5/examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat'
 
     let canvas_process = document.createElement('canvas');
     let context_process = canvas_process.getContext('2d');
@@ -142,9 +142,8 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
                     setMatrix(camera.projectionMatrix, proj);
 
                     // removing loader page if present
-                    if (greyCover && greyCover.parentElement) {
-                        greyCover.parentElement.removeChild(greyCover);
-                    }
+                    document.body.classList.remove( 'loading' );
+
                     break;
                 }
                 case "found": {
