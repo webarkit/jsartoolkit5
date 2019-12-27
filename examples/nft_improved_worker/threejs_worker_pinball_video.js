@@ -146,6 +146,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
                     if(msg.end == true)
                     // removing loader page if present
                     document.body.classList.remove( 'loading' );
+                    document.getElementById('loading').remove();
                     break;
                 }
                 case "found": {
