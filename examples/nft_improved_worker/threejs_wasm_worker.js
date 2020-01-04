@@ -2,6 +2,24 @@ function isMobile() {
     return /Android|mobile|iPad|iPhone/i.test(navigator.userAgent);
 }
 
+const interpolationFactor = 24;
+
+let trackedMatrix = {
+  // for interpolation
+  delta: [
+      0,0,0,0,
+      0,0,0,0,
+      0,0,0,0,
+      0,0,0,0
+  ],
+  interpolated: [
+      0,0,0,0,
+      0,0,0,0,
+      0,0,0,0,
+      0,0,0,0
+  ]
+}
+
 let markers = {
     "pinball": {
         width: 1637,
@@ -122,6 +140,13 @@ function start2(container, marker, video, input_width, input_height, canvas_draw
                     setMatrix(camera.projectionMatrix, proj);
                     break;
                 }
+                case "endLoading": {
+                  if (msg.end == true)
+                    // removing loader page if present
+                    document.body.classList.remove("loading");
+                  document.getElementById("loading").remove();
+                  break;
+                }
                 case "found": {
                     found(msg);
                     break;
@@ -136,9 +161,14 @@ function start2(container, marker, video, input_width, input_height, canvas_draw
         };
     };
 
-    let lastmsg = null;
-    let found = (msg) => {
-        lastmsg = msg;
+    let world;
+
+    let found = msg => {
+      if (!msg) {
+        world = null;
+      } else {
+        world = JSON.parse(msg.matrixGL_RH);
+      }
     };
 
     let lasttime = Date.now();
@@ -151,32 +181,34 @@ function start2(container, marker, video, input_width, input_height, canvas_draw
         time += dt;
         lasttime = now;
 
-        if (!lastmsg) {
+        if (!world) {
             sphere.visible = false;
         } else {
-            let proj = JSON.parse(lastmsg.proj);
-            let world = JSON.parse(lastmsg.matrixGL_RH);
-
-            let width = marker.width;
-            let height = marker.height;
-            let dpi = marker.dpi;
-
-            let w = width / dpi * 2.54 * 10;
-            let h = height / dpi * 2.54 * 10;
-
             sphere.visible = true;
-            setMatrix(root.matrix, world);
+
+                  // interpolate matrix
+                  for (let i = 0; i < 16; i++) {
+                    trackedMatrix.delta[i] = world[i] - trackedMatrix.interpolated[i];
+                    trackedMatrix.interpolated[i] =
+                      trackedMatrix.interpolated[i] +
+                      trackedMatrix.delta[i] / interpolationFactor;
+                  }
+
+                  // set matrix of 'root' by detected 'world' matrix
+                  setMatrix(root.matrix, trackedMatrix.interpolated);
         }
         renderer.render(scene, camera);
     };
 
     function process() {
-        context_process.fillStyle = "black";
-        context_process.fillRect(0, 0, pw, ph);
-        context_process.drawImage(video, 0, 0, vw, vh, ox, oy, w, h);
+      context_process.fillStyle = "black";
+      context_process.fillRect(0, 0, pw, ph);
+      context_process.drawImage(video, 0, 0, vw, vh, ox, oy, w, h);
 
-        let imageData = context_process.getImageData(0, 0, pw, ph);
-        worker.postMessage({type: "process", imagedata: imageData}, [imageData.data.buffer]);
+      let imageData = context_process.getImageData(0, 0, pw, ph);
+      worker.postMessage({ type: "process", imagedata: imageData }, [
+        imageData.data.buffer
+      ]);
     }
     let tick = () => {
         draw();
