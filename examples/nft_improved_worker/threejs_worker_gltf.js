@@ -52,7 +52,8 @@ function start(
   input_width,
   input_height,
   canvas_draw,
-  greyCover
+  render_update,
+  track_update
 ) {
   let vw, vh;
   let sw, sh;
@@ -195,7 +196,7 @@ function start(
           break;
         }
       }
-      // track_update();
+      track_update();
       process();
     };
   };
@@ -214,7 +215,7 @@ function start(
   let time = 0;
 
   let draw = () => {
-    // render_update();
+    render_update();
     let now = Date.now();
     let dt = now - lasttime;
     time += dt;
@@ -262,4 +263,5 @@ function start(
   load();
   tick();
   process();
+
 }
