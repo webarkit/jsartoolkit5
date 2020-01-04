@@ -1,4 +1,4 @@
-var artoolkit_wasm_url = 'artoolkitNft_wasm.wasm';
+var artoolkit_wasm_url = 'artoolkit_wasm.wasm';
 
 window = {};
 window.listeners = {};
@@ -25,7 +25,7 @@ window.dispatchEvent = function (event) {
     }
 };
 
-importScripts('../../../build/artoolkitNft_wasm.js');
+importScripts('../../../build/artoolkit_wasm.js');
 
 self.onmessage = e => {
     let msg = e.data;
