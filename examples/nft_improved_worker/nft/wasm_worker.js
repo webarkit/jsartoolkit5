@@ -26,9 +26,8 @@ window.dispatchEvent = function (event) {
 };
 
 importScripts('../../../build/artoolkit_wasm.js');
-
-self.onmessage = e => {
-    let msg = e.data;
+self.onmessage = function(e) {
+    var msg = e.data;
     switch (msg.type) {
         case "load": {
             load(msg);
@@ -48,10 +47,10 @@ let ar = null;
 let markerResult = null;
 
 function load(msg) {
-    let param = new ARCameraParam('../../Data/camera_para-iPhone 5 rear 640x480 1.0m.dat');
+    var param = new ARCameraParam(msg.camera_para);
     param.onload = function () {
         ar = new ARController(msg.pw, msg.ph, param);
-        let cameraMatrix = ar.getCameraMatrix();
+        var cameraMatrix = ar.getCameraMatrix();
 
         ar.addEventListener('getNFTMarker', function (ev) {
             markerResult = {type: "found", matrixGL_RH: JSON.stringify(ev.data.matrixGL_RH), proj: JSON.stringify(cameraMatrix)};
@@ -60,6 +59,7 @@ function load(msg) {
         ar.loadNFTMarker(msg.marker, function (markerId) {
             ar.trackNFTMarkerId(markerId, 2);
             console.log("loadNFTMarker -> ", markerId);
+            postMessage({type: "endLoading", end: true})
         });
 
         postMessage({type: "loaded", proj: JSON.stringify(cameraMatrix)});

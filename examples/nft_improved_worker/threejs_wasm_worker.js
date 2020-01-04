@@ -37,6 +37,7 @@ function start2(container, marker, video, input_width, input_height, canvas_draw
     let w, h;
     let pw, ph;
     let ox, oy;
+    let camera_para = './../../Data/camera_para-iPhone 5 rear 640x480 1.0m.dat'
 
     let canvas_process = document.createElement('canvas');
     let context_process = canvas_process.getContext('2d');
@@ -101,7 +102,7 @@ function start2(container, marker, video, input_width, input_height, canvas_draw
 
         renderer.setSize(sw, sh);
 
-        worker.postMessage({type: "load", pw: pw, ph: ph, marker: '../' + marker.url});
+        worker.postMessage({type: "load", pw: pw, ph: ph, camera_para: camera_para, marker: '../' + marker.url});
 
         worker.onmessage = (ev) => {
             let msg = ev.data;
