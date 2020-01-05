@@ -43,7 +43,7 @@ var setMatrix = function (matrix, value) {
 
 let worker;
 function start(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
-    worker = new Worker('nft/wasm_worker.js');
+    worker = new Worker('wasm_worker/artoolkit.wasm_worker.js');
     worker.onmessage = (ev) => {
         start2(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update);
     }
