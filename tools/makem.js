@@ -20,14 +20,14 @@ var EMSCRIPTEN_ROOT = process.env.EMSCRIPTEN;
 var ARTOOLKIT5_ROOT = process.env.ARTOOLKIT5_ROOT || path.resolve(__dirname, "../emscripten/artoolkit5");
 
 if (!EMSCRIPTEN_ROOT) {
-	console.log("\nWarning: EMSCRIPTEN environment variable not found.")
-	console.log("If you get a \"command not found\" error,\ndo `source <path to emsdk>/emsdk_env.sh` and try again.");
+  console.log("\nWarning: EMSCRIPTEN environment variable not found.")
+  console.log("If you get a \"command not found\" error,\ndo `source <path to emsdk>/emsdk_env.sh` and try again.");
 }
 
 var EMCC = EMSCRIPTEN_ROOT ? path.resolve(EMSCRIPTEN_ROOT, 'emcc') : 'emcc';
 var EMPP = EMSCRIPTEN_ROOT ? path.resolve(EMSCRIPTEN_ROOT, 'em++') : 'em++';
 var OPTIMIZE_FLAGS = ' -Oz '; // -Oz for smallest size
-var MEM = 256 * 1024 * 1024;
+var MEM = 256 * 1024 * 1024; // 64MB
 
 
 var SOURCE_PATH = path.resolve(__dirname, '../emscripten/') + '/';
@@ -53,7 +53,7 @@ if (!fs.existsSync(path.resolve(ARTOOLKIT5_ROOT, 'include/AR/config.h'))) {
 }
 
 MAIN_SOURCES = MAIN_SOURCES.map(function(src) {
-	return path.resolve(SOURCE_PATH, src);
+  return path.resolve(SOURCE_PATH, src);
 }).join(' ');
 
 let srcTest = path.resolve(__dirname, ARTOOLKIT5_ROOT + '/lib/SRC/');
@@ -157,7 +157,8 @@ FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 FLAGS += ' -s USE_ZLIB=1';
 FLAGS += ' -s USE_LIBJPEG';
 FLAGS += ' --memory-init-file 0 '; // for memless file
-FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'
+
+var WASM_FLAGS = ' -s BINARYEN_TRAP_MODE=clamp'
 
 var PRE_FLAGS = ' --pre-js ' + path.resolve(__dirname, '../js/artoolkit.api.js') +' ';
 
@@ -229,7 +230,7 @@ var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
 
 var compile_wasm = format(EMCC + ' ' + INCLUDES + ' '
     + ALL_BC + MAIN_SOURCES
-    + FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
+    + FLAGS + WASM_FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
     OUTPUT_PATH, OUTPUT_PATH, BUILD_WASM_FILE);
 
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '

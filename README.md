@@ -78,9 +78,6 @@ jsartoolkit5 aim is to create a Javascript version of artoolkit5. First, you nee
   3. Run `npm install`
   4. Run `npm run build-local`
 
-Troubleshootings:
-  - If you get errors about `BINARYEN_TRAP_MODE`, comment/de-comment following line on `makem.js` file: `FLAGS += ' -s BINARYEN_TRAP_MODE=clamp'`
-
 During development, you can run ```npm run watch```, it will rebuild the library everytime you change ```./js/``` directory.
 
 4. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
