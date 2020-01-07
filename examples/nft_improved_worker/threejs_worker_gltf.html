@@ -81,16 +81,11 @@
         };
 
         if (window.innerWidth < 800) {
-          let width = window.innerWidth < window.innerHeight ? 240 : 360;
-          let height = window.innerWidth < window.innerHeight ? 360 : 240;
-
-          let aspectRatio = window.innerWidth / window.innerHeight;
-
           hint = {
             audio: false,
             video: {
-                width: { ideal: 1280 },
-                height: { ideal: 960 },
+                width: { ideal: 480 },
+                height: { ideal: 640 },
                 facingMode:
                     { exact:
                         "environment"
