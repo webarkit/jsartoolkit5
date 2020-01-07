@@ -360,7 +360,10 @@
             this.debugDraw();
         }
     };
-
+  /**
+    Detects the NFT markers in the process() function,
+    with the given tracked id.
+  */
     ARController.prototype.detectNFTMarker = function () {
         artoolkit.detectNFTMarker(this.id);
     }
@@ -809,7 +812,9 @@
             return artoolkit.markerInfo;
         }
     };
-
+  /**
+  
+  */
     ARController.prototype.getNFTMarker = function (markerIndex) {
         if (0 === artoolkit.getNFTMarker(this.id, markerIndex)) {
             return artoolkit.NFTMarkerInfo;
