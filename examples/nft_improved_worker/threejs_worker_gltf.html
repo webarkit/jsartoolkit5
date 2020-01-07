@@ -86,25 +86,23 @@
 
           let aspectRatio = window.innerWidth / window.innerHeight;
 
-          console.log(width, height);
-
           hint = {
             audio: false,
             video: {
-              facingMode: "environment",
-              width: { min: width, max: width }
-            }
+                width: { ideal: 1280 },
+                height: { ideal: 960 },
+                facingMode:
+                    { exact:
+                        "environment"
+                    }
+                },
           };
-
-          console.log(hint);
         }
 
         navigator.mediaDevices.getUserMedia(hint).then(function(stream) {
           video.srcObject = stream;
           video.addEventListener("loadedmetadata", () => {
             video.play();
-
-            console.log("video", video, video.videoWidth, video.videoHeight);
 
             start(
               container,

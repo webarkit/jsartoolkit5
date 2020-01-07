@@ -43,12 +43,12 @@
         let hint = {};
         if (isMobile()) {
             hint = {
-                facingMode: {"ideal": "environment"},
                 audio: false,
                 video: {
-                    width: {min: 240, max: 240},
-                    height: {min: 360, max: 360},
-                },
+                    width: { ideal: 1280 },
+                    height: { ideal: 960 },
+                    facingMode: { exact: "environment" }
+                }
             };
         }
 
