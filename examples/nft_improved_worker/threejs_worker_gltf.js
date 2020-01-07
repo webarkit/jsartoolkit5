@@ -180,13 +180,22 @@ function start(
                     setMatrix(camera.projectionMatrix, proj);
                     break;
                 }
+
                 case "endLoading": {
-                    if (msg.end == true)
+                    if (msg.end == true) {
+                        console.log('here')
                         // removing loader page if present
-                        document.body.classList.remove("loading");
-                    document.getElementById("loading").remove();
+                        let loader = document.getElementById('loading');
+                        if (loader) {
+                            loader.querySelector('.loading-text').innerText = 'Start the tracking!';
+                            setTimeout(function(){
+                                loader.parentElement.removeChild(loader);
+                            }, 2000);
+                        }
+                    }
                     break;
                 }
+
                 case "found": {
                     found(msg);
                     break;
