@@ -520,6 +520,123 @@ window.addEventListener('artoolkit-loaded', () => {
         this.video = ARController.getUserMediaARController(config);
         
     });
+    QUnit.test("Register valid NFT trackable", assert => {
+
+      const done = assert.async();
+      assert.timeout(5000);
+    
+      const loadMarkerSuccess = (markerId) => {
+          assert.ok(markerId >= 0);
+          done();
+      }
+      const loadMarkerError = error => {
+          assert.notOk(error);
+          done();
+      }
+    
+    
+      const successCallback = (arController, arCameraParam) => {
+          // add NFT marker string
+          arController.loadNFTMarker('../examples/DataNFT/pinball', loadMarkerSuccess, loadMarkerError);
+    
+      };
+    
+      const errorCallback = (error) => {
+          console.log("ERROR" + error);
+          assert.notOk(error, "Error while calling `getUserMediaARController`");
+          done();
+      }
+    
+      const config = {
+          onSuccess : successCallback,
+          onError: errorCallback,
+          cameraParam: './camera_para.dat',
+          maxARVideoSize: 640,
+          width: 640,
+          height: 480,
+          facingMode: 'environment',
+      };
+    
+      this.video = ARController.getUserMediaARController(config);
+    
+    });
+    QUnit.test("Register invalid NFT trackable", assert => {
+    
+      const done = assert.async();
+      assert.timeout(5000);
+    
+      const loadMarkerSuccess = (markerId) => {
+          assert.ok(markerId >= 0);
+          done();
+      };
+      const loadMarkerError = error => {
+          assert.ok(error=404, 'Test with invalid pattern-URL');
+          done();
+      };
+    
+      const successCallback = (arController, arCameraParam) => {
+          // add marker string
+          arController.loadNFTMarker('../examples/DataNFT/pinball-error', loadMarkerSuccess, loadMarkerError);
+      };
+    
+      const errorCallback = (error) => {
+          console.log("ERROR" + error);
+          assert.notOk(error, "Error while calling `getUserMediaARController`");
+          done();
+      };
+    
+      const config = {
+          onSuccess : successCallback,
+          onError: errorCallback,
+          cameraParam: './camera_para.dat',
+          maxARVideoSize: 640,
+          width: 640,
+          height: 480,
+          facingMode: 'environment',
+      };
+    
+      this.video = ARController.getUserMediaARController(config);
+    
+    });
+    QUnit.test("Register empty URL NFT trackable", assert => {
+    
+      const done = assert.async();
+      assert.timeout(5000);
+    
+      const loadMarkerSuccess = (markerId) => {
+          assert.ok(markerId >= 0, 'MarkerId is greater or equals 0');
+          done();
+      };
+      const loadMarkerError = error => {
+          console.log(error);
+          assert.ok(error, 'Test with invalid pattern-URL');
+          done();
+      };
+    
+      const successCallback = (arController, arCameraParam) => {
+          // add marker string
+          arController.loadNFTMarker("", loadMarkerSuccess, loadMarkerError);
+      };
+    
+      const errorCallback = (error) => {
+          console.log("ERROR" + error);
+          assert.notOk(error, "Error while calling `getUserMediaARController`");
+          done();
+      };
+    
+      const config = {
+          onSuccess : successCallback,
+          onError: errorCallback,
+          cameraParam: './camera_para.dat',
+          maxARVideoSize: 640,
+          width: 640,
+          height: 480,
+          facingMode: 'environment',
+      };
+    
+      this.video = ARController.getUserMediaARController(config);
+    
+    });
     QUnit.test("Register empty URL trackable", assert => {
 
         const done = assert.async();
@@ -559,6 +676,7 @@ window.addEventListener('artoolkit-loaded', () => {
         this.video = ARController.getUserMediaARController(config);
         
     });
+    
 
     /* #### Full setup test #### */ 
     QUnit.module("Performance test",{
@@ -637,6 +755,7 @@ window.addEventListener('artoolkit-loaded', () => {
         this.video = ARController.getUserMediaARController(config);
         document.body.appendChild(this.video);
     });
+    
     QUnit.module("Performance test image",{
         beforeEach : assert => {
             this.timeout = 10000;
