@@ -55,7 +55,7 @@ window.addEventListener('artoolkit-loaded', () => {
     });
 
     /* #### ARController Module #### */
-    QUnit.module.only("ARController", {
+    QUnit.module("ARController", {
         beforeEach : assert => {
             this.timeout = 5000;
             this.cleanUpTimeout = 500;
@@ -67,7 +67,7 @@ window.addEventListener('artoolkit-loaded', () => {
                 assert.deepEqual(arController.defaultMarkerWidth, 1, "Check the default values: defaultMarkerWidth");
                 assert.deepEqual(arController.patternMarkers,{},"Check the default values: patternMarkers==={}");
                 assert.deepEqual(arController.barcodeMarkers,{},"Check the default values: barcodeMarkers==={}");
-                assert.deepEqual(arController.transform_mat,new Float64Array(16),"Check the default values: transform_mat");
+                assert.deepEqual(arController.transform_mat,new Float32Array(16),"Check the default values: transform_mat");
                 assert.ok(arController.canvas, "Check the default values: canvas");
                 assert.ok(arController.ctx, "Check the default values: ctx");
             }
@@ -575,7 +575,7 @@ window.addEventListener('artoolkit-loaded', () => {
             this.video.src = null;
         }
     });
-    QUnit.only("PTV: performance test video", assert => {
+    QUnit.test("PTV: performance test video", assert => {
 
         const t0 = performance.now();
         const testDone = assert.async();
