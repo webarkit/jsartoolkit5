@@ -1958,7 +1958,9 @@
     scope.artoolkit = artoolkit;
     scope.ARController = ARController;
     scope.ARCameraParam = ARCameraParam;
-    scope.Module = Module;
+    if (scope.artoolkit_wasm_url) {
+      scope.Module = Module;
+    };
 
     if (scope.Module) {
         scope.Module.onRuntimeInitialized = function () {
