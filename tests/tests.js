@@ -101,7 +101,7 @@ QUnit.test("Create ARController default", assert => {
     }
     const cameraPara = new ARCameraParam(this.cParaUrl, success, error);
 });
-QUnit.skip("Create ARController track image", assert => {
+QUnit.test("Create ARController track image", assert => {
     const done = assert.async();
     assert.timeout(this.timeout);
     const success = () => {
@@ -109,7 +109,7 @@ QUnit.skip("Create ARController track image", assert => {
         arController.debugSetup();
         arController.addEventListener('getMarker', (trackableInfo) => {
             assert.ok(true, "Marker found");
-            assert.deepEqual(trackableInfo.marker.idMatrix,0);
+            assert.deepEqual(trackableInfo.data.marker.idMatrix,0);
         });
 
         arController.onload = (err) => {
