@@ -183,7 +183,6 @@ function start(
 
                 case "endLoading": {
                     if (msg.end == true) {
-                        console.log('here')
                         // removing loader page if present
                         let loader = document.getElementById('loading');
                         if (loader) {
