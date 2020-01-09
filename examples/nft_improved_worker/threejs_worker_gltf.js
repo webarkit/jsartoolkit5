@@ -45,16 +45,7 @@ var setMatrix = function (matrix, value) {
     }
 };
 
-function start(
-    container,
-    marker,
-    video,
-    input_width,
-    input_height,
-    canvas_draw,
-    render_update,
-    track_update
-) {
+function start( container, marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
     let vw, vh;
     let sw, sh;
     let pscale, sscale;
@@ -62,8 +53,7 @@ function start(
     let pw, ph;
     let ox, oy;
     let worker;
-    let camera_para =
-        "./../examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat";
+    let camera_para = "./../examples/Data/camera_para-iPhone 5 rear 640x480 1.0m.dat";
 
     let canvas_process = document.createElement("canvas");
     let context_process = canvas_process.getContext("2d");
@@ -97,13 +87,9 @@ function start(
     scene.add(root);
 
     /* Load Model */
-    let loader = new THREE.GLTFLoader();
+    let threeGLTFLoader = new THREE.GLTFLoader();
 
-    loader.load(
-        // resource URL
-        "../Data/models/Flamingo.glb",
-        // called when the resource is loaded
-        function (gltf) {
+    threeGLTFLoader.load("../Data/models/Flamingo.glb", function (gltf) {
             model = gltf.scene.children[0];
             model.position.z = 0;
             model.position.x = 100;
@@ -117,8 +103,6 @@ function start(
 
             root.matrixAutoUpdate = false;
             root.add(model);
-
-            // console.log(model);
         }
     );
 
@@ -223,6 +207,28 @@ function start(
     let lasttime = Date.now();
     let time = 0;
 
+    function process() {
+        context_process.fillStyle = "black";
+        context_process.fillRect(0, 0, pw, ph);
+        context_process.drawImage(video, 0, 0, vw, vh, ox, oy, w, h);
+
+        let imageData = context_process.getImageData(0, 0, pw, ph);
+        worker.postMessage({ type: "process", imagedata: imageData }, [
+            imageData.data.buffer
+        ]);
+    }
+
+    let tick = () => {
+        draw();
+        requestAnimationFrame(tick);
+
+        if (mixers.length > 0) {
+            for (var i = 0; i < mixers.length; i++) {
+                mixers[i].update(clock.getDelta());
+            }
+        }
+    };
+
     let draw = () => {
         render_update();
         let now = Date.now();
@@ -246,31 +252,11 @@ function start(
             // set matrix of 'root' by detected 'world' matrix
             setMatrix(root.matrix, trackedMatrix.interpolated);
         }
+
         renderer.render(scene, camera);
-    };
-
-    function process() {
-        context_process.fillStyle = "black";
-        context_process.fillRect(0, 0, pw, ph);
-        context_process.drawImage(video, 0, 0, vw, vh, ox, oy, w, h);
-
-        let imageData = context_process.getImageData(0, 0, pw, ph);
-        worker.postMessage({ type: "process", imagedata: imageData }, [
-            imageData.data.buffer
-        ]);
-    }
-    let tick = () => {
-        draw();
-        requestAnimationFrame(tick);
-        if (mixers.length > 0) {
-            for (var i = 0; i < mixers.length; i++) {
-                mixers[i].update(clock.getDelta());
-            }
-        }
     };
 
     load();
     tick();
     process();
-
 }
