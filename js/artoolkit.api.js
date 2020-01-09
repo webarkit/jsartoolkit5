@@ -1245,6 +1245,7 @@
 		Draw the black and white image and debug markers to the ARController canvas.
 
 		See setDebugMode.
+    @return 0 (void)
 	*/
     ARController.prototype.debugDraw = function () {
         var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this._bwpointer, this.framesize);
@@ -1276,6 +1277,11 @@
 
     // private methods
 
+    /**
+      This function init the ArController with the necessary parmeters and variables.
+      Don't call directly this but instead instantiate a new ArController.
+      @return {number} 0 (void)
+    */
     ARController.prototype._initialize = function () {
         this.id = artoolkit.setup(this.width, this.height, this.cameraParam.id);
 
@@ -1306,10 +1312,18 @@
         }.bind(this), 1);
     };
 
+  /**
+    Init the necessary kpm handle for NFT and the settings for the CPU.
+    @return {number} 0 (void)
+  */
     ARController.prototype._initNFT = function () {
         artoolkit.setupAR2(this.id);
     };
 
+  /**
+    Copy the Image data to the HEAP for the debugSetup function.
+    @return {number} 0 (void)
+  */
     ARController.prototype._copyImageToHeap = function (image) {
         if (!image) {
             image = this.image;
@@ -1355,7 +1369,11 @@
         return false;
     };
 
-
+    /**
+      Draw a square black border around the detect marker with
+      red circle in the center. Used for debugging porpouse in debugSetup.
+      @return {number} 0 (void)
+    */
     ARController.prototype._debugMarker = function (marker) {
         var vertex, pos;
         vertex = marker.vertex;
