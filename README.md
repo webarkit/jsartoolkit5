@@ -85,7 +85,7 @@ During development, you can run ```npm run watch```, it will rebuild the library
 # ARToolKit JS API
 
 ```js
-<script async src="build/artoolkit.min.js">
+<script src="../build/artoolkit.min.js">
 // include optimized ASM.js build and JS API
 </script>
 ```
@@ -93,10 +93,10 @@ During development, you can run ```npm run watch```, it will rebuild the library
 # ARToolKit JS debug build
 
 ```js
-<script src="build/artoolkit.debug.js">
+<script async src="../build/artoolkit.debug.js">
 // - include debug build
 </script>
-<script src="js/artoolkit.api.js">
+<script src="../js/artoolkit.api.js">
 // - include JS API
 </script>
 ```
@@ -104,13 +104,13 @@ During development, you can run ```npm run watch```, it will rebuild the library
 # ARToolKit Three.js helper API
 
 ```js
-<script async src="build/artoolkit.min.js">
+<script src="../build/artoolkit.min.js">
 // - include optimized ASM.js build and JS API
 </script>
-<script async src="three.min.js">
+<script src="js/third_party/three.js/three.min.js">
 // - include Three.js
 </script>
-<script async src="js/artoolkit.three.js">
+<script src="../js/artoolkit.three.js">
 // - include Three.js helper API
 </script>
 <script>
@@ -137,7 +137,7 @@ The basic operation goes like this:
 6. Call `ARController.process(img)`
 
 ```js
-<script src="build/artoolkit.min.js"></script>
+<script src="../build/artoolkit.min.js"></script>
 <script>
   var param = new ARCameraParam();
 
@@ -167,59 +167,6 @@ The basic operation goes like this:
 
   param.src = 'Data/camera_para.dat';
 </script>
-```
-
-## Public
-
-*the calls your JS apps needs*
-
-- `artoolkit.init(path, camera_param_path)` - load path for artoolkit emscripten files
-- `artoolkit.onReady(callback)` - runs callback when artoolkit has completely downloaded, initalized and ready to run
-- `artoolkit.setup(width, height);` - initalize a buffer size for a canvas of width & height
-- `artoolkit.process(canvas);` - extracts a frame from a canvas and process it
-- `artoolkit.debugSetup()` - enables debugging, adds a threshold image to the dom
-- `artoolkit.getDetectedMarkers()` - returns an array of detected markers from last detection process
-- `artoolkit.getCameraMatrix()` - returns the projection matrix computed from camera parameters
-- `artoolkit.getTransformationMatrix()` - returns the 16-element WebGL transformation matrix
-
-## Internals
-
-*calls called from emscripten runtime -> artoolkit.js*
-
-- `artoolkit.onFrameMalloc(object)` - gets called when frame buffer gets allocated for canvas
-- `artoolkit.onMarkerNum(number)` - gets called with the numbers of markers detected
-- `artoolkit.onGetMarker(object, index)` - gets called with the marker struct for the positioned marker
-
-*calls available from js -> emscripten*
-
-- `_setup(width, height)`
-- `_setThreshold(int)` - 0 to 255
-- `_process()`
-- `_setDebugMode(boolean)`
-- `_addMarker(string)`
-- `setThreshold`
-- `setThresholdMode()` eg. `Module.setThresholdMode(Module.AR_LABELING_THRESH_MODE_AUTO_MEDIAN / AR_LABELING_THRESH_MODE_AUTO_OTSU );
-- `setLabelingMode`
-- `setPatternDetectionMode`
-- `setMatrixCodeType()` : Eg. Module.setMatrixCodeType(Module.AR_MATRIX_CODE_3x3);
-- `setImageProcMode`
-- `setPattRatio`
-
-## Examples
-
-```
-artoolkit.init('', 'camera_para.dat').onReady(function() {
-artoolkit.setProjectionNearPlane(1);
-artoolkit.setProjectionFarPlane(1000);
-artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
-artoolkit.setMatrixCodeType(artoolkit.CONSTANTS.AR_MATRIX_CODE_4x4);
-})
-
-artoolkit.init('', 'camera_para.dat').onReady(function() {
-artoolkit.addMarker('../bin/Data/patt.hiro', function(marker) {
-artoolkit.process(v);
-})
-})
 ```
 
 ## Constants
