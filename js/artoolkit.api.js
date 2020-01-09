@@ -957,12 +957,15 @@
     ARController.prototype.setLogLevel = function (mode) {
         return artoolkit.setLogLevel(mode);
     };
+
   /**
   	Gets the logging level used by ARToolKit.
+    @return {number} return the log level in use.
   */
     ARController.prototype.getLogLevel = function () {
         return artoolkit.getLogLevel();
     };
+
   /**
     Sets the dir (direction) of the marker. Direction that tells about the rotation
     about the marker (possible values are 0, 1, 2 or 3).
@@ -971,23 +974,42 @@
     This is important to compute the transformation matrix in arGetTransMat().
     @param {number} markerIndex the index of the marker
     @param {number} dir direction of the marker (possible values are 0, 1, 2 or 3).
+    @return {number}  0 (void)
   */
     ARController.prototype.setMarkerInfoDir = function (markerIndex, dir) {
         return artoolkit.setMarkerInfoDir(this.id, markerIndex, dir);
     };
 
+  /**
+    Sets the value of the near plane of the camera.
+    @param {number} value the value of the near plane
+    @return {number} 0 (void)
+  */
     ARController.prototype.setProjectionNearPlane = function (value) {
         return artoolkit.setProjectionNearPlane(this.id, value);
     };
 
+  /**
+    Gets the value of the near plane of the camera with the give id.
+    @return {number} the value of the near plane.
+  */
     ARController.prototype.getProjectionNearPlane = function () {
         return artoolkit.getProjectionNearPlane(this.id);
     };
 
+  /**
+    Sets the value of the far plane of the camera.
+    @param {number} value the value of the far plane
+    @return {number} 0 (void)
+  */
     ARController.prototype.setProjectionFarPlane = function (value) {
         return artoolkit.setProjectionFarPlane(this.id, value);
     };
 
+  /**
+    Gets the value of the far plane of the camera with the give id.
+    @return {number} the value of the far plane.
+  */
     ARController.prototype.getProjectionFarPlane = function () {
         return artoolkit.getProjectionFarPlane(this.id);
     };
