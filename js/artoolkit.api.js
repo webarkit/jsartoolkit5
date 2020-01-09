@@ -267,14 +267,15 @@
         var MARKER_LOST_TIME = 200;
 
         for (var i = 0; i < nftMarkerCount; i++) {
-            var markerInfo = this.getNFTMarker(i);
+            var nftMarkerInfo = this.getNFTMarker(i);
+            var markerType = artoolkit.NFT_MARKER;
 
-            if (markerInfo.found) {
+            if (nftMarkerInfo.found) {
                 self.markerFound = i;
                 self.markerFoundTime = Date.now();
 
                 var visible = this.trackNFTMarkerId(i);
-                visible.matrix.set(markerInfo.pose);
+                visible.matrix.set(nftMarkerInfo.pose);
                 visible.inCurrent = true;
                 this.transMatToGLMat(visible.matrix, this.transform_mat);
                 this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
@@ -283,7 +284,8 @@
                     target: this,
                     data: {
                         index: i,
-                        marker: markerInfo,
+                        type: markerType,
+                        marker: nftMarkerInfo,
                         matrix: this.transform_mat,
                         matrixGL_RH: this.transformGL_RH
                     }
@@ -302,7 +304,8 @@
                     target: this,
                     data: {
                         index: i,
-                        marker: markerInfo,
+                        type: markerType,
+                        marker: nftMarkerInfo,
                         matrix: this.transform_mat,
                         matrixGL_RH: this.transformGL_RH
                     }
@@ -1718,6 +1721,7 @@
         UNKNOWN_MARKER: -1,
         PATTERN_MARKER: 0,
         BARCODE_MARKER: 1,
+        NFT_MARKER: 2,
 
         loadCamera: loadCamera,
 

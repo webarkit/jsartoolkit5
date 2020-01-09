@@ -167,7 +167,6 @@ function start( container, marker, video, input_width, input_height, canvas_draw
 
                 case "endLoading": {
                     if (msg.end == true) {
-                        console.log('here')
                         // removing loader page if present
                         let loader = document.getElementById('loading');
                         if (loader) {
