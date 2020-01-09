@@ -813,7 +813,16 @@
         }
     };
   /**
-  
+    Get the NFT marker info struct for the given NFT marker index in detected markers.
+    The returned object is the global artoolkit.NFTMarkerInfo object and will be overwritten
+    by subsequent calls.
+
+		Returns undefined if no marker was found.
+
+		A markerIndex of -1 is used to access the global custom marker.
+
+    @param {number} markerIndex The index of the NFT marker to query.
+    @returns {Object} The NFTmarkerInfo struct.
   */
     ARController.prototype.getNFTMarker = function (markerIndex) {
         if (0 === artoolkit.getNFTMarker(this.id, markerIndex)) {
