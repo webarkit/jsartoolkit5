@@ -6,9 +6,9 @@
         scope = window;
     } else {
         scope = self;
-    }
+    };
     if (scope.artoolkit_wasm_url) {
-        function downloadWasm(url) {
+        var downloadWasm = function(url) {
             return new Promise(function (resolve, reject) {
                 var wasmXHR = new XMLHttpRequest();
                 wasmXHR.open('GET', url, true);
@@ -17,7 +17,7 @@
                 wasmXHR.onerror = function () { reject('error ' + wasmXHR.status); }
                 wasmXHR.send(null);
             });
-        }
+        };
 
         var wasm = downloadWasm(scope.artoolkit_wasm_url);
 
