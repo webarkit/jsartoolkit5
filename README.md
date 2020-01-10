@@ -258,3 +258,27 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 - AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI
 - AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES
 ```
+
+## Build the tests
+
+You can run an automated routine to make some tests, in the main jsartoolkit5 folder just run in a console the command:
+
+```
+npm run test
+```
+
+Then open the tests page:
+
+```
+http://localhost:8085/tests/index.html
+```
+
+## Build the documentation
+
+It is possible to build the api documentation, run this command in the main jsartoolkit5 folder:
+
+```
+npm run create-doc
+```
+
+The api documentation will be created in the **doc** folder. Navigate to the **reference** folder to view the api docs.
