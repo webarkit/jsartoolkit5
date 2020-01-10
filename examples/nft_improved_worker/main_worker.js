@@ -109,7 +109,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
 
         worker.postMessage({type: "load", pw: pw, ph: ph, camera_para: camera_para, marker: '../' + marker.url});
 
-        worker.onmessage = (ev) => {
+        worker.onmessage = function(ev) {
             var msg = ev.data;
             switch (msg.type) {
                 case "found": {
@@ -127,7 +127,7 @@ function start(container, marker, video, input_width, input_height, canvas_draw,
     };
 
     var lastmsg = null;
-    var found = (msg) => {
+    var found = function(msg) {
         lastmsg = msg;
     };
 

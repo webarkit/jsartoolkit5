@@ -91,7 +91,7 @@ function start2(container, marker, video, input_width, input_height, canvas_draw
     root.matrixAutoUpdate = false;
     root.add(sphere);
 
-    var load = () => {
+    var load = function() {
         vw = input_width;
         vh = input_height;
 

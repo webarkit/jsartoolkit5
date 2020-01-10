@@ -49,7 +49,7 @@
             video.srcObject = stream;
             video.play();
             video.addEventListener("loadedmetadata", function() {
-                start(container, markers["pinball"], video, video.videoWidth, video.videoHeight, canvas_draw, () => statsMain.update());
+                start(container, markers["pinball"], video, video.videoWidth, video.videoHeight, canvas_draw, function() {statsMain.update()});
             });
         });
     }
