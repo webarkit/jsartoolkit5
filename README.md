@@ -42,7 +42,7 @@ See examples/simple_image_wasm.html for details.
 2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
   - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`) (Linux and macOS only)
   - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
-  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
+  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 20)
 
 ## Build Instructions
 
@@ -57,7 +57,7 @@ See examples/simple_image_wasm.html for details.
 8. `docker rmi trzeci/emscripten-slim:latest` - remove the image if you don't need it anymore
 9. The build artefacts are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js` and a WebAssembly build artoolkit_wasm.js and artoolkit_wasm.wasm
 
-### !! Not recommended !! : Build local with manual emscripten setup
+### ⚠️ Not recommended ⚠️ : Build local with manual emscripten setup
 To prevent issues with Emscripten setup and to not have to maintain several build environments (macOS, Windows, Linux) we only maintain the **Build using Docker**. Following are the instructions of the last know build on Linux which we verified are working. **Use at own risk.**
 ** Not working on macOS!**
 
@@ -71,7 +71,7 @@ jsartoolkit5 aim is to create a Javascript version of artoolkit5. First, you nee
 2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
   - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`)
   - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
-  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
+  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 20)
 
 3. Building
   1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
@@ -82,7 +82,7 @@ During development, you can run ```npm run watch```, it will rebuild the library
 
 4. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
 
-# ARToolKit JS API
+## ARToolKit JS API
 
 ```js
 <script src="../build/artoolkit.min.js">
@@ -90,7 +90,7 @@ During development, you can run ```npm run watch```, it will rebuild the library
 </script>
 ```
 
-# ARToolKit JS debug build
+## ARToolKit JS debug build
 
 ```js
 <script async src="../build/artoolkit.debug.js">
@@ -101,7 +101,7 @@ During development, you can run ```npm run watch```, it will rebuild the library
 </script>
 ```
 
-# ARToolKit Three.js helper API
+## ARToolKit Three.js helper API
 
 ```js
 <script src="../build/artoolkit.min.js">
@@ -119,11 +119,11 @@ console.log("Three.js helper API loaded");
 };
 if (window.ARController && window.ARController.getUserMediaThreeScene) {
 ARThreeOnLoad();
-}
+};
 </script>
 ```
 
-# Examples
+## Examples
 
 See `examples/` for examples on using the raw API and the Three.js helper API.
 
