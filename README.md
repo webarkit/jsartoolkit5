@@ -282,3 +282,9 @@ npm run create-doc
 ```
 
 The api documentation will be created in the **doc** folder. Navigate to the **reference** folder to view the api docs.
+
+## Issue tracker
+
+If you found a bug or you have a feature request, or for any inquiries related to jsartoolkit5 development file an issue at:
+
+[github.com/artoolkitx/jsartoolkit5/issues](https://github.com/artoolkitx/jsartoolkit5/issues)
