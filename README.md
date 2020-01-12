@@ -1,6 +1,14 @@
 # ARToolKit.js
 
-Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaScript.
+Emscripten port of [ARToolKit](https://github.com/artoolkitx/artoolkit5) to JavaScript.
+
+## MArkers Types
+
+JSARToolKit5 support these types of markers:
+- Square pictorial markers
+- Square barcode markers
+- Multi square markers set
+- NFT (natural feature tracking) markers
 
 ---
 **NOTE:**
@@ -173,6 +181,9 @@ The basic operation goes like this:
 
 ### Basic example with a worker and a NFT marker
 
+**NFT** (**N**atural **F**eature **T**racking) is a markerless technology that let you track almost any images you want. To use this feature take a look at the nft_improved_worker example folder. If you want to create your custom NFT marker you can use the online tool [NFT-Marker-Creator](https://carnaux.github.io/NFT-Marker-Creator/). In the code below a summarized example:
+
+
 ```js
 <div id="container">
     <video id="video"></video>
@@ -208,7 +219,6 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 }
 </script>
 ```
-
 
 ## Constants
 
