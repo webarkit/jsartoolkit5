@@ -10,6 +10,7 @@
             padding: 0;
         }
     </style>
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
 </head>
 
 <body>
@@ -30,21 +31,20 @@
         <canvas style="position: absolute; left:0; top:0" id="canvas_draw"></canvas>
     </div>
 
-    <link rel="stylesheet" type="text/css" href="style.css">
     <script src="../js/third_party/three.js/stats.min.js"></script>
     <script src="../js/third_party/three.js/three.min.js"></script>
     <script src="threejs_worker.js"></script>
 
     <script>
         var statsMain = new Stats();
-        statsMain.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+        statsMain.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
         statsMain.domElement.style.position = 'relative';
         statsMain.domElement.style.left = '0px';
         statsMain.domElement.style.top = '0px';
         document.getElementById("stats1").appendChild(statsMain.dom);
 
         var statsWorker = new Stats();
-        statsWorker.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+        statsWorker.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
         statsWorker.domElement.style.position = 'relative';
         statsWorker.domElement.style.left = '0px';
         statsWorker.domElement.style.top = '0px';

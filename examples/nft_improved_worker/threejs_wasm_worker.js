@@ -177,6 +177,7 @@ function start2(container, marker, video, input_width, input_height, canvas_draw
     };
 
     var lasttime = Date.now();
+    var time = 0;
 
     var draw = function() {
         render_update();
