@@ -6,9 +6,9 @@
         scope = window;
     } else {
         scope = self;
-    }
+    };
     if (scope.artoolkit_wasm_url) {
-        function downloadWasm(url) {
+        var downloadWasm = function(url) {
             return new Promise(function (resolve, reject) {
                 var wasmXHR = new XMLHttpRequest();
                 wasmXHR.open('GET', url, true);
@@ -17,7 +17,7 @@
                 wasmXHR.onerror = function () { reject('error ' + wasmXHR.status); }
                 wasmXHR.send(null);
             });
-        }
+        };
 
         var wasm = downloadWasm(scope.artoolkit_wasm_url);
 
@@ -267,14 +267,15 @@
         var MARKER_LOST_TIME = 200;
 
         for (var i = 0; i < nftMarkerCount; i++) {
-            var markerInfo = this.getNFTMarker(i);
+            var nftMarkerInfo = this.getNFTMarker(i);
+            var markerType = artoolkit.NFT_MARKER;
 
-            if (markerInfo.found) {
+            if (nftMarkerInfo.found) {
                 self.markerFound = i;
                 self.markerFoundTime = Date.now();
 
                 var visible = this.trackNFTMarkerId(i);
-                visible.matrix.set(markerInfo.pose);
+                visible.matrix.set(nftMarkerInfo.pose);
                 visible.inCurrent = true;
                 this.transMatToGLMat(visible.matrix, this.transform_mat);
                 this.transformGL_RH = this.arglCameraViewRHf(this.transform_mat);
@@ -283,7 +284,8 @@
                     target: this,
                     data: {
                         index: i,
-                        marker: markerInfo,
+                        type: markerType,
+                        marker: nftMarkerInfo,
                         matrix: this.transform_mat,
                         matrixGL_RH: this.transformGL_RH
                     }
@@ -302,7 +304,8 @@
                     target: this,
                     data: {
                         index: i,
-                        marker: markerInfo,
+                        type: markerType,
+                        marker: nftMarkerInfo,
                         matrix: this.transform_mat,
                         matrixGL_RH: this.transformGL_RH
                     }
@@ -575,10 +578,20 @@
 	*/
     ARController.prototype.loadNFTMarker = function (markerURL, onSuccess, onError) {
         var self = this;
-        return artoolkit.addNFTMarker(this.id, markerURL, function (id) {
-            self.nftMarkerCount = id + 1;
-            onSuccess(id);
-        }, onError);
+        if (markerURL) {
+          return artoolkit.addNFTMarker(this.id, markerURL, function (id) {
+              self.nftMarkerCount = id + 1;
+              onSuccess(id);
+          }, onError);
+        } else {
+          if (onError) {
+              onError("Marker URL needs to be defined and not equal empty string!");
+          }
+          else {
+              console.error("Marker URL needs to be defined and not equal empty string!");
+          }
+        }
+
     };
 
 	/**
@@ -1772,6 +1785,7 @@
         UNKNOWN_MARKER: -1,
         PATTERN_MARKER: 0,
         BARCODE_MARKER: 1,
+        NFT_MARKER: 2,
 
         loadCamera: loadCamera,
 
@@ -1864,7 +1878,7 @@
         }, function (errorNumber) { if (onError) onError(errorNumber) });
     }
 
-    function addNFTMarker(arId, url, callback) {
+    function addNFTMarker(arId, url, callback, onError) {
         var mId = marker_count++;
         var prefix = '/markerNFT_' + mId;
         var filename1 = prefix + '.fset';
@@ -1875,9 +1889,9 @@
                 ajax(url + '.fset3', filename3, function () {
                     var id = Module._addNFTMarker(arId, prefix);
                     if (callback) callback(id);
-                });
-            });
-        });
+                }, function (errorNumber) { if (onError) onError(errorNumber) });
+            }, function (errorNumber) { if (onError) onError(errorNumber) });
+        }, function (errorNumber) { if (onError) onError(errorNumber) });
     }
 
     function bytesToString(array) {
