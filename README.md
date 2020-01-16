@@ -184,7 +184,9 @@ The basic operation goes like this:
 
 ### Basic example with a worker and a NFT marker
 
-**NFT** (**N**atural **F**eature **T**racking) is a markerless technology that let you track almost any images you want. To use this feature take a look at the nft_improved_worker example folder. If you want to create your custom NFT marker you can use the online tool [NFT-Marker-Creator](https://carnaux.github.io/NFT-Marker-Creator/). In the code below a summarized example:
+**NFT** (**N**atural **F**eature **T**racking) is a markerless technology that let you track almost any images you want. To use this feature take a look at the **nft_improved_worker** example folder. If you want to create your custom NFT marker you can use the online tool [NFT-Marker-Creator](https://carnaux.github.io/NFT-Marker-Creator/). Before proceeding with the creation of your markers, carefully read the information on the [wiki](https://github.com/Carnaux/NFT-Marker-Creator/wiki/Creating-good-markers).
+
+In the code below a summarized example:
 
 
 ```js
