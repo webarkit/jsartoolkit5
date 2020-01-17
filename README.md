@@ -1,6 +1,14 @@
 # ARToolKit.js
 
-Emscripten port of [ARToolKit](https://github.com/artoolkit/artoolkit5) to JavaScript.
+Emscripten port of [ARToolKit](https://github.com/artoolkitx/artoolkit5) to JavaScript.
+
+## MArkers Types
+
+JSARToolKit5 support these types of markers:
+- Square pictorial markers
+- Square barcode markers
+- Multi square markers set
+- NFT (natural feature tracking) markers
 
 ---
 **NOTE:**
@@ -43,7 +51,7 @@ See examples/simple_image_wasm.html for details.
 2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
   - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`) (Linux and macOS only)
   - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
-  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
+  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 20)
 
 ## Build the project
 
@@ -68,13 +76,13 @@ To prevent issues with Emscripten setup and to not have to maintain several buil
   1. Install node.js (https://nodejs.org/en/)
   2. Install python2 (https://www.python.org/downloads/)
   3. Install emscripten (https://emscripten.org/docs/getting_started/downloads.html#download-and-install)
-     We used emscripten version **1.38.44-fastcomp**
+     We used emscripten version **1.39.5-fastcomp** ~~1.38.44-fastcomp~~
 
 jsartoolkit5 aim is to create a Javascript version of artoolkit5. First, you need the artoolkit5 repository on your machine:
 2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
   - create a link in the `jsartoolkit5/emscripten/` directory that points to ARToolKit5 (`jsartoolkit5/emscripten/artoolkit5`)
   - or, set the `ARTOOLKIT5_ROOT` environment variable to point to your ARToolKit5 clone
-  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 62, 83, 107, 140)
+  - or, change the `tools/makem.js` file to point to your artoolkit5 clone (line 20)
 
 3. Building
   1. Make sure `EMSCRIPTEN` env variable is set (e.g. `EMSCRIPTEN=/usr/lib/emsdk_portable/emscripten/master/ node tools/makem.js`
@@ -85,35 +93,35 @@ During development, you can run ```npm run watch```, it will rebuild the library
 
 4. The built ASM.js files are in `/build`. There's a build with debug symbols in `artoolkit.debug.js` and the optimized build with bundled JS API in `artoolkit.min.js`.
 
-# ARToolKit JS API
+## ARToolKit JS API
 
 ```js
-<script async src="build/artoolkit.min.js">
+<script src="../build/artoolkit.min.js">
 // include optimized ASM.js build and JS API
 </script>
 ```
 
-# ARToolKit JS debug build
+## ARToolKit JS debug build
 
 ```js
-<script src="build/artoolkit.debug.js">
+<script async src="../build/artoolkit.debug.js">
 // - include debug build
 </script>
-<script src="js/artoolkit.api.js">
+<script src="../js/artoolkit.api.js">
 // - include JS API
 </script>
 ```
 
-# ARToolKit Three.js helper API
+## ARToolKit Three.js helper API
 
 ```js
-<script async src="build/artoolkit.min.js">
+<script src="../build/artoolkit.min.js">
 // - include optimized ASM.js build and JS API
 </script>
-<script async src="three.min.js">
+<script src="js/third_party/three.js/three.min.js">
 // - include Three.js
 </script>
-<script async src="js/artoolkit.three.js">
+<script src="../js/artoolkit.three.js">
 // - include Three.js helper API
 </script>
 <script>
@@ -122,11 +130,11 @@ console.log("Three.js helper API loaded");
 };
 if (window.ARController && window.ARController.getUserMediaThreeScene) {
 ARThreeOnLoad();
-}
+};
 </script>
 ```
 
-# Examples
+## Examples
 
 See `examples/` for examples on using the raw API and the Three.js helper API.
 
@@ -139,8 +147,10 @@ The basic operation goes like this:
 5. Add a `'getMarker'` event listener
 6. Call `ARController.process(img)`
 
+### Basic example with an image source and a pattern marker ( hiro )
+
 ```js
-<script src="build/artoolkit.min.js"></script>
+<script src="../build/artoolkit.min.js"></script>
 <script>
   var param = new ARCameraParam();
 
@@ -172,57 +182,47 @@ The basic operation goes like this:
 </script>
 ```
 
-## Public
+### Basic example with a worker and a NFT marker
 
-*the calls your JS apps needs*
+**NFT** (**N**atural **F**eature **T**racking) is a markerless technology that let you track almost any images you want. To use this feature take a look at the **nft_improved_worker** example folder. If you want to create your custom NFT marker you can use the online tool [NFT-Marker-Creator](https://carnaux.github.io/NFT-Marker-Creator/). Before proceeding with the creation of your markers, carefully read the information on the [wiki](https://github.com/Carnaux/NFT-Marker-Creator/wiki/Creating-good-markers).
 
-- `artoolkit.init(path, camera_param_path)` - load path for artoolkit emscripten files
-- `artoolkit.onReady(callback)` - runs callback when artoolkit has completely downloaded, initalized and ready to run
-- `artoolkit.setup(width, height);` - initalize a buffer size for a canvas of width & height
-- `artoolkit.process(canvas);` - extracts a frame from a canvas and process it
-- `artoolkit.debugSetup()` - enables debugging, adds a threshold image to the dom
-- `artoolkit.getDetectedMarkers()` - returns an array of detected markers from last detection process
-- `artoolkit.getCameraMatrix()` - returns the projection matrix computed from camera parameters
-- `artoolkit.getTransformationMatrix()` - returns the 16-element WebGL transformation matrix
+In the code below a summarized example:
 
-## Internals
 
-*calls called from emscripten runtime -> artoolkit.js*
+```js
+<div id="container">
+    <video id="video"></video>
+    <canvas style="position: absolute; left:0; top:0" id="canvas_draw"></canvas>
+</div>
+// main worker create the web worker see in the examples/nft_improved_worker for details
+<script src="main_worker.js"></script>
+<script>
+var container = document.getElementById('container');
+var video = document.getElementById('video');
+var canvas_draw = document.getElementById('canvas_draw');
 
-- `artoolkit.onFrameMalloc(object)` - gets called when frame buffer gets allocated for canvas
-- `artoolkit.onMarkerNum(number)` - gets called with the numbers of markers detected
-- `artoolkit.onGetMarker(object, index)` - gets called with the marker struct for the positioned marker
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    var hint = {};
+    if (isMobile()) {
+        hint = {
+            facingMode: {"ideal": "environment"},
+            audio: false,
+            video: {
+                width: {min: 240, max: 240},
+                height: {min: 360, max: 360},
+            },
+        };
+    }
 
-*calls available from js -> emscripten*
-
-- `_setup(width, height)`
-- `_setThreshold(int)` - 0 to 255
-- `_process()`
-- `_setDebugMode(boolean)`
-- `_addMarker(string)`
-- `setThreshold`
-- `setThresholdMode()` eg. `Module.setThresholdMode(Module.AR_LABELING_THRESH_MODE_AUTO_MEDIAN / AR_LABELING_THRESH_MODE_AUTO_OTSU );
-- `setLabelingMode`
-- `setPatternDetectionMode`
-- `setMatrixCodeType()` : Eg. Module.setMatrixCodeType(Module.AR_MATRIX_CODE_3x3);
-- `setImageProcMode`
-- `setPattRatio`
-
-## Examples
-
-```
-artoolkit.init('', 'camera_para.dat').onReady(function() {
-artoolkit.setProjectionNearPlane(1);
-artoolkit.setProjectionFarPlane(1000);
-artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
-artoolkit.setMatrixCodeType(artoolkit.CONSTANTS.AR_MATRIX_CODE_4x4);
-})
-
-artoolkit.init('', 'camera_para.dat').onReady(function() {
-artoolkit.addMarker('../bin/Data/patt.hiro', function(marker) {
-artoolkit.process(v);
-})
-})
+    navigator.mediaDevices.getUserMedia({video: hint}).then(function (stream) {
+        video.srcObject = stream;
+        video.play();
+        video.addEventListener("loadedmetadata", function() {
+            start(container, markers["pinball"], video, video.videoWidth, video.videoHeight, canvas_draw, function() { statsMain.update() }, function() { statsWorker.update()) };
+        });
+    });
+}
+</script>
 ```
 
 ## Constants
@@ -273,3 +273,33 @@ artoolkit.process(v);
 - AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI
 - AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES
 ```
+
+## Build the tests
+
+You can run an automated routine to make some tests, in the main jsartoolkit5 folder just run in a console the command:
+
+```
+npm run test
+```
+
+Then open the tests page:
+
+```
+http://localhost:8085/tests/index.html
+```
+
+## Build the documentation
+
+It is possible to build the api documentation, run this command in the main jsartoolkit5 folder:
+
+```
+npm run create-doc
+```
+
+The api documentation will be created in the **doc** folder. Navigate to the **reference** folder to view the api docs.
+
+## Issue tracker
+
+If you found a bug or you have a feature request, or for any inquiries related to jsartoolkit5 development file an issue at:
+
+[github.com/artoolkitx/jsartoolkit5/issues](https://github.com/artoolkitx/jsartoolkit5/issues)
