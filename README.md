@@ -76,7 +76,7 @@ To prevent issues with Emscripten setup and to not have to maintain several buil
   1. Install node.js (https://nodejs.org/en/)
   2. Install python2 (https://www.python.org/downloads/)
   3. Install emscripten (https://emscripten.org/docs/getting_started/downloads.html#download-and-install)
-     We used emscripten version **1.38.44-fastcomp**
+     We used emscripten version **1.39.5-fastcomp** ~~1.38.44-fastcomp~~
 
 jsartoolkit5 aim is to create a Javascript version of artoolkit5. First, you need the artoolkit5 repository on your machine:
 2. Clone ARToolKit5 project to get the latest source files. From within jsartoolkit5 directory do `git submodule update --init`. If you already cloned ARToolKit5 to a different directory you can:
