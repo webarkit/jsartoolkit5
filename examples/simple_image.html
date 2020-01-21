@@ -15,6 +15,7 @@ var cameraParam = new ARCameraParam();
 var ar1, ar2, ar3, ar4, ar5;
 
 cameraParam.onload = function() {
+
 	ar1 = new ARController(v1, cameraParam);
 	ar1.debugSetup();
 
@@ -63,8 +64,8 @@ cameraParam.onload = function() {
 		assertEq(m + ' changed back', ar5['get'+m](), v);
 	}
 	console.log("Setter/Getter tests run successfully.");
-};
 
+};
 cameraParam.load('Data/camera_para.dat');
 
 </script>

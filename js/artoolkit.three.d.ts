@@ -1,7 +1,7 @@
-// Type definitions for Javascript ARToolKit v5.x 
+// Type definitions for Javascript ARToolKit v5.x
 // Project: https://github.com/artoolkit/jsartoolkit5
 // Definitions by: Hakan Dilek <https://github.com/hakandilek>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped  
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 import { Scene, Renderer } from 'three';
 import { ARCameraParam } from 'jsartoolkit5';

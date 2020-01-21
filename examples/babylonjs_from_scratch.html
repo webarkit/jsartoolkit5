@@ -2,11 +2,11 @@
     <body>
 
         <script src="js/third_party/babylon.js/babylon.2.5.max.js"></script>
-        <script src="../build/artoolkit.debug.js"></script>
+        <script async src="../build/artoolkit.debug.js"></script>
         <script src="../js/artoolkit.api.js"></script>
 
         <canvas id="renderCanvas"></canvas>
-        <video id="v" src="Data/output_4.mp4" width="320" height="240" loop="" controls="" autoplay
+        <video id="v" src="Data/output_4.ogg" width="320" height="240" loop="" controls="" autoplay
                webkit-playsinline></video>
 
         <script>
@@ -94,7 +94,7 @@
 
 
             var cameraParam = new ARCameraParam();
-            cameraParam.onload = function () {
+            cameraParam.onload = async function () {
 
                 arController = new ARController(320, 240, cameraParam);
                 arController.debugSetup();

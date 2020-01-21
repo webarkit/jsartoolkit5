@@ -1,8 +1,8 @@
-﻿// Type definitions for Javascript ARToolKit v5.x 
+// Type definitions for Javascript ARToolKit v5.x
 // Project: https://github.com/artoolkitx/jsartoolkit5
 // Definitions by: Hakan Dilek <https://github.com/hakandilek>
 // and Thorsten Bux <https://github.com/thorstenbuxk>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped  
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 export declare interface artoolkit {
     public static readonly AR_TEMPLATE_MATCHING_COLOR;
@@ -27,18 +27,19 @@ export class ARController {
     defaultMarkerWidth: number;
     patternMarkers: object;
     barcodeMarkers: object;
+    nftMarkers: object;
     transform_mat: Float64Array;
     transformGL_RH: Float64Array;
 
     //debugging
     _bwpointer: number;
     _lumaCtx: CanvasRenderingContext2D;
-    
+
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
-    
+
     //Set during _initialize; the heap space for these values is reserved inside the CPP part of artoolkit and then accessed from JS.
     framepointer: any;
     framesize: number;
@@ -81,7 +82,7 @@ export class ARController {
    arglCameraViewRHf(glMatrix: Float64Array, glRhMatrix?: Float64Array, scale?: number): Float64Array
     /**
         Set the pattern detection mode
- 
+
         The pattern detection determines the method by which ARToolKit
         matches detected squares in the video image to marker templates
         and/or IDs. ARToolKit v4.x can match against pictorial "template" markers,
@@ -90,7 +91,7 @@ export class ARController {
         markers, which have an embedded marker ID. Two different two-pass modes
         are also available, in which a matrix-detection pass is made first,
         followed by a template-matching pass.
- 
+
         @param {number} mode
             Options for this field are:
             AR_TEMPLATE_MATCHING_COLOR
@@ -119,7 +120,7 @@ export class ARControllerStatic {
     getUserMedia(config: GetUserMediaConfig): HTMLVideoElement;
     getUserMediaARController(config: GetUserMediaARControllerConfig): HTMLVideoElement;
   }
-  
+
 declare interface GetUserMediaConfig {
         onSuccess : (video: HTMLVideoElement) => void;
         onError : (error: any) => void;
@@ -168,9 +169,9 @@ export declare interface ARMarkerInfo {
      * Line equations for the 4 sides of the marker.
      */
     line: number[];
-    /** 
-     * 2D positions (in camera image coordinates, origin at top-left) of the corners of the marker. 
-     * vertex[(4 - dir)%4][] is the top-left corner of the marker. Other vertices proceed clockwise from this. 
+    /**
+     * 2D positions (in camera image coordinates, origin at top-left) of the corners of the marker.
+     * vertex[(4 - dir)%4][] is the top-left corner of the marker. Other vertices proceed clockwise from this.
      * These are idealised coordinates (i.e. the onscreen position aligns correctly with the undistorted camera image.)
      */
     vertex: number[];
@@ -178,7 +179,7 @@ export declare interface ARMarkerInfo {
      * Area in pixels of the largest connected region, comprising the marker border and regions connected to it. Note that this is not the same as the actual onscreen area inside the marker border.
      */
     area: number;
-    /** 
+    /**
      * If pattern detection mode is either pattern mode OR matrix but not both, will be marker ID (>= 0) if marker is valid, or -1 if invalid.
      */
     id: number;
