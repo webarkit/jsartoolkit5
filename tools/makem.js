@@ -220,7 +220,7 @@ var ALL_BC = " {OUTPUT_PATH}libar.bc ";
 
 var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
     + ALL_BC + MAIN_SOURCES
-    + FLAGS + ' -s WASM=0' + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
+    + FLAGS + ' -s WASM=0' + ' '  + DEBUG_FLAGS + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} ',
     OUTPUT_PATH, OUTPUT_PATH, BUILD_DEBUG_FILE);
 
 var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
@@ -283,6 +283,6 @@ addJob(compile_arlib);
 addJob(compile_combine);
 addJob(compile_wasm);
 addJob(compile_combine_min);
-// addJob(compile_all);
+//addJob(compile_all);
 
 runJob();
