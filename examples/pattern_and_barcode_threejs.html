@@ -23,7 +23,7 @@ html,body {
 
 <h1>Mixed marker example with Three.js</h1>
 <p>On Chrome on Android, tap the screen to start playing video stream.</p>
-<p>Show <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/5.png">3x3 marker id 5</a>, <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/20.png">3x3 marker id 20</a>, <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Hiro%20pattern.pdf">Hiro pattern</a> and <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Kanji%20pattern.pdf">Kanji pattern</a> to camera to display a colorful objects on top of them. Tap the objects to spin them.
+<p>Show <a href="https://github.com/artoolkitx/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/5.png">3x3 marker id 5</a>, <a href="https://github.com/artoolkitx/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/20.png">3x3 marker id 20</a>, <a href="https://github.com/artoolkitx/artoolkit5/blob/master/doc/patterns/Hiro%20pattern.pdf">Hiro pattern</a> and <a href="https://github.com/artoolkitx/artoolkit5/blob/master/doc/patterns/Kanji%20pattern.pdf">Kanji pattern</a> to camera to display a colorful objects on top of them. Tap the objects to spin them.
 
 <p>&larr; <a href="index.html">Back to examples</a></p>
 
@@ -73,14 +73,14 @@ window.ARThreeOnLoad = function() {
 				new THREE.SphereGeometry(1.0, 8, 8),
 				new THREE.MeshNormalMaterial()
 			);
-			sphere.material.shading = THREE.FlatShading;
+			sphere.material.flatShading;
 			sphere.position.z = 1.0;
 
 			var torus = new THREE.Mesh(
 				new THREE.TorusGeometry(0.3*2.5, 0.2*2.0, 8, 8),
 				new THREE.MeshNormalMaterial()
 			);
-			torus.material.shading = THREE.FlatShading;
+			torus.material.flatShading;
 			torus.position.z = 1.25;
 			torus.rotation.x = Math.PI/2;
 
@@ -88,14 +88,14 @@ window.ARThreeOnLoad = function() {
 				new THREE.BoxGeometry(1,1,1),
 				new THREE.MeshNormalMaterial()
 			);
-			cube.material.shading = THREE.FlatShading;
+			cube.material.flatShading;
 			cube.position.z = 0.5;
 
 			var icosahedron = new THREE.Mesh(
 				new THREE.IcosahedronGeometry(0.7, 1, 1),
 				new THREE.MeshNormalMaterial()
 			);
-			icosahedron.material.shading = THREE.FlatShading;
+			icosahedron.material.flatShading;
 			icosahedron.position.z = 0.7;
 
 			var markerRoot = arController.createThreeBarcodeMarker(5, 1);

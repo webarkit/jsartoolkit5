@@ -1,32 +1,44 @@
 {
   "name": "jsartoolkit",
-  "version": "0.0.0",
+  "version": "5.5.139",
+  "main": "js/index",
+  "typings": "js/index",
   "description": "Emscripten port of ARToolKit to JavaScript",
   "keywords": [
     "ARToolKit",
     "AR",
-    "Augmented Reality"
+    "Augmented Reality",
+    "WebAR",
+    "JavaScript"
   ],
-  "author": "ARToolKit (https://github.com/artoolkit)",
-  "repository": "git://https://github.com/artoolkit/jsartoolkit5.git",
-  "homepage": "https://github.com/artoolkit/jsartoolkit5",
+  "author": "ARToolKit (https://github.com/artoolkitx/artoolkit5)",
+  "repository": "git://https://github.com/artoolkitx/jsartoolkit5.git",
+  "homepage": "https://github.com/artoolkitx/jsartoolkit5",
   "contributors": [
-    "Github Contributors (https://github.com/artoolkit/jsartoolkit5/graphs/contributors)"
+    "Github Contributors (https://github.com/artoolkitx/jsartoolkit5/graphs/contributors)"
   ],
   "bugs": {
-    "url": "https://github.com/artoolkit/jsartoolkit5/issues"
+    "url": "https://github.com/artoolkitx/jsartoolkit5/issues"
   },
-  "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.5",
+    "grunt-cli": "^1.2.0",
     "grunt-jsdoc": "^1.1.0",
+    "http-server": "^0.10.0",
     "ink-docstrap": "^1.1.4",
     "jsdoc": "^3.4.0",
-    "watch": "^0.18.0"
+    "opener": "^1.4.3",
+    "qunit": "^2.4.1",
+    "watch": "^0.18.0",
+    "json2csv": "^4.1.5"
   },
   "scripts": {
-    "build": "node tools/makem.js; echo Built at `date`",
-    "watch": "./node_modules/.bin/watch 'npm run build' ./js/"
+    "build-local": "node tools/makem.js; echo Built at `date`",
+    "build-local-no-libar": "node tools/makem.js --no-libar; echo Built at `date`",
+    "watch": "./node_modules/.bin/watch 'npm run build' ./js/",
+    "create-doc": "grunt jsdoc",
+    "test": "http-server -p 8085",
+    "open-test": "opener http://localhost:8085/tests/index.html"
   },
   "license": "LGPL-3.0"
 }

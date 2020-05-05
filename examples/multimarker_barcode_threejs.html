@@ -23,12 +23,13 @@ html,body {
 
 <h1>Barcode multimarker example with Three.js</h1>
 <p>On Chrome on Android, tap the screen to start playing video stream.</p>
-<p>Show <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Multi%20pattern%204x3%20(A4).pdf">Multi pattern 4x3</a> to camera to display objects on top of it.
+<p>Show <a href="https://github.com/artoolkitx/artoolkit5/blob/master/doc/patterns/Multi%20pattern%204x3%20(A4).pdf">Multi pattern 4x3</a> to camera to display objects on top of it.
 
 <p>&larr; <a href="index.html">Back to examples</a></p>
 
-<script async src="../build/artoolkit.min.js"></script>
+<script async src="../build/artoolkit.debug.js"></script>
 <script async src="js/third_party/three.js/three.min.js"></script>
+<script async src="../js/artoolkit.api.js"></script>
 <script async src="../js/artoolkit.three.js"></script>
 
 <script>
@@ -114,7 +115,7 @@ window.ARThreeOnLoad = function() {
 					rotationV += (rotationTarget - greenCube.rotation.z) * 0.1;
 					greenCube.rotation.z += rotationV;
 					rotationV *= 0.85;
-					
+
 					arScene.process();
 					arScene.renderOn(renderer);
 				};

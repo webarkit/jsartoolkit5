@@ -23,11 +23,11 @@ html,body {
 
 <h1>Barcode marker example with Three.js</h1>
 <p>On Chrome on Android, tap the screen to start playing video stream.</p>
-<p>Show <a href="https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/20.png">3x3 marker id 20</a> to camera to display a colorful sphere on top of it. Tap the sphere to rotate it.
+<p>Show <a href="https://github.com/artoolkitx/artoolkit5/blob/master/doc/patterns/Matrix%20code%203x3%20(72dpi)/20.png">3x3 marker id 20</a> to camera to display a colorful sphere on top of it. Tap the sphere to rotate it.
 
 <p>&larr; <a href="index.html">Back to examples</a></p>
 
-<script src="../build/artoolkit.debug.js"></script>
+<script async src="../build/artoolkit.debug.js"></script>
 <script src="../js/artoolkit.api.js"></script>
 <script async src="js/third_party/three.js/three.min.js"></script>
 <script async src="../js/artoolkit.three.js"></script>
@@ -36,7 +36,7 @@ html,body {
 
 window.ARThreeOnLoad = function() {
 
-	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat', 
+	ARController.getUserMediaThreeScene({maxARVideoSize: 320, cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
 	onSuccess: function(arScene, arController, arCamera) {
 
 		document.body.className = arController.orientation;
@@ -67,7 +67,7 @@ window.ARThreeOnLoad = function() {
 			new THREE.SphereGeometry(0.5, 8, 8),
 			new THREE.MeshNormalMaterial()
 		);
-		sphere.material.shading = THREE.FlatShading;
+		sphere.material.flatShading;
 		sphere.position.z = 0.5;
 		markerRoot.add(sphere);
 		arScene.scene.add(markerRoot);
