@@ -28,3 +28,18 @@ jobs:
     - run: npm install
     - run: docker run -dit --name emscripten -v $(pwd):/src trzeci/emscripten-slim:latest bash
     - run: docker exec emscripten npm run build-local
+    - name: Github Release
+    # You may pin to the exact commit or the version.
+   # uses: elgohr/Github-Release-Action@ed9ebd01a0c57e64e948e7f2ff59c0159e52c204
+      uses: elgohr/Github-Release-Action@v3.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with: 
+      # The name of the release to publish
+        release: "Fantail"
+    - name: GitHub Release artefact
+      uses: fnkr/github-action-ghr@v1.3
+      env: 
+          GHR_COMPRESS: zip
+          GHR_PATH: build/
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
