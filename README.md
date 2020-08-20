@@ -1,4 +1,6 @@
-# ARToolKit.js
+# ARToolKit5.js
+
+Build status: [![Build Status](https://app.bitrise.io/app/bbff1fa47956a07b/status.svg?token=3aG2Y48aeWas-J1az9hB7A&branch=master)](https://app.bitrise.io/app/bbff1fa47956a07b)
 
 Emscripten port of [ARToolKit](https://github.com/artoolkitx/artoolkit5) to JavaScript.
 
