@@ -31,7 +31,7 @@ jobs:
       uses: meeDamian/github-release@2.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.ref }}
+        tag: v6.0.$GITHUB_RUN_NUMBER
         name: Release $GITHUB_RUN_NUMBER
         body: GitHub Actions release
         gzip: true
