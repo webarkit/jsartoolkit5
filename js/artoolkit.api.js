@@ -572,17 +572,24 @@
 
 		arController.loadNFTMarker(markerURL, onSuccess, onError);
 
-		@param {string} markerURL - The URL prefix of the NFT markers to load.
+		@param {string} markerURLs - List of The URL prefix of the NFT markers to load.
 		@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
 		@param {function} onError - The error callback. Called with the encountered error if the load fails.
 	*/
-    ARController.prototype.loadNFTMarker = function (markerURL, onSuccess, onError) {
+    ARController.prototype.loadNFTMarkers = function (markerURLs, onSuccess, onError) {
         var self = this;
+        artoolkit.addNFTMarkers(this.id, markerURLs, function(ids) {
+            self.nftMarkerCount += ids.length;
+            onSuccess(ids);
+        }, onError);
+    };
+
+    // backward compatible for loading single marker. can use loadNFTMarkers instead
+    ARController.prototype.loadNFTMarker = function (markerURL, onSuccess, onError) {
         if (markerURL) {
-          return artoolkit.addNFTMarker(this.id, markerURL, function (id) {
-              self.nftMarkerCount = id + 1;
-              onSuccess(id);
-          }, onError);
+            this.loadNFTMarkers([markerURL], function(ids) {
+              onSuccess(ids[0]);
+            }, onError)
         } else {
           if (onError) {
               onError("Marker URL needs to be defined and not equal empty string!");
@@ -1791,7 +1798,7 @@
 
         addMarker: addMarker,
         addMultiMarker: addMultiMarker,
-        addNFTMarker: addNFTMarker
+        addNFTMarkers: addNFTMarkers
 
     };
 
@@ -1878,20 +1885,44 @@
         }, function (errorNumber) { if (onError) onError(errorNumber) });
     }
 
-    function addNFTMarker(arId, url, callback, onError) {
-        var mId = marker_count++;
-        var prefix = '/markerNFT_' + mId;
-        var filename1 = prefix + '.fset';
-        var filename2 = prefix + '.iset';
-        var filename3 = prefix + '.fset3';
-        ajax(url + '.fset', filename1, function () {
-            ajax(url + '.iset', filename2, function () {
-                ajax(url + '.fset3', filename3, function () {
-                    var id = Module._addNFTMarker(arId, prefix);
-                    if (callback) callback(id);
-                }, function (errorNumber) { if (onError) onError(errorNumber) });
-            }, function (errorNumber) { if (onError) onError(errorNumber) });
-        }, function (errorNumber) { if (onError) onError(errorNumber) });
+    function addNFTMarkers(arId, urls, callback, onError) {
+        var prefixes = [];
+        var pending = urls.length * 3;
+        var onSuccess = (filename) => {
+            pending -= 1;
+            if (pending === 0) {
+                const vec = new Module.StringList();
+                const markerIds = [];
+                for (let i = 0; i < prefixes.length; i++) {
+                    vec.push_back(prefixes[i]);
+                }
+                var ret = Module._addNFTMarkers(arId, vec);
+                for (let i = 0; i < ret.size(); i++) {
+                    markerIds.push(ret.get(i));
+                }
+
+                console.log("add nft marker ids: ", markerIds);
+                if (callback) callback(markerIds);
+            }
+        }
+        var onError = (filename, errorNumber) => {
+            console.log("failed to load: ", filename);
+            onError(errorNumber);
+        }
+
+        for (var i = 0; i < urls.length; i++) {
+            var url = urls[i];
+            var prefix = '/markerNFT_' + marker_count;
+            prefixes.push(prefix);
+            var filename1 = prefix + '.fset';
+            var filename2 = prefix + '.iset';
+            var filename3 = prefix + '.fset3';
+
+            ajax(url + '.fset', filename1, onSuccess.bind(filename1), onError.bind(filename1));
+            ajax(url + '.iset', filename2, onSuccess.bind(filename2), onError.bind(filename2));
+            ajax(url + '.fset3', filename3, onSuccess.bind(filename3), onError.bind(filename3));
+            marker_count += 1;
+        }
     }
 
     function bytesToString(array) {
