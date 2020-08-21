@@ -1,6 +1,6 @@
 # ARToolKit5.js
 
-Build status: ![Build jsartoolkit](https://github.com/webarkit/jsartoolkit5/workflows/Build%20jsartoolkit/badge.svg?branch=master)(https://app.bitrise.io/app/bbff1fa47956a07b)
+Build status: ![Build jsartoolkit](https://github.com/webarkit/jsartoolkit5/workflows/Build%20jsartoolkit/badge.svg?branch=master)
 
 Emscripten port of [ARToolKit](https://github.com/artoolkitx/artoolkit5) to JavaScript.
 
