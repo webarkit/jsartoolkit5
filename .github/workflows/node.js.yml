@@ -26,13 +26,17 @@ jobs:
     - run: npm install
     - run: docker run -dit --name emscripten -v $(pwd):/src trzeci/emscripten-slim:latest bash
     - run: docker exec emscripten npm run build-local
-      
+    - name: Generate build number
+      id: buildnumber
+      uses: einaregilsson/build-number@v2 
+      with:
+        token: ${{secrets.github_token}}  
     - name: Create Release
       uses: meeDamian/github-release@2.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: v6.0.$GITHUB_RUN_NUMBER
-        name: Release $GITHUB_RUN_NUMBER
+        tag: v6.0.${{ steps.buildnumber.outputs.build_number }}
+        name: Release ${{ steps.buildnumber.outputs.build_number }}
         body: GitHub Actions release
         gzip: true
         files: ./build
