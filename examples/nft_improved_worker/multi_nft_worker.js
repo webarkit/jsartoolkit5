@@ -163,10 +163,6 @@ function start(markerUrls, video, input_width, input_height, canvas_draw, render
                     found(null);
                     break;
                 }
-                case "markerId": {
-                    sendId(msg);
-                    break;
-                }
             }
             track_update();
             process();
