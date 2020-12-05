@@ -118,7 +118,6 @@
                   console.log( 'video', video, video.videoWidth, video.videoHeight );
 
                   start(
-                      container,
                       markers['pinball'],
                       video,
                       video.videoWidth,
@@ -129,8 +128,7 @@
                       },
                       function() {
                           statsWorker.update();
-                      },
-                      null
+                      }
                   );
               } );
           } );

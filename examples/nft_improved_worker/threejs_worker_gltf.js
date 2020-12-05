@@ -45,7 +45,7 @@ var setMatrix = function (matrix, value) {
     }
 };
 
-function start( container, marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
+function start(marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
     var vw, vh;
     var sw, sh;
     var pscale, sscale;

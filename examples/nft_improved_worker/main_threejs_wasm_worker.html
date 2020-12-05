@@ -118,7 +118,6 @@ var canvas = document.getElementById( 'canvas' );
 							console.log( 'video', video, video.videoWidth, video.videoHeight );
 
 							start(
-									container,
 									markers['pinball'],
 									video,
 									video.videoWidth,
@@ -129,8 +128,7 @@ var canvas = document.getElementById( 'canvas' );
 									},
 									function() {
 											statsWorker.update();
-									},
-									null
+									}
 							);
 					} );
 			} );
