@@ -65,6 +65,11 @@ function start(container, markerUrls, video, input_width, input_height, canvas_d
         new THREE.MeshNormalMaterial()
     );
 
+    var cone = new THREE.Mesh(
+        new THREE.ConeGeometry( 0.5, 1, 32 ),
+        new THREE.MeshNormalMaterial()
+    );
+
     var root = new THREE.Object3D();
     scene.add(root);
 
@@ -80,10 +85,17 @@ function start(container, markerUrls, video, input_width, input_height, canvas_d
     cube.position.y = 100;
     cube.scale.set(200, 200, 200);
 
+    cone.material.flatShading;
+    cone.rotation.x = 90;
+    cone.position.z = 0;
+    cone.position.x = 100;
+    cone.position.y = 100;
+    cone.scale.set(200, 200, 200);
+
     root.matrixAutoUpdate = false;
     root.add(sphere);
     root.add(cube);
-
+    root.add(cone);
    
     var load = function() {
         vw = input_width;
@@ -185,15 +197,23 @@ function start(container, markerUrls, video, input_width, input_height, canvas_d
         if (!world) {
                 sphere.visible = false;
                 cube.visible = false;
+                cone.visible = false;
         } else {
             if (index == 0) {
                 sphere.visible = true;
                 cube.visible = false;
+                cone.visible = false;
             }
             else if(index == 1) {
                 sphere.visible = false;
                 cube.visible = true;
-            }      
+                cone.visible = false;
+            }
+            else if(index == 2) {
+                sphere.visible = false;
+                cube.visible = false;
+                cone.visible = true;
+            }    
                 // interpolate matrix
                 for (var i = 0; i < 16; i++) {
                     trackedMatrix.delta[i] = world[i] - trackedMatrix.interpolated[i];
