@@ -2,12 +2,17 @@
 <head>
     <title>NFT examples</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1">
+    <style>
+        a {
+            margin: 0.4rem;
+        }
+    </style>
 </head>
 
 <body>
     <link rel="stylesheet" href="../css/index.css">
     <h3>Jsartoolkit5 demos with ar2Tracking</h3>
-    <div>Image to recognize for the following examples <a href="https://github.com/artoolkitx/artoolkit5/blob/master/doc/Marker%20images/pinball.jpg">Pinball image</a></div>
+    <div>Image to recognize for the following examples <a href="../Data/pinball.jpg">Pinball image</a></div>
     <p>Examples:</p>
     <ul>
         <li><a href="threejs_worker_gltf.html">Show a 3D, animated model. Uses web worker. Has loader. Has interpolation.</a></li>
@@ -15,7 +20,17 @@
         <li><a href="main_threejs_wasm_worker.html">Show a 3D sphere. Uses web worker. Has loader. Has interpolation. Uses web assembly</a></li>
         <li><a href="main.html">Draw a red rectangle around the image. Single-threaded. No loader</a></li>
         <li><a href="main_worker.html">Draw a red rectangle around the image. Uses web worker. No loader</a></li>
-        <li><a href="multi_nft.html">Simple example with multi NFT markers</a></li>
     </ul>
+    <p>A simple multi NFT example. Use these images for tracking:  
+        <a href="../Data/pinball.jpg">Pinball</a>
+        <a href="../Data/chalk_multi.jpg">chalk_multi</a>
+        <a href="../Data/kuva.jpg">kuva</a>
+    </p>
+    <ul>
+        <li>
+            <a href="multi_nft.html">Simple example with multi NFT markers</a>
+        </li>
+    </ul>
+    
 </body>
 </html>
