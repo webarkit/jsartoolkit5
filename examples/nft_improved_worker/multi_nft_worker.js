@@ -122,7 +122,7 @@ function start(markerUrls, video, input_width, input_height, canvas_draw, render
 
         worker = new Worker('../../js/artoolkit.multi_worker.js');
 
-        worker.postMessage({ type: "load", pw: pw, ph: ph, camera_para: camera_para, marker: markerUrls });
+        worker.postMessage({ type: "load", pw: pw, ph: ph, camera_para: camera_para, markerUrls: markerUrls });
 
         worker.onmessage = function(ev) {
             var msg = ev.data;
