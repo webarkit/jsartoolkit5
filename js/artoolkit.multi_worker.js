@@ -33,9 +33,9 @@ function load(msg) {
             markerResult = {type: "found", index: JSON.stringify(ev.data.index),  matrixGL_RH: JSON.stringify(ev.data.matrixGL_RH), proj: JSON.stringify(cameraMatrix)};
         });
 
-        ar.loadNFTMarkers(msg.marker, function (markerId) {
-            ar.trackNFTMarkerId(markerId, 2);
-            console.log("loadNFTMarker -> ", markerId);
+        ar.loadNFTMarkers(msg.markerUrls, function (markerIds) {
+            ar.trackNFTMarkerId(markerIds, 2);
+            console.log("loadNFTMarker -> ", markerIds);
             postMessage({type: "endLoading", end: true})
         });
 
