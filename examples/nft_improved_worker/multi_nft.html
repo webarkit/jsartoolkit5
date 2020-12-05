@@ -120,7 +120,6 @@
                   var markerUrls = [ "../examples/DataNFT/pinball", "../examples/DataNFT/chalk_multi", "../examples/DataNFT/kuva" ]
 
                   start(
-                      container,
                       markerUrls,
                       video,
                       video.videoWidth,
@@ -131,8 +130,7 @@
                       },
                       function() {
                           statsWorker.update();
-                      },
-                      null
+                      }
                   );
               } );
           } );

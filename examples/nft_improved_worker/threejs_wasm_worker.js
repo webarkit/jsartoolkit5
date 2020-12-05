@@ -42,14 +42,14 @@ var setMatrix = function (matrix, value) {
 };
 
 //var worker;
-function start(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
+function start(marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
     worker = new Worker('wasm_worker/artoolkit.wasm_worker.js');
     worker.onmessage = function(ev) {
-        start2(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update);
+        start2(marker, video, input_width, input_height, canvas_draw, render_update, track_update);
     }
 }
 
-function start2(container, marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
+function start2(marker, video, input_width, input_height, canvas_draw, render_update, track_update) {
     var vw, vh;
     var sw, sh;
     var pscale, sscale;
