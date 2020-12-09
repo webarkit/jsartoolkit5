@@ -34,7 +34,7 @@ var setMatrix = function (matrix, value) {
 
 //var worker;
 function start(markerUrls, video, input_width, input_height, canvas_draw, render_update, track_update) {
-    worker = new Worker('wasm_worker/artoolkit.wasm_worker.js');
+    worker = new Worker('wasm_worker/artoolkit.wasm_multi_worker.js');
     worker.onmessage = function(ev) {
         start2(markerUrls, video, input_width, input_height, canvas_draw, render_update, track_update);
     }
@@ -48,7 +48,7 @@ function start2(markerUrls, video, input_width, input_height, canvas_draw, rende
     var pw, ph;
     var ox, oy;
     var worker;
-    var camera_para = './../examples/Data/camera_para.dat'
+    var camera_para = './../../Data/camera_para.dat'
 
     var canvas_process = document.createElement('canvas');
     var context_process = canvas_process.getContext('2d');
@@ -128,7 +128,6 @@ function start2(markerUrls, video, input_width, input_height, canvas_draw, rende
 
         renderer.setSize(sw, sh);
 
-        worker = new Worker('../../js/artoolkit.multi_worker.js');
 
         worker.postMessage({ type: "load", pw: pw, ph: ph, camera_para: camera_para, markerUrls: markerUrls });
 
