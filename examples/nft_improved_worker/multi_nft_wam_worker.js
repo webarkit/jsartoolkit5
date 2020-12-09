@@ -47,7 +47,6 @@ function start2(markerUrls, video, input_width, input_height, canvas_draw, rende
     var w, h;
     var pw, ph;
     var ox, oy;
-    var worker;
     var camera_para = './../../Data/camera_para.dat'
 
     var canvas_process = document.createElement('canvas');
