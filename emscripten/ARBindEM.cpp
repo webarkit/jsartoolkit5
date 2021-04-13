@@ -15,6 +15,8 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	function("_addMultiMarker", &addMultiMarker);
 	function("_addNFTMarkers", &addNFTMarkers);
 
+	function("_decompressZFT", &decompressZFT);
+
 	function("getMultiMarkerNum", &getMultiMarkerNum);
 	function("getMultiMarkerCount", &getMultiMarkerCount);
 

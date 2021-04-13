@@ -134,7 +134,7 @@ function start(marker, video, input_width, input_height, canvas_draw, render_upd
             pw: pw,
             ph: ph,
             camera_para: camera_para,
-            marker: marker.url
+            marker: marker.url,
         });
 
         worker.onmessage = function(ev) {

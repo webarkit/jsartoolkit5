@@ -25,6 +25,7 @@
 #include <AR/video.h>
 #include <KPM/kpm.h>
 #include "trackingMod.h"
+#include "markerDecompress.h"
 
 #define PAGES_MAX               10          // Maximum number of pages expected. You can change this down (to save memory) or up (to accomodate more pages.)
 
@@ -449,6 +450,12 @@ extern "C" {
 		}
 
 		return arc->patt_id;
+	}
+
+	int decompressZFT(std::string datasetPathname, std::string tempPathname){
+		int response = decompressMarkers(datasetPathname.c_str(), tempPathname.c_str());
+
+		return 1;
 	}
 
     std::vector<int> addNFTMarkers(int id, std::vector<std::string> &datasetPathnames) {

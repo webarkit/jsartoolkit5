@@ -52,6 +52,7 @@ var MAIN_SOURCES = [
 	'ARToolKitJS.cpp',
 	'trackingMod.c',
 	'trackingMod2d.c',
+    'markerDecompress.c'
 ];
 
 if (!fs.existsSync(path.resolve(ARTOOLKIT5_ROOT, 'include/AR/config.h'))) {
