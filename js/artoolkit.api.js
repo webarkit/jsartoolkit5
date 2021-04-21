@@ -1913,7 +1913,9 @@
         }
 
         var loadZFT = (prefix) => {
-            var prefixTemp = '/tempMarkerNFT';
+            let marker_num = prefix.substring(11);
+            var prefixTemp = '/tempMarkerNFT_' + marker_num;
+
             var response = Module._decompressZFT(prefix, prefixTemp);
 
             let contentIsetUint8 = FS.readFile(prefixTemp + '.iset');
@@ -1935,10 +1937,11 @@
             writeByteArrayToFS(prefix + '.fset', contentFset, function(){});
             writeByteArrayToFS(prefix + '.iset', contentIset, function(){});
             writeByteArrayToFS(prefix + '.fset3', contentFset3, function(){});
+
         }
 
-        var onSuccessZFT = () => {
-            loadZFT(prefix);
+        var onSuccessZFT = function(){
+            loadZFT(arguments[1]);
             onSuccess();
         }
 
@@ -1946,22 +1949,21 @@
             var url = urls[i];
             var prefix = '/markerNFT_' + marker_count;
             prefixes.push(prefix);
+
             var filename1 = prefix + '.fset';
             var filename2 = prefix + '.iset';
             var filename3 = prefix + '.fset3';
             var filename4 = prefix + '.zft';
 
             let type = checkZFT(url + '.zft');
-          
             if(type){
                 pending -= 2;
-                ajax(url + '.zft', filename4, onSuccessZFT.bind(prefix), onError.bind(filename4));
+                ajax(url + '.zft', filename4, onSuccessZFT, onError.bind(filename4), prefix);
             }else{
-                ajax(url + '.fset', filename1, onSuccess.bind(filename1), onError.bind(filename1));
-                ajax(url + '.iset', filename2, onSuccess.bind(filename2), onError.bind(filename2));
-                ajax(url + '.fset3', filename3, onSuccess.bind(filename3), onError.bind(filename3));
+                ajax(url + '.fset', filename1, onSuccess.bind(filename1), onError.bind(filename1), prefix);
+                ajax(url + '.iset', filename2, onSuccess.bind(filename2), onError.bind(filename2), prefix);
+                ajax(url + '.fset3', filename3, onSuccess.bind(filename3), onError.bind(filename3), prefix);
             }
-
             marker_count += 1;
         }
     }
@@ -2110,18 +2112,18 @@
         writeByteArrayToFS(target, byteArray, callback);
     }
 
-    function writeByteArrayToFS(target, byteArray, callback) {
+    function writeByteArrayToFS(target, byteArray, callback, prefix) {
         FS.writeFile(target, byteArray, { encoding: 'binary' });
         // console.log('FS written', target);
-
-        callback(byteArray);
+        
+        callback(byteArray, prefix);
     }
 
     // Eg.
     //	ajax('../bin/Data2/markers.dat', '/Data2/markers.dat', callback);
     //	ajax('../bin/Data/patt.hiro', '/patt.hiro', callback);
 
-    function ajax(url, target, callback, errorCallback) {
+    function ajax(url, target, callback, errorCallback, prefix) {
         var oReq = new XMLHttpRequest();
         oReq.open('GET', url, true);
         oReq.responseType = 'arraybuffer'; // blob arraybuffer
@@ -2131,7 +2133,7 @@
                 // console.log('ajax done for ', url);
                 var arrayBuffer = oReq.response;
                 var byteArray = new Uint8Array(arrayBuffer);
-                writeByteArrayToFS(target, byteArray, callback);
+                writeByteArrayToFS(target, byteArray, callback, prefix);
             }
             else {
                 errorCallback(this.status);

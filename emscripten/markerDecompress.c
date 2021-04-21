@@ -24,7 +24,7 @@ int decompressMarkers(const char* src, const char* outTemp){
     int filesize, ret;
     const char *ext = "zft";
     char *c = malloc (mem_size_4mb);
-
+    
     fp = openZFT(src, ext);
     if ( fp == NULL )
     {
@@ -67,7 +67,7 @@ int decompressMarkers(const char* src, const char* outTemp){
     extractDataAndSave(c, outTemp);
     
     free(c);
-    return 1;
+    return 0;
     // return markerData;
 }
 

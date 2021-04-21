@@ -38,7 +38,10 @@
     "watch": "./node_modules/.bin/watch 'npm run build' ./js/",
     "create-doc": "grunt jsdoc",
     "test": "http-server -p 8085",
-    "open-test": "opener http://localhost:8085/tests/index.html"
+    "open-test": "opener http://localhost:8085/tests/index.html",
+    "run-container": "docker start buildMain",
+    "stop-container": "docker stop buildMain",
+    "dockerBuild": "docker exec buildMain npm run build-local"
   },
   "license": "LGPL-3.0"
 }
